@@ -1,0 +1,87 @@
+﻿wwwroot
+
+
+# Visual Studio
+.vscode/
+.vs/
+.vscode/*
+.vs/*
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Auto-generated files
+*.ide*
+*.pyc
+__pycache__
+
+# Build output
+bin/
+obj/
+out/
+artifacts/
+
+# NuGet packages
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Entity Framework migrations
+Migrations/
+
+# Log files
+*.log
+
+# Visual Studio Code
+.vscode/*
+
+# Rider
+.idea/
+.idea/*
+.idea/*workspace.xml
+.idea/*tasks.xml
+.idea/*dictionaries
+.idea/*modules.xml
+.idea/.name
+.idea/libraries
+.idea/.rider-externalAnnotations
+.idea/.riderExternalBuild
+.idea/.idea/.ideaTools.xml
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# npm
+node_modules/
+
+# Typescript v1 declaration files
+typings/
+
+# Node.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# JavaScript package manager
+jspm_packages/
+
+# Resharper
+_ReSharper.Caches/
+*.DotSettings.user
+_ReSharper.Caches
+
+# Coverage Reports
+coverage/
+*.lcov
+
+# Others
+*.DS_Store
+*.env
