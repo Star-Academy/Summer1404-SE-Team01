@@ -27,11 +27,21 @@ public class Program
 
     private static (List<CourseGrade> courseGrades, List<Student> studentsData) FetchData()
     {
-        var scoresJson = File.ReadAllText(ScoresDataPath);
-        var grades = JsonSerializer.Deserialize<List<CourseGrade>>(scoresJson)!;
+        List<CourseGrade> grades = new();
+        List<Student> studentsInfo = new();
+        try
+        {
+            var scoresJson = File.ReadAllText(ScoresDataPath);
+            grades = JsonSerializer.Deserialize<List<CourseGrade>>(scoresJson)!;
 
-        var studentsJson = File.ReadAllText(StudentsDataPath);
-        var studentsInfo = JsonSerializer.Deserialize<List<Student>>(studentsJson)!;
+            var studentsJson = File.ReadAllText(StudentsDataPath);
+            studentsInfo = JsonSerializer.Deserialize<List<Student>>(studentsJson)!;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Environment.Exit(1);
+        }
 
         return (grades, studentsInfo);
     }
