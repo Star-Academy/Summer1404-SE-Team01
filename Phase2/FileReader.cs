@@ -8,12 +8,12 @@ class FileReader
         var docs = new Dictionary<string, string>();
         if (Directory.Exists(basePath))
         {
-            foreach (string filePath in Directory.GetFiles(basePath))
+            foreach (var filePath in Directory.GetFiles(basePath))
             {
 
 
-                string content = File.ReadAllText(filePath);
-                string docId = Path.GetFileName(filePath);
+                var content = File.ReadAllText(filePath);
+                var docId = Path.GetFileName(filePath);
 
                 docs[docId] = content;
 

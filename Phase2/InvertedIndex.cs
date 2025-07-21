@@ -7,7 +7,7 @@ class InvertedIndex
     private static SortedDictionary<string, SortedSet<string>> _invertedIndexMap = new SortedDictionary<string, SortedSet<string>>();
     private static SortedSet<string> _docIds;
 
-    public static SortedDictionary<string, SortedSet<string>> BuildIndexMap(Dictionary<string, string> docs)
+    public static void BuildIndexMap(Dictionary<string, string> docs)
     {
         foreach ((var docId, var content) in docs)
         {
@@ -28,13 +28,11 @@ class InvertedIndex
         }
 
         _docIds = new SortedSet<string>(docs.Keys);
-
-        return _invertedIndexMap;
     }
 
     public static SortedSet<string> SearchWord(string word)
     {
-        string upperWord = word.ToUpper();
+        var upperWord = word.ToUpper();
         _invertedIndexMap.TryGetValue(upperWord, out SortedSet<string>? result);
         return result ?? new SortedSet<string>();
     }
