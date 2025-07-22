@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Text.RegularExpressions;
-
-namespace FullTextSearch;
+﻿namespace FullTextSearch;
 
 class Program
 {
+    private const string DataSetPath = "EnglishData";
     static void Main(string[] args)
     {
         CreateInvertedIndex();
@@ -45,22 +40,11 @@ class Program
 
     private static void CreateInvertedIndex()
     {
-        string baseDir = Directory.GetParent(Environment.CurrentDirectory)!.Parent!.Parent!.FullName;
-        string englishDataDir = Path.Combine(baseDir, "EnglishData");
-
-        
-        var docs = FileReader.ReadAllFiles(englishDataDir);
-        var invertedIndexMap = InvertedIndex.ProcessFilesContent(docs);
-        
-        // foreach (var key in invertedIndexMap.Keys)
-        // {
-        //     Console.WriteLine(key);
-        //     Console.WriteLine(string.Join(", ", invertedIndexMap[key]));
-        //     
-        // }
+        var docs = FileReader.ReadAllFiles(DataSetPath);
+        _ = InvertedIndex.BuildIndexMap(docs);
 
     }
-    
+
     private static void SearchForSingleInput()
     {
         while (true)
@@ -94,5 +78,5 @@ class Program
         }
     }
 
-    
+
 }
