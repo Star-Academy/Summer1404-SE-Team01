@@ -41,7 +41,7 @@ class Program
     private static void CreateInvertedIndex()
     {
         var docs = FileReader.ReadAllFiles(DataSetPath);
-        _ = InvertedIndex.BuildIndexMap(docs);
+        InvertedIndex.BuildIndexMap(docs);
 
     }
 
