@@ -148,10 +148,8 @@ namespace FullTextSearch
 
                 try
                 {
-                    // Create specifications with the current query
                     var specifications = CreateSpecifications(query);
 
-                    // Initialize advanced search with these specifications
                     var advancedSearch = new InvertedIndexAdvancedSearch(
                         _invertedIndex,
                         _queryExtractor,
