@@ -1,4 +1,6 @@
 ﻿using FullTextSearch.InvertedIndex;
+using FullTextSearch.InvertedIndex.FilterSpecifications;
+using FullTextSearch.InvertedIndex.QueryBuilder;
 using FullTextSearch.InvertedIndex.SearchFeatures;
 using FullTextSearch.Services.FileReaderService;
 using FullTextSearch.Services.LoggerService;
@@ -12,20 +14,20 @@ namespace FullTextSearch
         private readonly IInvertedIndexBuilder _invertedIndex;
         private readonly ILogger _logger;
         private readonly ISearch _simpleSearch;
-        private readonly ISearch _advancedSearch;
+        private readonly IQueryExtractor _queryExtractor;
 
         public SearchApplication(
             IFileReader fileReader,
             IInvertedIndexBuilder invertedIndex,
             ILogger logger,
             ISearch simpleSearch,
-            ISearch advancedSearch)
+            IQueryExtractor queryExtractor)
         {
             _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
             _invertedIndex = invertedIndex ?? throw new ArgumentNullException(nameof(invertedIndex));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _simpleSearch = simpleSearch ?? throw new ArgumentNullException(nameof(simpleSearch));
-            _advancedSearch = advancedSearch ?? throw new ArgumentNullException(nameof(advancedSearch));
+            _queryExtractor = queryExtractor ?? throw new ArgumentNullException(nameof(queryExtractor));
         }
 
         public void Run()
@@ -90,7 +92,7 @@ namespace FullTextSearch
                     RunSearchLoop("word", SearchSingleWord);
                     break;
                 case "2":
-                    RunSearchLoop("query", SearchAdvancedQuery);
+                    RunAdvancedSearchLoop();
                     break;
                 default:
                     Console.WriteLine("Invalid option. Please try again.");
@@ -122,18 +124,63 @@ namespace FullTextSearch
                 catch (Exception ex)
                 {
                     _logger.LogError($"Search error: {ex.Message}");
+                    Console.WriteLine($"Error: {ex.Message}");
                 }
             }
+        }
+
+        private void RunAdvancedSearchLoop()
+        {
+            while (true)
+            {
+                Console.WriteLine("\nEnter an advanced query to search (or 'q' to return to menu):");
+                Console.WriteLine("Example: +apple -banana orange");
+                Console.Write("> ");
+                var query = Console.ReadLine()?.Trim();
+
+                if (query?.ToLower() == "q") break;
+
+                if (string.IsNullOrWhiteSpace(query))
+                {
+                    Console.WriteLine("Input cannot be empty");
+                    continue;
+                }
+
+                try
+                {
+                    // Create specifications with the current query
+                    var specifications = CreateSpecifications(query);
+
+                    // Initialize advanced search with these specifications
+                    var advancedSearch = new InvertedIndexAdvancedSearch(
+                        _invertedIndex,
+                        _queryExtractor,
+                        specifications);
+
+                    var results = advancedSearch.Search(query);
+                    DisplayResults(results);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Advanced search error: {ex.Message}");
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
+            }
+        }
+
+        private List<ISpecification> CreateSpecifications(string query)
+        {
+            return new List<ISpecification>
+            {
+                new NecessarySpecification(_simpleSearch, _queryExtractor, query),
+                new OptionalSpecification(_simpleSearch, _queryExtractor, query),
+                new ExcludedSpecification(_simpleSearch, _queryExtractor, query)
+            };
         }
 
         private IEnumerable<string> SearchSingleWord(string word)
         {
             return _simpleSearch.Search(word.ToUpper());
-        }
-
-        private IEnumerable<string> SearchAdvancedQuery(string query)
-        {
-            return _advancedSearch.Search(query);
         }
 
         private void DisplayResults(IEnumerable<string> results)
@@ -146,8 +193,11 @@ namespace FullTextSearch
                 return;
             }
 
-            Console.WriteLine($"Found {resultsList.Count} documents:");
-            Console.WriteLine(string.Join("\n", resultsList.Select((doc, index) => $"{index + 1}. {doc}")));
+            Console.WriteLine($"\nFound {resultsList.Count} documents:");
+            foreach (var (doc, index) in resultsList.Select((doc, index) => (doc, index + 1)))
+            {
+                Console.WriteLine($"{index}. {doc}");
+            }
         }
     }
 }

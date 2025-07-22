@@ -48,17 +48,11 @@ namespace FullTextSearch.InvertedIndex
             _simpleSearch = new InvertedIndexSimpleSearch(this);
 
             var queryExtractor = new QueryExtractor();
-            var necessarySpec = new NecessarySpecification(_simpleSearch);
-            var optionalSpec = new OptionalSpecification(_simpleSearch);
-            var excludedSpec = new ExcludedSpecification(_simpleSearch);
 
             _advancedSearch = new InvertedIndexAdvancedSearch(
                 this,
                 queryExtractor,
-                _simpleSearch,
-                necessarySpec,
-                optionalSpec,
-                excludedSpec);
+                new List<ISpecification>());
         }
 
         public IEnumerable<string> SearchWord(string word)

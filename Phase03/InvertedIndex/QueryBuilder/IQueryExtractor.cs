@@ -2,5 +2,5 @@
 
 public interface IQueryExtractor
 {
-    SearchQuery ExtractQueries(string query);
+    List<string> ExtractQueries(string query, string pattern);
 }

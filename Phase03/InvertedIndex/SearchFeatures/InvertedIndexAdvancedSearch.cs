@@ -5,45 +5,31 @@ namespace FullTextSearch.InvertedIndex.SearchFeatures;
 
 public class InvertedIndexAdvancedSearch : ISearch
 {
-    private readonly InvertedIndex _invertedIndex;
+    private readonly IInvertedIndexBuilder _invertedIndex;
     private readonly IQueryExtractor _queryExtractor;
-    private readonly ISpecification _necessarySpecification;
-    private readonly ISpecification _optionalSpecification;
-    private readonly ISpecification _excludedSpecification;
+    private readonly List<ISpecification> _specifications;
 
     public InvertedIndexAdvancedSearch(
-        InvertedIndex invertedIndex,
+        IInvertedIndexBuilder invertedIndex,
         IQueryExtractor queryExtractor,
-        ISearch simpleSearch,
-        ISpecification necessarySpecification,
-        ISpecification optionalSpecification,
-        ISpecification excludedSpecification)
+        List<ISpecification> specifications)
     {
         _invertedIndex = invertedIndex;
         _queryExtractor = queryExtractor;
-        _necessarySpecification = necessarySpecification;
-        _optionalSpecification = optionalSpecification;
-        _excludedSpecification = excludedSpecification;
+        _specifications = specifications;
+
     }
 
     public SortedSet<string> Search(string query)
     {
-        var searchQuery = _queryExtractor.ExtractQueries(query);
         var result = new SortedSet<string>(_invertedIndex.AllDocuments);
 
-        if (searchQuery.NecessaryWords.Count > 0)
+        foreach (var specification in _specifications)
         {
-            _necessarySpecification.FilterDocumentsByQuery(result, searchQuery.NecessaryWords);
-        }
-
-        if (searchQuery.OptionalWords.Count > 0)
-        {
-            _optionalSpecification.FilterDocumentsByQuery(result, searchQuery.OptionalWords);
-        }
-
-        if (searchQuery.ExcludedWords.Count > 0)
-        {
-            _excludedSpecification.FilterDocumentsByQuery(result, searchQuery.ExcludedWords);
+            if (specification.Keywords.Count > 0)
+            {
+                specification.FilterDocumentsByQuery(result, specification.Keywords);
+            }
         }
 
         return result;
