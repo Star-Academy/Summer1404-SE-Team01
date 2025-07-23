@@ -1,14 +1,11 @@
-﻿using FullTextSearch.InvertedIndex.SearchFeatures;
-using FullTextSearch.Services.TokenizerService;
+﻿using FullTextSearch.Services.TokenizerService;
 
 namespace FullTextSearch.InvertedIndex
 {
     public class InvertedIndex : IInvertedIndexBuilder
     {
         private readonly ITokenizer _tokenizer;
-        private SortedDictionary<string, SortedSet<string>> _invertedIndexMap;
-        private ISearch _simpleSearch;
-        private ISearch _advancedSearch;
+        private readonly SortedDictionary<string, SortedSet<string>> _invertedIndexMap;
 
         public SortedSet<string> AllDocuments { get; private set; }
         public SortedDictionary<string, SortedSet<string>> InvertedIndexMap => _invertedIndexMap;
@@ -16,25 +13,26 @@ namespace FullTextSearch.InvertedIndex
         public InvertedIndex(ITokenizer tokenizer)
         {
             _tokenizer = tokenizer;
-            _invertedIndexMap = new SortedDictionary<string, SortedSet<string>>();
-            AllDocuments = new SortedSet<string>();
+            _invertedIndexMap = new();
+            AllDocuments = new();
         }
 
         public void Build(Dictionary<string, string> documents)
         {
-            _invertedIndexMap = new SortedDictionary<string, SortedSet<string>>();
-            AllDocuments = new SortedSet<string>(documents.Keys);
+            AllDocuments = new(documents.Keys);
 
             foreach (var (docId, contents) in documents)
             {
                 var tokens = _tokenizer.Tokenize(contents);
                 foreach (var word in tokens)
                 {
-                    if (!_invertedIndexMap.ContainsKey(word))
+                    if (!_invertedIndexMap.TryGetValue(word, out SortedSet<string>? value))
                     {
-                        _invertedIndexMap[word] = new SortedSet<string>();
+                        value = new();
+                        _invertedIndexMap[word] = value;
                     }
-                    _invertedIndexMap[word].Add(docId);
+
+                    value.Add(docId);
                 }
             }
         }
