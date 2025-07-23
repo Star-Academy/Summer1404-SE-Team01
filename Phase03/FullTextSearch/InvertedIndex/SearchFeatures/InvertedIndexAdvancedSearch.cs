@@ -28,7 +28,7 @@ public class InvertedIndexAdvancedSearch : ISearch
         {
             if (specification.Keywords.Count > 0)
             {
-                specification.FilterDocumentsByQuery(result, specification.Keywords);
+                specification.FilterDocumentsByQuery(result);
             }
         }
 

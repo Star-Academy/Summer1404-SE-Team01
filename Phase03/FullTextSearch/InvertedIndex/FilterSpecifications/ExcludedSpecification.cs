@@ -4,26 +4,25 @@ using FullTextSearch.InvertedIndex.SearchFeatures;
 
 namespace FullTextSearch.InvertedIndex.FilterSpecifications;
 
-public class NecessarySpecification : ISpecification
+public class ExcludedSpecification : ISpecification
 {
     public List<string> Keywords { get; }
     private readonly ISearch _simpleSearch;
     private readonly IQueryExtractor _queryExtractor;
 
-    public NecessarySpecification(ISearch simpleSearch, IQueryExtractor queryExtractor, string query)
+    public ExcludedSpecification(ISearch simpleSearch, IQueryExtractor queryExtractor, string query)
     {
         _simpleSearch = simpleSearch ?? throw new ArgumentNullException(nameof(simpleSearch));
         _queryExtractor = queryExtractor ?? throw new ArgumentNullException(nameof(queryExtractor));
-        Keywords = _queryExtractor.ExtractQueries(query, @"^[^-+]\w+");
+        Keywords = _queryExtractor.ExtractQueries(query, @"^\-\w+");
     }
 
-    public void FilterDocumentsByQuery(SortedSet<string> documents, List<string> words)
+    public void FilterDocumentsByQuery(SortedSet<string> documents)
     {
-        foreach (var word in words)
+        foreach (var word in Keywords)
         {
             var currentDocIds = _simpleSearch.Search(word);
-
-            documents.IntersectWith(currentDocIds);
+            documents.ExceptWith(currentDocIds);
         }
     }
 }
