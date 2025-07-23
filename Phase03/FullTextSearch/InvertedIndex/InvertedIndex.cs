@@ -1,6 +1,4 @@
-﻿using FullTextSearch.InvertedIndex.FilterSpecifications;
-using FullTextSearch.InvertedIndex.QueryBuilder;
-using FullTextSearch.InvertedIndex.SearchFeatures;
+﻿using FullTextSearch.InvertedIndex.SearchFeatures;
 using FullTextSearch.Services.TokenizerService;
 
 namespace FullTextSearch.InvertedIndex
@@ -39,30 +37,6 @@ namespace FullTextSearch.InvertedIndex
                     _invertedIndexMap[word].Add(docId);
                 }
             }
-
-            InitializeSearchComponents();
-        }
-
-        private void InitializeSearchComponents()
-        {
-            _simpleSearch = new InvertedIndexSimpleSearch(this);
-
-            var queryExtractor = new QueryExtractor();
-
-            _advancedSearch = new InvertedIndexAdvancedSearch(
-                this,
-                queryExtractor,
-                new List<ISpecification>());
-        }
-
-        public IEnumerable<string> SearchWord(string word)
-        {
-            return _simpleSearch.Search(word);
-        }
-
-        public IEnumerable<string> AdvancedSearch(string query)
-        {
-            return _advancedSearch.Search(query);
         }
     }
 }
