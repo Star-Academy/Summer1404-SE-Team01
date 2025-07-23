@@ -1,0 +1,31 @@
+﻿
+
+using FullTextSearch.Exceptions;
+
+namespace FullTextSearch.Services.FileReaderService
+{
+
+    public class FileReader : IFileReader
+    {
+        public Dictionary<string, string> ReadAllFiles(string basePath)
+        {
+            if (!Directory.Exists(basePath))
+                throw new DirectoryNotFoundException(basePath);
+
+            var filePaths = Directory.GetFiles(basePath);
+            if (filePaths.Length == 0)
+                throw new EmptyDirectoryException(basePath);
+
+            var docs = new Dictionary<string, string>();
+
+            foreach (string filePath in filePaths)
+            {
+                string content = File.ReadAllText(filePath);
+                string docId = Path.GetFileName(filePath);
+                docs[docId] = content;
+            }
+
+            return docs;
+        }
+    }
+}   
