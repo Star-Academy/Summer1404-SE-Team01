@@ -1,6 +1,10 @@
-﻿wwwroot
-
+﻿# Custom files
 EnglishData/
+TestResults/
+*.lutignore
+*.lutconfig
+
+wwwroot
 
 
 # Visual Studio
