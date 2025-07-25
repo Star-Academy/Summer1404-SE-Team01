@@ -1,17 +1,16 @@
-﻿
-using FullTextSearch.InvertedIndex.QueryBuilder;
-using FullTextSearch.InvertedIndex.SearchFeatures;
+﻿using FullTextSearch.InvertedIndexDs.QueryBuilder;
+using FullTextSearch.InvertedIndexDs.SearchFeatures;
 
-namespace FullTextSearch.InvertedIndex.FilterSpecifications;
+namespace FullTextSearch.InvertedIndexDs.FilterSpecifications;
 
-public class ExcludedSpecification : ISpecification
+public class OptionalSpecification : ISpecification
 {
     public List<string> Keywords { get; }
     private readonly ISearch _simpleSearch;
     private readonly IQueryExtractor _queryExtractor;
-    private const string _pattern = @"^\-\w+";
+    private const string _pattern = @"^\+\w+";
 
-    public ExcludedSpecification(ISearch simpleSearch, IQueryExtractor queryExtractor, string query)
+    public OptionalSpecification(ISearch simpleSearch, IQueryExtractor queryExtractor, string query)
     {
         _simpleSearch = simpleSearch ?? throw new ArgumentNullException(nameof(simpleSearch));
         _queryExtractor = queryExtractor ?? throw new ArgumentNullException(nameof(queryExtractor));
@@ -20,10 +19,16 @@ public class ExcludedSpecification : ISpecification
 
     public void FilterDocumentsByQuery(SortedSet<string> documents)
     {
+        var optionalDocIds = new SortedSet<string>();
         foreach (var word in Keywords)
         {
             var currentDocIds = _simpleSearch.Search(word);
-            documents.ExceptWith(currentDocIds);
+            optionalDocIds.UnionWith(currentDocIds);
+        }
+
+        if (optionalDocIds.Count != 0)
+        {
+            documents.IntersectWith(optionalDocIds);
         }
     }
 }

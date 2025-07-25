@@ -1,20 +1,17 @@
 ﻿using FullTextSearch.Services.TokenizerService;
 
-namespace FullTextSearch.InvertedIndex
+namespace FullTextSearch.InvertedIndexDs
 {
     public class InvertedIndex : IInvertedIndexBuilder
     {
         private readonly ITokenizer _tokenizer;
-        private readonly SortedDictionary<string, SortedSet<string>> _invertedIndexMap;
-
+        public SortedDictionary<string, SortedSet<string>> InvertedIndexMap { get; private set; }
         public SortedSet<string> AllDocuments { get; private set; }
-        public SortedDictionary<string, SortedSet<string>> InvertedIndexMap => _invertedIndexMap;
 
         public InvertedIndex(ITokenizer tokenizer)
         {
             _tokenizer = tokenizer;
-            _invertedIndexMap = new();
-            AllDocuments = new();
+            InvertedIndexMap = new();
         }
 
         public void Build(Dictionary<string, string> documents)
@@ -26,10 +23,10 @@ namespace FullTextSearch.InvertedIndex
                 var tokens = _tokenizer.Tokenize(contents);
                 foreach (var word in tokens)
                 {
-                    if (!_invertedIndexMap.TryGetValue(word, out SortedSet<string>? value))
+                    if (!InvertedIndexMap.TryGetValue(word, out SortedSet<string>? value))
                     {
                         value = new();
-                        _invertedIndexMap[word] = value;
+                        InvertedIndexMap[word] = value;
                     }
 
                     value.Add(docId);

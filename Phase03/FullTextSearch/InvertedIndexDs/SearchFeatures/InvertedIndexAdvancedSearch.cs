@@ -1,6 +1,7 @@
-﻿using FullTextSearch.InvertedIndex.FilterSpecifications;
+﻿using FullTextSearch.InvertedIndexDs;
+using FullTextSearch.InvertedIndexDs.FilterSpecifications;
 
-namespace FullTextSearch.InvertedIndex.SearchFeatures;
+namespace FullTextSearch.InvertedIndexDs.SearchFeatures;
 
 public class InvertedIndexAdvancedSearch : ISearch
 {

@@ -1,4 +1,4 @@
-﻿namespace FullTextSearch.InvertedIndex.FilterSpecifications;
+﻿namespace FullTextSearch.InvertedIndexDs.FilterSpecifications;
 
 public interface ISpecification
 {

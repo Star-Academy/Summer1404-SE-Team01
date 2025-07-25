@@ -1,4 +1,4 @@
-﻿namespace FullTextSearch.InvertedIndex;
+﻿namespace FullTextSearch.InvertedIndexDs;
 
 public interface IInvertedIndexBuilder
 {

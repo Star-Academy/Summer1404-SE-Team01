@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace FullTextSearch.InvertedIndex.QueryBuilder
+namespace FullTextSearch.InvertedIndexDs.QueryBuilder
 {
     public class QueryExtractor : IQueryExtractor
     {

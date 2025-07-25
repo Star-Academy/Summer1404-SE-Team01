@@ -1,7 +1,7 @@
-﻿using FullTextSearch.InvertedIndex;
-using FullTextSearch.InvertedIndex.FilterSpecifications;
-using FullTextSearch.InvertedIndex.QueryBuilder;
-using FullTextSearch.InvertedIndex.SearchFeatures;
+﻿using FullTextSearch.InvertedIndexDs;
+using FullTextSearch.InvertedIndexDs.FilterSpecifications;
+using FullTextSearch.InvertedIndexDs.QueryBuilder;
+using FullTextSearch.InvertedIndexDs.SearchFeatures;
 using FullTextSearch.Services.FileReaderService;
 using FullTextSearch.Services.LoggerService;
 
