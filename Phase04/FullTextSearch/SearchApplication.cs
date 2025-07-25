@@ -1,14 +1,12 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using FullTextSearch.InvertedIndex;
-using FullTextSearch.InvertedIndex.FilterSpecifications;
-using FullTextSearch.InvertedIndex.QueryBuilder;
-using FullTextSearch.InvertedIndex.SearchFeatures;
+﻿using FullTextSearch.InvertedIndexDs;
+using FullTextSearch.InvertedIndexDs.FilterSpecifications;
+using FullTextSearch.InvertedIndexDs.QueryBuilder;
+using FullTextSearch.InvertedIndexDs.SearchFeatures;
 using FullTextSearch.Services.FileReaderService;
 using FullTextSearch.Services.LoggerService;
 
 namespace FullTextSearch
 {
-    [ExcludeFromCodeCoverage]
     public class SearchApplication
     {
         private const string DataSetPath = "EnglishData";
@@ -64,6 +62,7 @@ namespace FullTextSearch
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
+                Environment.Exit(1);
             }
 
         }
@@ -161,7 +160,6 @@ namespace FullTextSearch
 
                     var advancedSearch = new InvertedIndexAdvancedSearch(
                         _invertedIndex,
-                        _queryExtractor,
                         specifications);
 
                     var results = advancedSearch.Search(query);

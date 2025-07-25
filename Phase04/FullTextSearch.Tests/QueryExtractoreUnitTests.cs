@@ -1,7 +1,5 @@
-﻿using Xunit;
-using FluentAssertions;
-using System.Collections.Generic;
-using FullTextSearch.InvertedIndex.QueryBuilder;
+﻿using FluentAssertions;
+using FullTextSearch.InvertedIndexDs.QueryBuilder;
 
 namespace FullTextSearch.Tests;
 
@@ -10,7 +8,7 @@ public class QueryExtractorTests
     private readonly QueryExtractor _extractor = new();
 
     [Fact]
-    public void ExtractQueries_ShouldReturnWords_StartingWithMinus()
+    public void ExtractQueries_ShouldReturn_ExcludedWords()
     {
         var query = "apple -banana -carrot +date";
         var pattern = @"^\-\w+";
@@ -18,6 +16,17 @@ public class QueryExtractorTests
         var result = _extractor.ExtractQueries(query, pattern);
 
         result.Should().BeEquivalentTo(new List<string> { "-BANANA", "-CARROT" });
+    }
+
+    [Fact]
+    public void ExtractQueries_ShouldReturn_NecessaryWords()
+    {
+        var query = "apple +banana -carrot +date";
+        var pattern = @"^\+\w+";
+
+        var result = _extractor.ExtractQueries(query, pattern);
+
+        result.Should().BeEquivalentTo(new List<string> { "+BANANA", "+DATE" });
     }
 
     [Fact]
@@ -29,17 +38,6 @@ public class QueryExtractorTests
         var result = _extractor.ExtractQueries(query, pattern);
 
         result.Should().BeEquivalentTo(new List<string> { "APPLE", "DELTA", "ECHO" });
-    }
-
-    [Fact]
-    public void ExtractQueries_ShouldReturnWords_StartingWithPlus()
-    {
-        var query = "apple +banana -carrot +date";
-        var pattern = @"^\+\w+";
-
-        var result = _extractor.ExtractQueries(query, pattern);
-
-        result.Should().BeEquivalentTo(new List<string> { "+BANANA", "+DATE" });
     }
 
     [Fact]

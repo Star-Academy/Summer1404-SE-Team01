@@ -1,8 +1,7 @@
-﻿
-using FullTextSearch.InvertedIndex.QueryBuilder;
-using FullTextSearch.InvertedIndex.SearchFeatures;
+﻿using FullTextSearch.InvertedIndexDs.QueryBuilder;
+using FullTextSearch.InvertedIndexDs.SearchFeatures;
 
-namespace FullTextSearch.InvertedIndex.FilterSpecifications;
+namespace FullTextSearch.InvertedIndexDs.FilterSpecifications;
 
 public class ExcludedSpecification : ISpecification
 {

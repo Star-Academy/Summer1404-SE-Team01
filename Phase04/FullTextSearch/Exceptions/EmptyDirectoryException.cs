@@ -1,8 +1,5 @@
 ﻿namespace FullTextSearch.Exceptions;
 
-public class EmptyDirectoryException : Exception
+public class EmptyDirectoryException(string message) : Exception(message)
 {
-    public EmptyDirectoryException(string dir) : base($"Directory {dir} is empty.")
-    {
-    }
 }

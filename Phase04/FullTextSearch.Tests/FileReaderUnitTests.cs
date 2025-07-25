@@ -1,34 +1,28 @@
-﻿
-using NSubstitute;
-
-using FluentAssertions;
+﻿using FluentAssertions;
+using FullTextSearch.Exceptions;
 using FullTextSearch.Services.FileReaderService;
-using FullTextSearch.Services.LoggerService;
-using NSubstitute.ExceptionExtensions;
 
 namespace FullTextSearch.Tests;
 
 public class FileReaderTests
 {
     private readonly string _testDir;
+    private readonly FileReader _reader;
 
     public FileReaderTests()
     {
-        
-        _testDir = "test_files";
+        _testDir = "testDir";
         Directory.CreateDirectory(_testDir);
-
-        File.WriteAllText(Path.Combine(_testDir, "A.txt"), "a");
-        File.WriteAllText(Path.Combine(_testDir, "B.txt"), "b");
-        File.WriteAllText(Path.Combine(_testDir, "C.txt"), "c");
+        _reader = new FileReader();
     }
 
     [Fact]
     public void ReadAllFiles_ShouldReturnCorrectContents()
     {
-        var reader = new FileReader();
-
-        var result = reader.ReadAllFiles(_testDir);
+        File.WriteAllText(Path.Combine(_testDir, "A.txt"), "a");
+        File.WriteAllText(Path.Combine(_testDir, "B.txt"), "b");
+        File.WriteAllText(Path.Combine(_testDir, "C.txt"), "c");
+        var result = _reader.ReadAllFiles(_testDir);
 
         result.Should().HaveCount(3);
         result.Should().ContainKey("A.txt").WhoseValue.Should().Be("a");
@@ -39,23 +33,21 @@ public class FileReaderTests
     [Fact]
     public void ReadAllFiles_ThrowException_WhenDirectoryDoesNotExist()
     {
-        var reader = new FileReader();
         var nonExistentPath = Path.Combine(_testDir, "not_found");
-        
-        reader.Invoking(r => r.ReadAllFiles(nonExistentPath))
-            .Should().Throw<DirectoryNotFoundException>()
-            .WithMessage($"Directory not found: {nonExistentPath}");
+
+        Action act = () => _reader.ReadAllFiles(nonExistentPath);
+
+        act.Should().Throw<DirectoryNotFoundException>().WithMessage($"Directory {nonExistentPath} not found!");
     }
 
     [Fact]
     public void ReadAllFiles_ShouldThrowException_WhenDirectoryIsEmpty()
     {
-        var reader = new FileReader();
-        
-        var emptyDirectory = Path.Combine(_testDir, "fake.txt");
+        var emptyDir = "empty";
+        Directory.CreateDirectory(emptyDir);
 
-        var result = reader.ReadAllFiles(emptyDirectory);
+        Action act = () => _reader.ReadAllFiles(emptyDir);
 
-        result.Should().BeEmpty();
+        act.Should().Throw<EmptyDirectoryException>().WithMessage($"Directory {emptyDir} is empty.");
     }
 }

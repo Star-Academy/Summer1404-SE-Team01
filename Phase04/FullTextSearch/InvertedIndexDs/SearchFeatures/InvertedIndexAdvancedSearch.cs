@@ -1,21 +1,17 @@
-﻿using FullTextSearch.InvertedIndex.FilterSpecifications;
-using FullTextSearch.InvertedIndex.QueryBuilder;
+﻿using FullTextSearch.InvertedIndexDs.FilterSpecifications;
 
-namespace FullTextSearch.InvertedIndex.SearchFeatures;
+namespace FullTextSearch.InvertedIndexDs.SearchFeatures;
 
 public class InvertedIndexAdvancedSearch : ISearch
 {
     private readonly IInvertedIndexBuilder _invertedIndex;
-    private readonly IQueryExtractor _queryExtractor;
     private readonly List<ISpecification> _specifications;
 
     public InvertedIndexAdvancedSearch(
         IInvertedIndexBuilder invertedIndex,
-        IQueryExtractor queryExtractor,
         List<ISpecification> specifications)
     {
         _invertedIndex = invertedIndex;
-        _queryExtractor = queryExtractor;
         _specifications = specifications;
 
     }

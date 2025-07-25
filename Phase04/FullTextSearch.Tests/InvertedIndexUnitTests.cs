@@ -1,20 +1,19 @@
-﻿using FullTextSearch.InvertedIndex;
-using FluentAssertions;
-using NSubstitute;
-
+﻿using FluentAssertions;
+using FullTextSearch.InvertedIndexDs;
 using FullTextSearch.Services.TokenizerService;
+using NSubstitute;
 
 namespace FullTextSearch.Tests;
 public class InvertedIndexUnitTests
 {
-    
+
     private readonly ITokenizer _tokenizer;
-    private readonly IInvertedIndexBuilder _invertedIndexBuilder;
+    private readonly InvertedIndex _invertedIndex;
 
     public InvertedIndexUnitTests()
     {
         _tokenizer = Substitute.For<ITokenizer>();
-        _invertedIndexBuilder = new InvertedIndex.InvertedIndex(_tokenizer);
+        _invertedIndex = new InvertedIndex(_tokenizer);
     }
 
 
@@ -32,9 +31,9 @@ public class InvertedIndexUnitTests
         _tokenizer.Tokenize("banana carrot").Returns(new[] { "BANANA", "CARROT" });
         _tokenizer.Tokenize("apple carrot").Returns(new[] { "APPLE", "CARROT" });
 
-        _invertedIndexBuilder.Build(docs);
+        _invertedIndex.Build(docs);
 
-        var indexMap = _invertedIndexBuilder.InvertedIndexMap;
+        var indexMap = _invertedIndex.InvertedIndexMap;
 
         indexMap.Should().ContainKey("APPLE").WhoseValue.Should().BeEquivalentTo("doc1", "doc3");
         indexMap.Should().ContainKey("BANANA").WhoseValue.Should().BeEquivalentTo("doc1", "doc2");

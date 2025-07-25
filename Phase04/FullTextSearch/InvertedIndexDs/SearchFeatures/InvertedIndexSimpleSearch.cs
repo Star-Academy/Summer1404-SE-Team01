@@ -1,4 +1,4 @@
-﻿namespace FullTextSearch.InvertedIndex.SearchFeatures;
+﻿namespace FullTextSearch.InvertedIndexDs.SearchFeatures;
 
 public class InvertedIndexSimpleSearch : ISearch
 {

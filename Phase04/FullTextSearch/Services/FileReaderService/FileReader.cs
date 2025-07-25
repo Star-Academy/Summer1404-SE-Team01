@@ -1,6 +1,4 @@
-﻿
-
-using FullTextSearch.Exceptions;
+﻿using FullTextSearch.Exceptions;
 
 namespace FullTextSearch.Services.FileReaderService
 {
@@ -10,11 +8,11 @@ namespace FullTextSearch.Services.FileReaderService
         public Dictionary<string, string> ReadAllFiles(string basePath)
         {
             if (!Directory.Exists(basePath))
-                throw new DirectoryNotFoundException(basePath);
+                throw new DirectoryNotFoundException($"Directory {basePath} not found!");
 
             var filePaths = Directory.GetFiles(basePath);
             if (filePaths.Length == 0)
-                throw new EmptyDirectoryException(basePath);
+                throw new EmptyDirectoryException($"Directory {basePath} is empty.");
 
             var docs = new Dictionary<string, string>();
 
@@ -28,4 +26,4 @@ namespace FullTextSearch.Services.FileReaderService
             return docs;
         }
     }
-}   
+}
