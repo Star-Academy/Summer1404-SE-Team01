@@ -51,12 +51,19 @@ namespace FullTextSearch
         private void InitializeIndex()
         {
             _logger.LogInformation($"Loading documents from '{DataSetPath}'...");
-            var docs = _fileReader.ReadAllFiles(DataSetPath);
+            try
+            {
+                var docs = _fileReader.ReadAllFiles(DataSetPath);
+                _logger.LogInformation("Building inverted index...");
+                _invertedIndex.Build(docs);
 
-            _logger.LogInformation("Building inverted index...");
-            _invertedIndex.Build(docs);
-
-            _logger.LogInformation($"Index built successfully. {docs.Count} documents loaded.");
+                _logger.LogInformation($"Index built successfully. {docs.Count} documents loaded.");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                Environment.Exit(1);
+            }
         }
 
         private void RunMainLoop()
@@ -152,7 +159,6 @@ namespace FullTextSearch
 
                     var advancedSearch = new InvertedIndexAdvancedSearch(
                         _invertedIndex,
-                        _queryExtractor,
                         specifications);
 
                     var results = advancedSearch.Search(query);
@@ -178,7 +184,7 @@ namespace FullTextSearch
 
         private IEnumerable<string> SearchSingleWord(string word)
         {
-            return _simpleSearch.Search(word.ToUpper());
+            return _simpleSearch.Search(word);
         }
 
         private void DisplayResults(IEnumerable<string> results)

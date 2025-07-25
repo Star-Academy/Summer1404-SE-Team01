@@ -12,7 +12,7 @@ namespace FullTextSearch
         {
             var logger = new ConsoleLogger();
             var tokenizer = new Tokenizer();
-            var fileReader = new FileReader(logger);
+            var fileReader = new FileReader();
             var invertedIndex = new InvertedIndex.InvertedIndex(tokenizer);
 
             var simpleSearch = new InvertedIndexSimpleSearch(invertedIndex);
