@@ -61,4 +61,15 @@ public class QueryExtractorTests
 
         result.Should().BeEmpty();
     }
+    
+    [Fact]
+    public void ExtractQueries_ShouldNotContainsUnspecifiedQueries()
+    {
+        var query = "90832490 *word &%word $fake -plush +day should";
+        var pattern = @"^[-+]?[a-zA-Z]+";
+
+        var result = _extractor.ExtractQueries(query, pattern);
+
+        result.Should().BeEquivalentTo(new List<string>{"-PLUSH", "+DAY", "SHOULD"});
+    }
 }
