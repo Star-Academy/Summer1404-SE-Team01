@@ -10,13 +10,13 @@ public class Program
     static void Main(string[] args)
     {
 
-        var (courseGrades, studentsData) = FetchData();
+        var dataDto = FetchData();
 
-        var studentAverages = PreComputeStudentAverages(courseGrades);
+        var studentAverages = PreComputeStudentAverages(dataDto.CourseGrades);
 
         var top3 = FindTop3Averages(studentAverages);
 
-        var StudentsGpa = GetCorrespondingStudentsInfo(top3, studentsData);
+        var StudentsGpa = GetCorrespondingStudentsInfo(top3, dataDto.StudentsData);
 
         int rank = 1;
         foreach (var student in StudentsGpa)
@@ -25,17 +25,16 @@ public class Program
         }
     }
 
-    private static (List<CourseGrade> courseGrades, List<Student> studentsData) FetchData()
+    private static DataDto FetchData()
     {
-        List<CourseGrade> grades = new();
-        List<Student> studentsInfo = new();
+        DataDto dataDto = new();
         try
         {
             var scoresJson = File.ReadAllText(ScoresDataPath);
-            grades = JsonSerializer.Deserialize<List<CourseGrade>>(scoresJson)!;
+            dataDto.CourseGrades = JsonSerializer.Deserialize<List<CourseGrade>>(scoresJson)!;
 
             var studentsJson = File.ReadAllText(StudentsDataPath);
-            studentsInfo = JsonSerializer.Deserialize<List<Student>>(studentsJson)!;
+            dataDto.StudentsData = JsonSerializer.Deserialize<List<Student>>(studentsJson)!;
         }
         catch (Exception ex)
         {
@@ -43,7 +42,7 @@ public class Program
             Environment.Exit(1);
         }
 
-        return (grades, studentsInfo);
+        return dataDto;
     }
 
     private static Dictionary<int, (double Sum, int Count)> PreComputeStudentAverages(List<CourseGrade> courseGrades)
