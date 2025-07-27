@@ -16,13 +16,13 @@ public class NecessarySpecification : ISpecification
         Keywords = _queryExtractor.ExtractQueries(query, @"^[^-+]\w+");
     }
 
-    public void FilterDocumentsByQuery(SortedSet<string> documents)
+    public void FilterDocumentsByQuery(SortedSet<string> result)
     {
         foreach (var word in Keywords)
         {
             var currentDocIds = _simpleSearch.Search(word);
 
-            documents.IntersectWith(currentDocIds);
+            result.IntersectWith(currentDocIds);
         }
     }
 }

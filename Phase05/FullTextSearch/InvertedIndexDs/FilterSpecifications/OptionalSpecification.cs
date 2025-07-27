@@ -16,7 +16,7 @@ public class OptionalSpecification : ISpecification
         Keywords = _queryExtractor.ExtractQueries(query, @"^\+\w+");
     }
 
-    public void FilterDocumentsByQuery(SortedSet<string> documents)
+    public void FilterDocumentsByQuery(SortedSet<string> result)
     {
         var optionalDocIds = new SortedSet<string>();
         foreach (var word in Keywords)
@@ -27,7 +27,7 @@ public class OptionalSpecification : ISpecification
 
         if (optionalDocIds.Count != 0)
         {
-            documents.IntersectWith(optionalDocIds);
+            result.IntersectWith(optionalDocIds);
         }
     }
 }
