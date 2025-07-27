@@ -27,8 +27,5 @@ namespace FullTextSearch.Tests.SpecificationsTests
 
         }
 
-        [Fact]
-        public void
-
     }
 }

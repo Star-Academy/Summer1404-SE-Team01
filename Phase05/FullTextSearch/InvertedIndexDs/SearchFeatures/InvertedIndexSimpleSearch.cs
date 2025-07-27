@@ -12,7 +12,11 @@ public class InvertedIndexSimpleSearch : ISearch
     public SortedSet<string> Search(string input)
     {
         string upperWord = input.ToUpper();
-        _invertedIndex.InvertedIndexMap.TryGetValue(upperWord, out SortedSet<string>? result);
-        return result ?? new SortedSet<string>();
+        _invertedIndex.InvertedIndexMap.TryGetValue(upperWord, out SortedSet<DocumentInfo>? result);
+        if (result is not null && result.Count == 0) 
+            return new SortedSet<string>();
+        
+        var docIds = result?.Select(d => d.DocId).ToHashSet();
+        return new SortedSet<string>(docIds!);
     }
 }
