@@ -28,7 +28,7 @@ public class ExcludedStrategy : IStrategy
         foreach (var word in keywords)
         {
             var DocsWithoutWord = _simpleSearch.Search(word, dto);
-            result.Except(DocsWithoutWord);
+            result.ExceptWith(DocsWithoutWord);
         }
     }
 }
