@@ -1,5 +1,8 @@
-﻿namespace FullTextSearch.Services.LoggerService;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace FullTextSearch.Services.LoggerService;
+
+[ExcludeFromCodeCoverage]
 public class ConsoleLogger : ILogger
 {
     public void LogInformation(string message) => Console.WriteLine($"[INFO] {message}");
