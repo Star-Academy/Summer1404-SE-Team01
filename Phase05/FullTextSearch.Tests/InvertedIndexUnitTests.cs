@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using FullTextSearch.InvertedIndexDs;
+using FullTextSearch.InvertedIndexDs.Dtos;
 using FullTextSearch.Services.TokenizerService;
 using NSubstitute;
 
@@ -8,12 +9,12 @@ public class InvertedIndexUnitTests
 {
 
     private readonly ITokenizer _tokenizer;
-    private readonly InvertedIndex _invertedIndex;
+    private readonly InvertedIndexBuilder _invertedIndexBuilder;
 
     public InvertedIndexUnitTests()
     {
         _tokenizer = Substitute.For<ITokenizer>();
-        _invertedIndex = new InvertedIndex(_tokenizer);
+        _invertedIndexBuilder = new InvertedIndexBuilder(_tokenizer);
     }
 
 
@@ -31,12 +32,51 @@ public class InvertedIndexUnitTests
         _tokenizer.Tokenize("banana carrot").Returns(new[] { "BANANA", "CARROT" });
         _tokenizer.Tokenize("apple carrot").Returns(new[] { "APPLE", "CARROT" });
 
-        _invertedIndex.Build(docs);
+        var dto = _invertedIndexBuilder.Build(docs);
 
-        var indexMap = _invertedIndex.InvertedIndexMap;
+        var expectedAppleValue = new SortedSet<DocumentInfo>
+        {
+            new DocumentInfo
+            {
+                DocId = "doc1",
+                Indexes = { 0 }
+            },
+            new DocumentInfo
+            {
+                DocId = "doc3",
+                Indexes = { 0 }
+            }
+        };
+        dto.InvertedIndexMap.Should().ContainKey("APPLE").WhoseValue.Should().BeEquivalentTo(expectedAppleValue);
 
-        indexMap.Should().ContainKey("APPLE").WhoseValue.Should().BeEquivalentTo("doc1", "doc3");
-        indexMap.Should().ContainKey("BANANA").WhoseValue.Should().BeEquivalentTo("doc1", "doc2");
-        indexMap.Should().ContainKey("CARROT").WhoseValue.Should().BeEquivalentTo("doc2", "doc3");
+        var expectedBananaValue = new SortedSet<DocumentInfo>
+        {
+            new DocumentInfo
+            {
+                DocId = "doc1",
+                Indexes = { 1 }
+            },
+            new DocumentInfo
+            {
+                DocId = "doc2",
+                Indexes = { 0 }
+            }
+        };
+        dto.InvertedIndexMap.Should().ContainKey("BANANA").WhoseValue.Should().BeEquivalentTo(expectedBananaValue);
+        
+        var expectedCarrotValue = new SortedSet<DocumentInfo>
+        {
+            new DocumentInfo
+            {
+                DocId = "doc2",
+                Indexes = { 1 }
+            },
+            new DocumentInfo
+            {
+                DocId = "doc3",
+                Indexes = { 1 }
+            }
+        };
+        dto.InvertedIndexMap.Should().ContainKey("CARROT").WhoseValue.Should().BeEquivalentTo(expectedCarrotValue);
     }
 }
