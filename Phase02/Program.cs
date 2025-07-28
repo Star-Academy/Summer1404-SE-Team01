@@ -1,82 +1,80 @@
-﻿namespace FullTextSearch;
-
-class Program
+﻿namespace FullTextSearch
 {
-    private const string DataSetPath = "EnglishData";
-    static void Main(string[] args)
+    class Program
     {
-        CreateInvertedIndex();
+        private const string DataSetPath = "EnglishData";
 
-        while (true)
+        static void Main(string[] args)
         {
-            Console.WriteLine("\nChoose search mode:");
-            Console.WriteLine("1. Single word search");
-            Console.WriteLine("2. Query search");
-            Console.WriteLine("q. Quit");
+            var dto = CreateInvertedIndex();
 
-            Console.Write("Your choice: ");
-            var choice = Console.ReadLine()?.Trim().ToLower();
-
-            if (choice == "q")
-                break;
-
-            switch (choice)
+            while (true)
             {
-                case "1":
-                    SearchForSingleInput();
+                Console.WriteLine("\nChoose search mode:");
+                Console.WriteLine("1. Single word search");
+                Console.WriteLine("2. Query search");
+                Console.WriteLine("q. Quit");
+                Console.Write("Your choice: ");
+
+                var choice = Console.ReadLine()?.Trim().ToLower();
+                if (choice == "q")
                     break;
-                case "2":
-                    SearchWithQuery();
+
+                switch (choice)
+                {
+                    case "1":
+                        SearchForSingleInput(dto);
+                        break;
+                    case "2":
+                        SearchWithQuery(dto);
+                        break;
+                    default:
+                        Console.WriteLine("Invalid option. Please try again.");
+                        break;
+                }
+            }
+
+            Console.WriteLine("Goodbye!");
+        }
+
+        private static InvertedIndexDto CreateInvertedIndex()
+        {
+            var docs = FileReader.ReadAllFiles(DataSetPath);
+            return InvertedIndex.Build(docs);
+        }
+
+        private static void SearchForSingleInput(InvertedIndexDto dto)
+        {
+            while (true)
+            {
+                Console.Write("Please enter a word to search for (or 'q' to return to main menu): ");
+                var input = Console.ReadLine()?.Trim();
+
+                if (string.Equals(input, "q", StringComparison.OrdinalIgnoreCase))
                     break;
-                default:
-                    Console.WriteLine("Invalid option. Please try again.");
-                    break;
+
+                var results = InvertedIndex.SearchWord(input!, dto);
+                Console.WriteLine(results.Count > 0
+                    ? string.Join(", ", results)
+                    : "No matching documents.");
             }
         }
 
-        Console.WriteLine("Goodbye!");
-    }
-
-
-    private static void CreateInvertedIndex()
-    {
-        var docs = FileReader.ReadAllFiles(DataSetPath);
-        InvertedIndex.BuildIndexMap(docs);
-
-    }
-
-    private static void SearchForSingleInput()
-    {
-        while (true)
+        private static void SearchWithQuery(InvertedIndexDto dto)
         {
-            Console.WriteLine("Please enter a word to search for (or 'q' to return to main menu):");
-            var input = Console.ReadLine()?.Trim();
+            while (true)
+            {
+                Console.WriteLine("Please enter a query to search for (or 'q' to return to main menu): ");
+                var input = Console.ReadLine()?.Trim();
 
-            if (input?.ToLower() == "q")
-                break;
+                if (string.Equals(input, "q", StringComparison.OrdinalIgnoreCase))
+                    break;
 
-            var upperInput = input?.ToUpper();
-            var postLists = InvertedIndex.SearchWord(upperInput!);
-            Console.WriteLine(string.Join(", ", postLists));
+                var results = InvertedIndex.AdvancedSearch(input!, dto);
+                Console.WriteLine(results.Count > 0
+                    ? string.Join(", ", results)
+                    : "No matching documents.");
+            }
         }
     }
-
-
-    private static void SearchWithQuery()
-    {
-        while (true)
-        {
-            Console.WriteLine("Please enter a query to search for (or 'q' to return to main menu):");
-            var input = Console.ReadLine()?.Trim();
-
-            if (input?.ToLower() == "q")
-                break;
-
-            var upperInput = input?.ToUpper();
-            var result = InvertedIndex.AdvancedSearch(upperInput!);
-            Console.WriteLine(string.Join(", ", result));
-        }
-    }
-
-
 }
