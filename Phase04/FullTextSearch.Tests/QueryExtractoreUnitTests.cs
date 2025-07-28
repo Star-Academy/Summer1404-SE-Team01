@@ -61,7 +61,7 @@ public class QueryExtractorTests
 
         result.Should().BeEmpty();
     }
-    
+
     [Fact]
     public void ExtractQueries_ShouldNotContainsUnspecifiedQueries()
     {
@@ -70,6 +70,6 @@ public class QueryExtractorTests
 
         var result = _extractor.ExtractQueries(query, pattern);
 
-        result.Should().BeEquivalentTo(new List<string>{"-PLUSH", "+DAY", "SHOULD"});
+        result.Should().BeEquivalentTo(new List<string> { "-PLUSH", "+DAY", "SHOULD" });
     }
 }

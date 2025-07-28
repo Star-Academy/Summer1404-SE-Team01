@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using FullTextSearch.InvertedIndexDs.QueryBuilder.Abstractions;
 
 namespace FullTextSearch.InvertedIndexDs.QueryBuilder
 {

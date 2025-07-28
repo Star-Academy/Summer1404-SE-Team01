@@ -16,9 +16,9 @@ namespace FullTextSearch
             var logger = new ConsoleLogger();
             var tokenizer = new Tokenizer();
             var fileReader = new FileReader();
-            var invertedIndex = new InvertedIndex(tokenizer);
+            var invertedIndex = new InvertedIndexBuilder(tokenizer);
 
-            var simpleSearch = new InvertedIndexSimpleSearch(invertedIndex);
+            var simpleSearch = new SimpleSearch();
             var queryExtractor = new QueryExtractor();
             var app = new SearchApplication(
                 fileReader,

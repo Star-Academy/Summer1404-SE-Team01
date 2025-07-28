@@ -1,8 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using FullTextSearch.InvertedIndexDs;
+using FullTextSearch.InvertedIndexDs.Dtos;
 using FullTextSearch.InvertedIndexDs.FilterSpecifications;
-using FullTextSearch.InvertedIndexDs.QueryBuilder;
+using FullTextSearch.InvertedIndexDs.FilterSpecifications.Abstractions;
+using FullTextSearch.InvertedIndexDs.QueryBuilder.Abstractions;
 using FullTextSearch.InvertedIndexDs.SearchFeatures;
+using FullTextSearch.InvertedIndexDs.SearchFeatures.Abstractions;
 using FullTextSearch.Services.FileReaderService;
 using FullTextSearch.Services.LoggerService;
 
@@ -37,8 +40,9 @@ public class SearchApplication
         try
         {
             _logger.LogInformation("Initializing search application...");
-            InitializeIndex();
-            RunMainLoop();
+            var dto = InitializeIndex();
+            if (dto is null) throw new ArgumentNullException($"InvertedIndex {nameof(dto)} is null)");
+            RunMainLoop(dto);
         }
         catch (Exception ex)
         {
@@ -50,14 +54,16 @@ public class SearchApplication
         }
     }
 
-    private void InitializeIndex()
+    private InvertedIndexDto InitializeIndex()
     {
         _logger.LogInformation($"Loading documents from '{DataSetPath}'...");
         try
         {
             var docs = _fileReader.ReadAllFiles(DataSetPath);
             _logger.LogInformation("Building inverted index...");
-            _invertedIndex.Build(docs);
+            var dto = _invertedIndex.Build(docs);
+
+            return dto;
 
             _logger.LogInformation($"Index built successfully. {docs.Count} documents loaded.");
         }
@@ -66,9 +72,11 @@ public class SearchApplication
             _logger.LogError(e.Message);
             Environment.Exit(1);
         }
+
+        return null;
     }
 
-    private void RunMainLoop()
+    private void RunMainLoop(InvertedIndexDto dto)
     {
         while (true)
         {
@@ -80,7 +88,7 @@ public class SearchApplication
                 break;
             }
 
-            ProcessUserChoice(choice);
+            ProcessUserChoice(choice, dto);
         }
     }
 
@@ -93,15 +101,15 @@ public class SearchApplication
         Console.Write("Your choice: ");
     }
 
-    private void ProcessUserChoice(string choice)
+    private void ProcessUserChoice(string choice, InvertedIndexDto dto)
     {
         switch (choice)
         {
             case "1":
-                RunSearchLoop("word", SearchSingleWord);
+                RunSearchLoop("word", dto, SearchSingleWord);
                 break;
             case "2":
-                RunAdvancedSearchLoop();
+                RunAdvancedSearchLoop(dto);
                 break;
             default:
                 Console.WriteLine("Invalid option. Please try again.");
@@ -109,7 +117,7 @@ public class SearchApplication
         }
     }
 
-    private void RunSearchLoop(string searchType, Func<string, IEnumerable<string>> searchFunction)
+    private void RunSearchLoop(string searchType, InvertedIndexDto dto, Func<string, InvertedIndexDto, IEnumerable<string>> searchFunction)
     {
         while (true)
         {
@@ -127,7 +135,7 @@ public class SearchApplication
 
             try
             {
-                var results = searchFunction(input);
+                var results = searchFunction(input, dto);
                 DisplayResults(results);
             }
             catch (Exception ex)
@@ -138,7 +146,7 @@ public class SearchApplication
         }
     }
 
-    private void RunAdvancedSearchLoop()
+    private void RunAdvancedSearchLoop(InvertedIndexDto dto)
     {
         while (true)
         {
@@ -157,13 +165,11 @@ public class SearchApplication
 
             try
             {
-                var specifications = CreateSpecifications(query);
+                var specifications = CreateSpecifications();
 
-                var advancedSearch = new InvertedIndexAdvancedSearch(
-                    _invertedIndex,
-                    specifications);
+                var advancedSearch = new AdvancedSearch(specifications);
 
-                var results = advancedSearch.Search(query);
+                var results = advancedSearch.Search(query, dto);
                 DisplayResults(results);
             }
             catch (Exception ex)
@@ -174,19 +180,19 @@ public class SearchApplication
         }
     }
 
-    private List<ISpecification> CreateSpecifications(string query)
+    private List<ISpecification> CreateSpecifications()
     {
         return new List<ISpecification>
         {
-            new NecessarySpecification(_simpleSearch, _queryExtractor, query),
-            new OptionalSpecification(_simpleSearch, _queryExtractor, query),
-            new ExcludedSpecification(_simpleSearch, _queryExtractor, query)
+            new NecessarySpecification(_simpleSearch, _queryExtractor),
+            new OptionalSpecification(_simpleSearch, _queryExtractor),
+            new ExcludedSpecification(_simpleSearch, _queryExtractor)
         };
     }
 
-    private IEnumerable<string> SearchSingleWord(string word)
+    private IEnumerable<string> SearchSingleWord(string word, InvertedIndexDto dto)
     {
-        return _simpleSearch.Search(word.ToUpper());
+        return _simpleSearch.Search(word.ToUpper(), dto);
     }
 
     private void DisplayResults(IEnumerable<string> results)

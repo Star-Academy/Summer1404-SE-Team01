@@ -1,4 +1,4 @@
-﻿namespace FullTextSearch.InvertedIndexDs.QueryBuilder;
+﻿namespace FullTextSearch.InvertedIndexDs.QueryBuilder.Abstractions;
 
 public interface IQueryExtractor
 {
