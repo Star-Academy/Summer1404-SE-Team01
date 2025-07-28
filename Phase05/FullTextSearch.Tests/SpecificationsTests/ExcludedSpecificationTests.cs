@@ -1,7 +1,10 @@
 ﻿using FluentAssertions;
+using FullTextSearch.InvertedIndexDs.Dtos;
 using FullTextSearch.InvertedIndexDs.FilterSpecifications;
 using FullTextSearch.InvertedIndexDs.QueryBuilder;
+using FullTextSearch.InvertedIndexDs.QueryBuilder.Abstractions;
 using FullTextSearch.InvertedIndexDs.SearchFeatures;
+using FullTextSearch.InvertedIndexDs.SearchFeatures.Abstractions;
 using NSubstitute;
 
 namespace FullTextSearch.Tests.SpecificationsTests;
@@ -12,10 +15,12 @@ public class ExcludedSpecificationTests
     private readonly ISearch _simpleSearch;
     private readonly IQueryExtractor _queryExtractor;
     private readonly string _query;
+    private readonly InvertedIndexDto _dto;
     public ExcludedSpecificationTests()
     {
         _simpleSearch = Substitute.For<ISearch>();
         _queryExtractor = Substitute.For<IQueryExtractor>();
+        _dto = Substitute.For<InvertedIndexDto>();
         _query = "get help +illness +disease -cough -star";
     }
     
@@ -27,10 +32,9 @@ public class ExcludedSpecificationTests
         _queryExtractor.ExtractQueries(_query, @"^\-\w+")
             .Returns(new List<string> {"COUGH", "STAR"});
         
-        var spec = new ExcludedSpecification(_simpleSearch, _queryExtractor, _query);
+        var spec = new ExcludedSpecification(_simpleSearch, _queryExtractor);
         
         spec.Should().NotBeNull();
-        spec.Keywords.Should().BeEquivalentTo(new[] {"COUGH", "STAR"});
     }
     
     
@@ -38,7 +42,7 @@ public class ExcludedSpecificationTests
     public void Constructor_ShouldThrowArgumentNullException_WhenSearchIsNull()
     {
         
-        Action act = () => new ExcludedSpecification(null, _queryExtractor, _query);
+        Action act = () => new ExcludedSpecification(null, _queryExtractor);
 
         
         act.Should().Throw<ArgumentNullException>()
@@ -49,7 +53,7 @@ public class ExcludedSpecificationTests
     public void Constructor_ShouldThrowArgumentNullException_WhenQueryExtractorIsNull()
     {
         
-        Action act = () => new ExcludedSpecification(_simpleSearch, null, _query);
+        Action act = () => new ExcludedSpecification(_simpleSearch, null);
 
         
         act.Should().Throw<ArgumentNullException>()
@@ -64,15 +68,14 @@ public class ExcludedSpecificationTests
         _queryExtractor.ExtractQueries(_query, @"^\-\w+")
             .Returns(expectedKeywords);
 
-        _simpleSearch.Search("COUGH").Returns(new SortedSet<string> { "doc1", "doc2", "doc3" });
-        _simpleSearch.Search("STAR").Returns(new SortedSet<string> { "doc1", "doc2", "doc4" });
+        _simpleSearch.Search("COUGH", _dto).Returns(new SortedSet<string> { "doc1", "doc2", "doc3" });
+        _simpleSearch.Search("STAR", _dto).Returns(new SortedSet<string> { "doc1", "doc2", "doc4" });
 
         var documents = new SortedSet<string> { "doc1", "doc2", "doc3", "doc5", "doc4" };
 
-        var spec = new ExcludedSpecification(_simpleSearch, _queryExtractor, _query);
-
+        var spec = new ExcludedSpecification(_simpleSearch, _queryExtractor);
         
-        spec.FilterDocumentsByQuery(documents);
+        spec.FilterDocumentsByQuery(documents, _query, _dto);
         
         documents.Should().BeEquivalentTo(new[] { "doc5" }); 
     }

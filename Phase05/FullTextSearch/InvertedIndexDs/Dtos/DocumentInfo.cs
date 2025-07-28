@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace FullTextSearch.InvertedIndexDs;
+﻿namespace FullTextSearch.InvertedIndexDs.Dtos;
 
 public class DocumentInfo: IComparable<DocumentInfo>
 {

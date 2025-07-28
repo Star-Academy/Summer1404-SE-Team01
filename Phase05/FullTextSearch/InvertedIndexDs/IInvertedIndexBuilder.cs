@@ -1,9 +1,9 @@
-﻿namespace FullTextSearch.InvertedIndexDs;
+﻿using FullTextSearch.InvertedIndexDs.Dtos;
+
+namespace FullTextSearch.InvertedIndexDs;
 
 public interface IInvertedIndexBuilder
 {
-    SortedSet<string> AllDocuments { get; }
-    SortedDictionary<string, SortedSet<DocumentInfo>> InvertedIndexMap { get; }
-    void Build(Dictionary<string, string> documents);
+    InvertedIndexDto Build(Dictionary<string, string> documents);
 
 }

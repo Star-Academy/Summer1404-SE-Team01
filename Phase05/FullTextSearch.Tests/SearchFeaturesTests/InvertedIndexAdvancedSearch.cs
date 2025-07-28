@@ -1,82 +1,111 @@
 ﻿using FluentAssertions;
 using FullTextSearch.InvertedIndexDs;
+using FullTextSearch.InvertedIndexDs.Dtos;
 using NSubstitute;
 using FullTextSearch.InvertedIndexDs.FilterSpecifications;
+using FullTextSearch.InvertedIndexDs.FilterSpecifications.Abstractions;
 using FullTextSearch.InvertedIndexDs.SearchFeatures;
 
 namespace FullTextSearch.Tests.SearchFeaturesTests;
 
 public class InvertedIndexAdvancedSearchTests
 {
-    private readonly IInvertedIndexBuilder _invertedIndex = Substitute.For<IInvertedIndexBuilder>();
+    private readonly IInvertedIndexBuilder _invertedIndexBuilder;
     private readonly ISpecification _spec1 = Substitute.For<ISpecification>();
     private readonly ISpecification _spec2 = Substitute.For<ISpecification>();
-    private readonly string _query = "get help +illness +disease -cough"; 
-    
+    private const string _query = "get help +illness +disease -cough"; 
+    private readonly InvertedIndexDto _dto;
+
+    public InvertedIndexAdvancedSearchTests()
+    {
+        _dto = Substitute.For<InvertedIndexDto>();
+        _invertedIndexBuilder = Substitute.For<IInvertedIndexBuilder>();
+    }
 
     [Fact]
     public void Search_ShouldApplyAllSpecifications_WhenTheyHaveKeywords()
     {
         var allDocs = new SortedSet<string> { "doc1", "doc2", "doc3" };
-        _invertedIndex.AllDocuments.Returns(allDocs);
+        
+        _dto.AllDocuments = allDocs;
 
-        _spec1.Keywords.Returns(new List<string> { "one" });
-        _spec2.Keywords.Returns(new List<string> { "two" });
 
-        var search = new InvertedIndexAdvancedSearch(_invertedIndex, new List<ISpecification> { _spec1, _spec2 });
+        var search = new InvertedIndexAdvancedSearch(new List<ISpecification> { _spec1, _spec2 });
 
-        var result = search.Search(_query);
+        var result = search.Search(_query, _dto);
 
-        _spec1.Received(1).FilterDocumentsByQuery(Arg.Any<SortedSet<string>>());
-        _spec2.Received(1).FilterDocumentsByQuery(Arg.Any<SortedSet<string>>());
+        _spec1.Received(1).FilterDocumentsByQuery(Arg.Any<SortedSet<string>>(), _query, _dto);
+        _spec2.Received(1).FilterDocumentsByQuery(Arg.Any<SortedSet<string>>(), _query, _dto);
         result.Should().BeEquivalentTo(allDocs); // no actual filtering in mock
     }
 
     [Fact]
     public void Search_ShouldSkipSpecification_WhenItHasNoKeywords()
     {
-        var allDocs = new SortedSet<string> { "doc1", "doc2" };
-        _invertedIndex.AllDocuments.Returns(allDocs);
+        _dto.AllDocuments = new SortedSet<string> { "doc1", "doc2" };
+        
+        var search = new InvertedIndexAdvancedSearch(new List<ISpecification> { _spec1, _spec2 });
 
-        _spec1.Keywords.Returns(new List<string> { "valid" });
-        _spec2.Keywords.Returns(new List<string>()); // empty -> should skip
+        var result = search.Search(_query, _dto);
 
-        var search = new InvertedIndexAdvancedSearch(_invertedIndex, new List<ISpecification> { _spec1, _spec2 });
-
-        var result = search.Search(_query);
-
-        _spec1.Received(1).FilterDocumentsByQuery(Arg.Any<SortedSet<string>>());
-        _spec2.DidNotReceive().FilterDocumentsByQuery(Arg.Any<SortedSet<string>>());
-        result.Should().BeEquivalentTo(allDocs);
+        _spec1.Received(1).FilterDocumentsByQuery(Arg.Any<SortedSet<string>>(), _query, _dto);
+        _spec2.Received(1).FilterDocumentsByQuery(Arg.Any<SortedSet<string>>(), _query, _dto);
+        result.Should().BeEquivalentTo(_dto.AllDocuments);
     }
     
     [Fact]
     public void Search_ShouldReturnFilteredDocuments()
     {
-        
-        var initialDocs = new SortedSet<string> { "doc1", "doc2", "doc3" };
-        _invertedIndex.AllDocuments.Returns(initialDocs);
+        // Arrange
+        var query = "+example";
 
-        _spec1.Keywords.Returns(new List<string> { "APPLE" });
-        _spec1.When(x => x.FilterDocumentsByQuery(Arg.Any<SortedSet<string>>()))
-              .Do(call =>
-              {
-                  var docs = call.Arg<SortedSet<string>>();
-                  docs.IntersectWith(new[] { "doc2", "doc3" });  // find intersect for example
-              });
+        var dto = new InvertedIndexDto
+        {
+            AllDocuments = new SortedSet<string> { "doc1", "doc2", "doc3" },
+            InvertedIndexMap = new SortedDictionary<string, SortedSet<DocumentInfo>>
+            {
+                ["EXAMPLE"] = new SortedSet<DocumentInfo>
+                {
+                    new DocumentInfo
+                    {
+                        DocId = "doc1",
+                        Indexes = { 1,2,3 }
+                    },
+                    new DocumentInfo
+                    {
+                        DocId = "doc2",
+                        Indexes = { 4,5,6 }
+                        
+                    },
+                    new DocumentInfo
+                    {
+                        DocId = "doc3",
+                        Indexes = { 7,8,9 }
+                    }
+                }
+            }
+        };
 
-        _spec2.Keywords.Returns(new List<string> { "BANANA" });
-        _spec2.When(x => x.FilterDocumentsByQuery(Arg.Any<SortedSet<string>>()))
-              .Do(call =>
-              {
-                  var docs = call.Arg<SortedSet<string>>();
-                  docs.UnionWith(new[] { "doc3" });  // find union for example
-              });
+        _spec1.When(x => x.FilterDocumentsByQuery(Arg.Any<SortedSet<string>>(), query, dto))
+            .Do(call =>
+            {
+                var docs = call.Arg<SortedSet<string>>();
+                docs.IntersectWith(new[] { "doc2", "doc3" });
+            });
 
-        var search = new InvertedIndexAdvancedSearch(_invertedIndex, new List<ISpecification> { _spec1, _spec2 });
+        _spec2.When(x => x.FilterDocumentsByQuery(Arg.Any<SortedSet<string>>(), query, dto))
+            .Do(call =>
+            {
+                var docs = call.Arg<SortedSet<string>>();
+                docs.UnionWith(new[] { "doc3" });
+            });
 
-        var result = search.Search("+example");
-        
-        result.Should().BeEquivalentTo(new[] { "doc3", "doc2" });
+        var search = new InvertedIndexAdvancedSearch(new List<ISpecification> { _spec1, _spec2 });
+
+        // Act
+        var result = search.Search(query, dto);
+
+        // Assert
+        result.Should().BeEquivalentTo(new[] { "doc2", "doc3" });
     }
 }
