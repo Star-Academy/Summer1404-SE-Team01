@@ -18,14 +18,13 @@ public class ExcludedSpecification : ISpecification
         _simpleSearch = simpleSearch ?? throw new ArgumentNullException(nameof(simpleSearch));
         _queryExtractor = queryExtractor ?? throw new ArgumentNullException(nameof(queryExtractor));
     }
-
-    public void FilterDocumentsByQuery(SortedSet<string> documents, string query, InvertedIndexDto dto)
+    public void FilterDocumentsByQuery(SortedSet<string> result, string query, InvertedIndexDto dto)
     {
         var keywords = _queryExtractor.ExtractQueries(query, @"^\-\w+");
         foreach (var word in keywords)
         {
             var currentDocIds = _simpleSearch.Search(word, dto);
-            documents.ExceptWith(currentDocIds);
+            result.ExceptWith(currentDocIds);
         }
     }
 }
