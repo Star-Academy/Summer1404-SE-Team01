@@ -1,13 +1,13 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using FullTextSearch.InvertedIndexDs;
-using FullTextSearch.InvertedIndexDs.Dtos;
-using FullTextSearch.InvertedIndexDs.FilterSpecifications;
-using FullTextSearch.InvertedIndexDs.FilterSpecifications.Abstractions;
-using FullTextSearch.InvertedIndexDs.QueryBuilder.Abstractions;
-using FullTextSearch.InvertedIndexDs.SearchFeatures;
-using FullTextSearch.InvertedIndexDs.SearchFeatures.Abstractions;
+﻿using FullTextSearch.InvertedIndex;
+using FullTextSearch.InvertedIndex.Dtos;
+using FullTextSearch.InvertedIndex.FilterStrategies;
+using FullTextSearch.InvertedIndex.FilterStrategies.Abstractions;
+using FullTextSearch.InvertedIndex.QueryBuilder.Abstractions;
+using FullTextSearch.InvertedIndex.SearchFeatures;
+using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 using FullTextSearch.Services.FileReaderService;
 using FullTextSearch.Services.LoggerService;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FullTextSearch;
 
@@ -180,13 +180,13 @@ public class SearchApplication
         }
     }
 
-    private List<ISpecification> CreateSpecifications()
+    private List<IStrategy> CreateSpecifications()
     {
-        return new List<ISpecification>
+        return new List<IStrategy>
         {
-            new NecessarySpecification(_simpleSearch, _queryExtractor),
-            new OptionalSpecification(_simpleSearch, _queryExtractor),
-            new ExcludedSpecification(_simpleSearch, _queryExtractor)
+            new RequiredStrategy(_simpleSearch, _queryExtractor),
+            new OptionalStrategy(_simpleSearch, _queryExtractor),
+            new ExcludedStrategy(_simpleSearch, _queryExtractor)
         };
     }
 

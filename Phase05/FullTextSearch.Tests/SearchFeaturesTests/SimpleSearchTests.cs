@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
-using FullTextSearch.InvertedIndexDs.Dtos;
+using FullTextSearch.InvertedIndex.Dtos;
+using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 using FullTextSearch.InvertedIndexDs.SearchFeatures;
-using FullTextSearch.InvertedIndexDs.SearchFeatures.Abstractions;
 
 
 namespace FullTextSearch.Tests.SearchFeaturesTests;

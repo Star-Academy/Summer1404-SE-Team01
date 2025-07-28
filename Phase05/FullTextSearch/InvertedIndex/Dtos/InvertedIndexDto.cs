@@ -1,4 +1,4 @@
-﻿namespace FullTextSearch.InvertedIndexDs.Dtos;
+﻿namespace FullTextSearch.InvertedIndex.Dtos;
 
 public class InvertedIndexDto
 {

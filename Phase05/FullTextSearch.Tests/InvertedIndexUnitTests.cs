@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
-using FullTextSearch.InvertedIndexDs;
-using FullTextSearch.InvertedIndexDs.Dtos;
+using FullTextSearch.InvertedIndex;
+using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.Services.TokenizerService;
 using NSubstitute;
 

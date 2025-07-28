@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using FullTextSearch.InvertedIndexDs.Dtos;
+using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.InvertedIndexDs.FilterSpecifications;
 
 namespace FullTextSearch.Tests;
@@ -14,7 +14,7 @@ public class SequentialPhraseTests
         var spv = new SequentialPhraseValidator();
         var tempDocs = new SortedSet<string>{"doc1", "doc2", "doc3"};
 
-        spv.ValidateSequentiality(tempDocs,  input, dto);
+        spv.FindConsecutivePhrases(tempDocs,  input, dto);
         
         tempDocs.Should().HaveCount(2).And.Equal(new SortedSet<string> {"doc2", "doc3"});
 

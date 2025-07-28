@@ -1,7 +1,7 @@
-﻿using FullTextSearch.InvertedIndexDs.Dtos;
-using FullTextSearch.InvertedIndexDs.SearchFeatures.Abstractions;
+﻿using FullTextSearch.InvertedIndex.Dtos;
+using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 
-namespace FullTextSearch.InvertedIndexDs.SearchFeatures;
+namespace FullTextSearch.InvertedIndex.SearchFeatures;
 
 public class SimpleSearch : ISearch
 {

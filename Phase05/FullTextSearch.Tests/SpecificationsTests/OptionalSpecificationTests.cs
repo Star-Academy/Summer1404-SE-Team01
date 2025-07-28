@@ -1,10 +1,10 @@
 ﻿using FluentAssertions;
-using FullTextSearch.InvertedIndexDs.Dtos;
+using FullTextSearch.InvertedIndex.Dtos;
+using FullTextSearch.InvertedIndex.QueryBuilder.Abstractions;
+using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 using FullTextSearch.InvertedIndexDs.FilterSpecifications;
 using FullTextSearch.InvertedIndexDs.QueryBuilder;
-using FullTextSearch.InvertedIndexDs.QueryBuilder.Abstractions;
 using FullTextSearch.InvertedIndexDs.SearchFeatures;
-using FullTextSearch.InvertedIndexDs.SearchFeatures.Abstractions;
 using NSubstitute;
 
 namespace FullTextSearch.Tests.SpecificationsTests;
@@ -33,7 +33,7 @@ public class OptionalSpecificationTests
         _queryExtractor.ExtractQueries(_query, @"^\+\w+")
             .Returns(new List<string> { "ILLNESS", "DISEASE" });
         
-        var spec = new OptionalSpecification(_simpleSearch, _queryExtractor);
+        var spec = new OptionalStrategy(_simpleSearch, _queryExtractor);
         
         spec.Should().NotBeNull();
     }
@@ -43,7 +43,7 @@ public class OptionalSpecificationTests
     public void Constructor_ShouldThrowArgumentNullException_WhenSearchIsNull()
     {
         
-        Action act = () => new OptionalSpecification(null, _queryExtractor);
+        Action act = () => new OptionalStrategy(null, _queryExtractor);
 
         
         act.Should().Throw<ArgumentNullException>()
@@ -54,7 +54,7 @@ public class OptionalSpecificationTests
     public void Constructor_ShouldThrowArgumentNullException_WhenQueryExtractorIsNull()
     {
         
-        Action act = () => new OptionalSpecification(_simpleSearch, null);
+        Action act = () => new OptionalStrategy(_simpleSearch, null);
 
         
         act.Should().Throw<ArgumentNullException>()
@@ -74,7 +74,7 @@ public class OptionalSpecificationTests
 
         var documents = new SortedSet<string> { "doc1", "doc2", "doc3", "doc5", "doc4"};
         
-        var spec = new OptionalSpecification(_simpleSearch, _queryExtractor);
+        var spec = new OptionalStrategy(_simpleSearch, _queryExtractor);
         spec.FilterDocumentsByQuery(documents, _query, _dto);
         
         documents.Should().BeEquivalentTo(new[] { "doc2", "doc3", "doc1", "doc4"}); 

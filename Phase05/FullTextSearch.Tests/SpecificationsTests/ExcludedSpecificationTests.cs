@@ -1,10 +1,10 @@
 ﻿using FluentAssertions;
-using FullTextSearch.InvertedIndexDs.Dtos;
+using FullTextSearch.InvertedIndex.Dtos;
+using FullTextSearch.InvertedIndex.QueryBuilder.Abstractions;
+using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 using FullTextSearch.InvertedIndexDs.FilterSpecifications;
 using FullTextSearch.InvertedIndexDs.QueryBuilder;
-using FullTextSearch.InvertedIndexDs.QueryBuilder.Abstractions;
 using FullTextSearch.InvertedIndexDs.SearchFeatures;
-using FullTextSearch.InvertedIndexDs.SearchFeatures.Abstractions;
 using NSubstitute;
 
 namespace FullTextSearch.Tests.SpecificationsTests;
@@ -32,7 +32,7 @@ public class ExcludedSpecificationTests
         _queryExtractor.ExtractQueries(_query, @"^\-\w+")
             .Returns(new List<string> {"COUGH", "STAR"});
         
-        var spec = new ExcludedSpecification(_simpleSearch, _queryExtractor);
+        var spec = new ExcludedStrategy(_simpleSearch, _queryExtractor);
         
         spec.Should().NotBeNull();
     }
@@ -42,7 +42,7 @@ public class ExcludedSpecificationTests
     public void Constructor_ShouldThrowArgumentNullException_WhenSearchIsNull()
     {
         
-        Action act = () => new ExcludedSpecification(null, _queryExtractor);
+        Action act = () => new ExcludedStrategy(null, _queryExtractor);
 
         
         act.Should().Throw<ArgumentNullException>()
@@ -53,7 +53,7 @@ public class ExcludedSpecificationTests
     public void Constructor_ShouldThrowArgumentNullException_WhenQueryExtractorIsNull()
     {
         
-        Action act = () => new ExcludedSpecification(_simpleSearch, null);
+        Action act = () => new ExcludedStrategy(_simpleSearch, null);
 
         
         act.Should().Throw<ArgumentNullException>()
@@ -73,7 +73,7 @@ public class ExcludedSpecificationTests
 
         var documents = new SortedSet<string> { "doc1", "doc2", "doc3", "doc5", "doc4" };
 
-        var spec = new ExcludedSpecification(_simpleSearch, _queryExtractor);
+        var spec = new ExcludedStrategy(_simpleSearch, _queryExtractor);
         
         spec.FilterDocumentsByQuery(documents, _query, _dto);
         

@@ -1,7 +1,7 @@
-﻿using FullTextSearch.InvertedIndexDs.Dtos;
+﻿using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.Services.TokenizerService;
 
-namespace FullTextSearch.InvertedIndexDs
+namespace FullTextSearch.InvertedIndex
 {
     public class InvertedIndexBuilder : IInvertedIndexBuilder
     {

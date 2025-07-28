@@ -1,19 +1,18 @@
 ﻿using FluentAssertions;
-using FullTextSearch.InvertedIndexDs;
-using FullTextSearch.InvertedIndexDs.Dtos;
-using NSubstitute;
-using FullTextSearch.InvertedIndexDs.FilterSpecifications;
-using FullTextSearch.InvertedIndexDs.FilterSpecifications.Abstractions;
+using FullTextSearch.InvertedIndex;
+using FullTextSearch.InvertedIndex.Dtos;
+using FullTextSearch.InvertedIndex.FilterStrategies.Abstractions;
 using FullTextSearch.InvertedIndexDs.SearchFeatures;
+using NSubstitute;
 
 namespace FullTextSearch.Tests.SearchFeaturesTests;
 
 public class AdvancedSearchTests
 {
     private readonly IInvertedIndexBuilder _invertedIndexBuilder;
-    private readonly ISpecification _spec1 = Substitute.For<ISpecification>();
-    private readonly ISpecification _spec2 = Substitute.For<ISpecification>();
-    private const string _query = "get help +illness +disease -cough"; 
+    private readonly IStrategy _spec1 = Substitute.For<IStrategy>();
+    private readonly IStrategy _spec2 = Substitute.For<IStrategy>();
+    private const string _query = "get help +illness +disease -cough";
     private readonly InvertedIndexDto _dto;
 
     public AdvancedSearchTests()
@@ -26,11 +25,11 @@ public class AdvancedSearchTests
     public void Search_ShouldApplyAllSpecifications_WhenTheyHaveKeywords()
     {
         var allDocs = new SortedSet<string> { "doc1", "doc2", "doc3" };
-        
+
         _dto.AllDocuments = allDocs;
 
 
-        var search = new AdvancedSearch(new List<ISpecification> { _spec1, _spec2 });
+        var search = new AdvancedSearch(new List<IStrategy> { _spec1, _spec2 });
 
         var result = search.Search(_query, _dto);
 
@@ -43,8 +42,8 @@ public class AdvancedSearchTests
     public void Search_ShouldSkipSpecification_WhenItHasNoKeywords()
     {
         _dto.AllDocuments = new SortedSet<string> { "doc1", "doc2" };
-        
-        var search = new AdvancedSearch(new List<ISpecification> { _spec1, _spec2 });
+
+        var search = new AdvancedSearch(new List<IStrategy> { _spec1, _spec2 });
 
         var result = search.Search(_query, _dto);
 
@@ -52,7 +51,7 @@ public class AdvancedSearchTests
         _spec2.Received(1).FilterDocumentsByQuery(Arg.Any<SortedSet<string>>(), _query, _dto);
         result.Should().BeEquivalentTo(_dto.AllDocuments);
     }
-    
+
     [Fact]
     public void Search_ShouldReturnFilteredDocuments()
     {
@@ -75,7 +74,7 @@ public class AdvancedSearchTests
                     {
                         DocId = "doc2",
                         Indexes = { 4,5,6 }
-                        
+
                     },
                     new DocumentInfo
                     {
@@ -100,7 +99,7 @@ public class AdvancedSearchTests
                 docs.UnionWith(new[] { "doc3" });
             });
 
-        var search = new AdvancedSearch(new List<ISpecification> { _spec1, _spec2 });
+        var search = new AdvancedSearch(new List<IStrategy> { _spec1, _spec2 });
 
         // Act
         var result = search.Search(query, dto);
