@@ -8,7 +8,7 @@ using FullTextSearch.InvertedIndexDs.SearchFeatures;
 
 namespace FullTextSearch.Tests.SearchFeaturesTests;
 
-public class InvertedIndexAdvancedSearchTests
+public class AdvancedSearchTests
 {
     private readonly IInvertedIndexBuilder _invertedIndexBuilder;
     private readonly ISpecification _spec1 = Substitute.For<ISpecification>();
@@ -16,7 +16,7 @@ public class InvertedIndexAdvancedSearchTests
     private const string _query = "get help +illness +disease -cough"; 
     private readonly InvertedIndexDto _dto;
 
-    public InvertedIndexAdvancedSearchTests()
+    public AdvancedSearchTests()
     {
         _dto = Substitute.For<InvertedIndexDto>();
         _invertedIndexBuilder = Substitute.For<IInvertedIndexBuilder>();
@@ -30,7 +30,7 @@ public class InvertedIndexAdvancedSearchTests
         _dto.AllDocuments = allDocs;
 
 
-        var search = new InvertedIndexAdvancedSearch(new List<ISpecification> { _spec1, _spec2 });
+        var search = new AdvancedSearch(new List<ISpecification> { _spec1, _spec2 });
 
         var result = search.Search(_query, _dto);
 
@@ -44,7 +44,7 @@ public class InvertedIndexAdvancedSearchTests
     {
         _dto.AllDocuments = new SortedSet<string> { "doc1", "doc2" };
         
-        var search = new InvertedIndexAdvancedSearch(new List<ISpecification> { _spec1, _spec2 });
+        var search = new AdvancedSearch(new List<ISpecification> { _spec1, _spec2 });
 
         var result = search.Search(_query, _dto);
 
@@ -100,7 +100,7 @@ public class InvertedIndexAdvancedSearchTests
                 docs.UnionWith(new[] { "doc3" });
             });
 
-        var search = new InvertedIndexAdvancedSearch(new List<ISpecification> { _spec1, _spec2 });
+        var search = new AdvancedSearch(new List<ISpecification> { _spec1, _spec2 });
 
         // Act
         var result = search.Search(query, dto);

@@ -1,21 +1,18 @@
 ﻿using FluentAssertions;
-using FullTextSearch.InvertedIndexDs;
 using FullTextSearch.InvertedIndexDs.Dtos;
 using FullTextSearch.InvertedIndexDs.SearchFeatures;
 using FullTextSearch.InvertedIndexDs.SearchFeatures.Abstractions;
-using FullTextSearch.Services.TokenizerService;
-using NSubstitute;
 
 
 namespace FullTextSearch.Tests.SearchFeaturesTests;
 
-public class InvertedIndexSimpleSearchTests
+public class SimpleSearchTests
 {
     private readonly SortedSet<DocumentInfo> appleDocInfos;
     private readonly ISearch _search;
     private readonly InvertedIndexDto _dto;
 
-    public InvertedIndexSimpleSearchTests()
+    public SimpleSearchTests()
     {
         _dto = new InvertedIndexDto
         {
@@ -45,7 +42,7 @@ public class InvertedIndexSimpleSearchTests
         
         _dto.InvertedIndexMap["APPLE"] = appleDocInfos;
 
-        _search = new InvertedIndexSimpleSearch();
+        _search = new SimpleSearch();
     }
 
     [Fact]

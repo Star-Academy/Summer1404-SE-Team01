@@ -5,11 +5,11 @@ using FullTextSearch.InvertedIndexDs.SearchFeatures.Abstractions;
 
 namespace FullTextSearch.InvertedIndexDs.SearchFeatures;
 
-public class InvertedIndexAdvancedSearch : ISearch
+public class AdvancedSearch : ISearch
 {
     private readonly List<ISpecification> _specifications;
 
-    public InvertedIndexAdvancedSearch(List<ISpecification> specifications)
+    public AdvancedSearch(List<ISpecification> specifications)
     {
         _specifications = specifications;
     }

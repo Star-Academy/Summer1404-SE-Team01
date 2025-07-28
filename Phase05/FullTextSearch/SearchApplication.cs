@@ -167,7 +167,7 @@ public class SearchApplication
             {
                 var specifications = CreateSpecifications();
 
-                var advancedSearch = new InvertedIndexAdvancedSearch(specifications);
+                var advancedSearch = new AdvancedSearch(specifications);
 
                 var results = advancedSearch.Search(query, dto);
                 DisplayResults(results);

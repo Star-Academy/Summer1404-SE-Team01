@@ -1,8 +1,7 @@
 ﻿using FluentAssertions;
 using FullTextSearch.InvertedIndexDs.QueryBuilder;
-using Xunit;
 
-namespace FullTextSearch.Tests;
+namespace FullTextSearch.Tests.QueryExtractorTests;
 
 public class PhraseQueryExtractorTests
 {
@@ -11,15 +10,14 @@ public class PhraseQueryExtractorTests
     [Fact]
     public void ExtractQueries_ShouldReturnQuotedPhrases()
     {
-        
-        string query = @"get +illness +disease -cough -""star academy"" +""fake phrase""";
-        string pattern = @"-""([^""]+)"""; // regex to match phrases inside quotes
+
+        string query = @"get +illness +disease -cough -""star academy"" -""academy star"" +""fake phrase""";
+        string pattern = @"-""([^""]+)""";
 
         var result = _phraseExtractor.ExtractQueries(query, pattern);
 
-        result.Should().ContainSingle()
-            .And.Contain("star academy");
+        result.Should().HaveCount(2)
+            .And.BeEquivalentTo(["star academy".ToUpper(), "academy star".ToUpper()]);
     }
-    
     
 }

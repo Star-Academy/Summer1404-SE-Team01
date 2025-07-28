@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using FullTextSearch.InvertedIndexDs.QueryBuilder;
 
-namespace FullTextSearch.Tests;
+namespace FullTextSearch.Tests.QueryExtractorTests;
 
 public class QueryExtractorTests
 {

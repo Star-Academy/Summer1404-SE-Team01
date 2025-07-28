@@ -3,7 +3,7 @@ using FullTextSearch.InvertedIndexDs.SearchFeatures.Abstractions;
 
 namespace FullTextSearch.InvertedIndexDs.SearchFeatures;
 
-public class InvertedIndexSimpleSearch : ISearch
+public class SimpleSearch : ISearch
 {
     public SortedSet<string> Search(string input,  InvertedIndexDto dto)
     {
