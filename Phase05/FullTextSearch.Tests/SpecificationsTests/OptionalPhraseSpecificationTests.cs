@@ -1,7 +1,5 @@
 ﻿using FullTextSearch.InvertedIndex.QueryBuilder.Abstractions;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
-using FullTextSearch.InvertedIndexDs.QueryBuilder;
-using FullTextSearch.InvertedIndexDs.SearchFeatures;
 using NSubstitute;
 
 namespace FullTextSearch.Tests.SpecificationsTests

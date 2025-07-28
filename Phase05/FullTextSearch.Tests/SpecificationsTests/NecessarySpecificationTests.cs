@@ -1,10 +1,8 @@
 ﻿using FluentAssertions;
 using FullTextSearch.InvertedIndex.Dtos;
+using FullTextSearch.InvertedIndex.FilterStrategies;
 using FullTextSearch.InvertedIndex.QueryBuilder.Abstractions;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
-using FullTextSearch.InvertedIndexDs.FilterSpecifications;
-using FullTextSearch.InvertedIndexDs.QueryBuilder;
-using FullTextSearch.InvertedIndexDs.SearchFeatures;
 using NSubstitute;
 
 namespace FullTextSearch.Tests.SpecificationsTests;
@@ -16,7 +14,7 @@ public class NecessarySpecificationTests
     private readonly IQueryExtractor _queryExtractor;
     private readonly string _query;
     private readonly InvertedIndexDto _dto;
-    
+
     public NecessarySpecificationTests()
     {
         _simpleSearch = Substitute.For<ISearch>();
@@ -24,61 +22,61 @@ public class NecessarySpecificationTests
         _dto = Substitute.For<InvertedIndexDto>();
         _query = "get help +illness +disease -cough";
     }
-    
+
     [Fact]
     public void Constructor_ShouldInitializeWithValidDependencies()
     {
-        
-        
+
+
         _queryExtractor.ExtractQueries(_query, @"^[^-+]\w+")
             .Returns(new List<string> { "GET", "HELP" });
-        
+
         var spec = new RequiredStrategy(_simpleSearch, _queryExtractor);
-        
+
         spec.Should().NotBeNull();
     }
-    
-    
+
+
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenSearchIsNull()
     {
-        
+
         Action act = () => new RequiredStrategy(null, _queryExtractor);
 
-        
+
         act.Should().Throw<ArgumentNullException>()
             .WithMessage("Value cannot be null. (Parameter 'simpleSearch')");
     }
-    
+
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenQueryExtractorIsNull()
     {
-        
+
         Action act = () => new RequiredStrategy(_simpleSearch, null);
 
-        
+
         act.Should().Throw<ArgumentNullException>()
             .WithMessage("Value cannot be null. (Parameter 'queryExtractor')");
     }
-    
+
     [Fact]
     public void FilterDocumentsByQuery_ShouldIntersectDocuments_WithSearchResults()
     {
-        
+
         var expectedKeywords = new List<string> { "GET", "HELP" };
         _queryExtractor.ExtractQueries(_query, @"^[^-+]\w+")
             .Returns(expectedKeywords);
 
-        _simpleSearch.Search("GET",_dto).Returns(new SortedSet<string> { "doc1", "doc2", "doc3" });
+        _simpleSearch.Search("GET", _dto).Returns(new SortedSet<string> { "doc1", "doc2", "doc3" });
         _simpleSearch.Search("HELP", _dto).Returns(new SortedSet<string> { "doc2", "doc3", "doc4" });
 
         var documents = new SortedSet<string> { "doc1", "doc2", "doc3", "doc5" };
 
-        var spec =  new RequiredStrategy(_simpleSearch, _queryExtractor); 
+        var spec = new RequiredStrategy(_simpleSearch, _queryExtractor);
         spec.FilterDocumentsByQuery(documents, _query, _dto);
-        
-        documents.Should().BeEquivalentTo(new[] { "doc2", "doc3" }); 
+
+        documents.Should().BeEquivalentTo(new[] { "doc2", "doc3" });
     }
-    
-        
+
+
 }

@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using FullTextSearch.InvertedIndex.Dtos;
+using FullTextSearch.InvertedIndex.SearchFeatures;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
-using FullTextSearch.InvertedIndexDs.SearchFeatures;
 
 
 namespace FullTextSearch.Tests.SearchFeaturesTests;
@@ -19,7 +19,7 @@ public class SimpleSearchTests
             AllDocuments = new(),
             InvertedIndexMap = new()
         };
-        
+
         appleDocInfos = new SortedSet<DocumentInfo>
         {
             new DocumentInfo
@@ -29,7 +29,7 @@ public class SimpleSearchTests
                 {
                     50, 43, 44,
                 }
-            }, 
+            },
             new DocumentInfo
             {
                 DocId = "doc2",
@@ -39,7 +39,7 @@ public class SimpleSearchTests
                 }
             }
         };
-        
+
         _dto.InvertedIndexMap["APPLE"] = appleDocInfos;
 
         _search = new SimpleSearch();

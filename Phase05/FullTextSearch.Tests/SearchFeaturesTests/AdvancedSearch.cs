@@ -2,7 +2,7 @@
 using FullTextSearch.InvertedIndex;
 using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.InvertedIndex.FilterStrategies.Abstractions;
-using FullTextSearch.InvertedIndexDs.SearchFeatures;
+using FullTextSearch.InvertedIndex.SearchFeatures;
 using NSubstitute;
 
 namespace FullTextSearch.Tests.SearchFeaturesTests;
