@@ -8,13 +8,13 @@ namespace FullTextSearch.InvertedIndex.FilterStrategies;
 public class ExcludedStrategy : IStrategy
 {
 
-    private readonly ISearch _simpleSearch;
+    private readonly ISearch _search;
     private readonly IQueryExtractor _queryExtractor;
     private readonly string _pattern;
 
     public ExcludedStrategy(ISearch simpleSearch, IQueryExtractor queryExtractor, string pattern)
     {
-        _simpleSearch = simpleSearch ?? throw new ArgumentNullException(nameof(simpleSearch));
+        _search = simpleSearch ?? throw new ArgumentNullException(nameof(simpleSearch));
         _queryExtractor = queryExtractor ?? throw new ArgumentNullException(nameof(queryExtractor));
         _pattern = pattern;
     }
@@ -29,7 +29,7 @@ public class ExcludedStrategy : IStrategy
 
         foreach (var word in keywords)
         {
-            var DocsWithoutWord = _simpleSearch.Search(word, inIndexDto);
+            var DocsWithoutWord = _search.Search(word, inIndexDto);
             result.ExceptWith(DocsWithoutWord);
         }
     }

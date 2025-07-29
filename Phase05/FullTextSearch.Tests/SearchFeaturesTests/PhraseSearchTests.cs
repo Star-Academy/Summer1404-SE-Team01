@@ -34,12 +34,12 @@ namespace FullTextSearch.Tests.SearchFeaturesTests
             dto.InvertedIndexMap["CODE"] = new SortedSet<DocumentInfo>
             {
                 new DocumentInfo { DocId = "doc1", Indexes = new SortedSet<long> { 0 } },
-                new DocumentInfo { DocId = "doc2", Indexes = new SortedSet<long> { 2 } }
+                new DocumentInfo { DocId = "doc2", Indexes = new SortedSet<long> { 12 } }
             };
             dto.InvertedIndexMap["STAR"] = new SortedSet<DocumentInfo>
             {
                 new DocumentInfo { DocId = "doc1", Indexes = new SortedSet<long> { 1 } },
-                new DocumentInfo { DocId = "doc2", Indexes = new SortedSet<long> { 3 } },
+                new DocumentInfo { DocId = "doc2", Indexes = new SortedSet<long> { 13 } },
                 new DocumentInfo { DocId = "doc3", Indexes = new SortedSet<long> { 5 } }
             };
 

@@ -3,11 +3,12 @@ using System.Text.RegularExpressions;
 
 namespace FullTextSearch.InvertedIndex.QueryBuilder
 {
-    public class QueryExtractor : IQueryExtractor
+    public class SingleWordQueryExtractor : IQueryExtractor
     {
         public List<string> ExtractQueries(string query, string pattern)
         {
-            var words = Regex.Split(query!, @"\s+");
+            string queryWithoutPhrase = Regex.Replace(query!, @"[-+]?""[^""]+""", "").Trim();
+            var words = Regex.Split(queryWithoutPhrase, @"\s+");
 
             var keyWords = words
                  .Where(w => Regex.IsMatch(w, pattern))

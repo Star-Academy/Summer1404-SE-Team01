@@ -8,13 +8,13 @@ namespace FullTextSearch.InvertedIndex.FilterStrategies;
 public class OptionalStrategy : IStrategy
 {
 
-    private readonly ISearch _simpleSearch;
+    private readonly ISearch _search;
     private readonly IQueryExtractor _queryExtractor;
     private readonly string _pattern;
 
     public OptionalStrategy(ISearch simpleSearch, IQueryExtractor queryExtractor, string pattern)
     {
-        _simpleSearch = simpleSearch ?? throw new ArgumentNullException(nameof(simpleSearch));
+        _search = simpleSearch ?? throw new ArgumentNullException(nameof(simpleSearch));
         _queryExtractor = queryExtractor ?? throw new ArgumentNullException(nameof(queryExtractor));
         _pattern = pattern;
     }
@@ -31,7 +31,7 @@ public class OptionalStrategy : IStrategy
         var optionalDocIds = new SortedSet<string>();
         foreach (var word in keywords)
         {
-            var currentDocIds = _simpleSearch.Search(word, inIndexDto);
+            var currentDocIds = _search.Search(word, inIndexDto);
             optionalDocIds.UnionWith(currentDocIds);
         }
 

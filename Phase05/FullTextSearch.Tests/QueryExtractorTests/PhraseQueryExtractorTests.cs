@@ -16,39 +16,39 @@ public class PhraseQueryExtractorTests
     public void ExtractQueries_ShouldReturnQuotedPhrases_WithMinusPrefix()
     {
 
-        string query = @"get +illness +disease -cough -""star academy"" -""academy star"" +""fake phrase"" ""no prefix""";
+        string query = @"get +illness +disease -cough -""we are code star"" -""star academy"" -""academy star"" +""fake phrase"" ""no prefix""";
         string pattern = @"-""([^""]+)""";
 
         var result = _phraseExtractor.ExtractQueries(query, pattern);
 
-        result.Should().HaveCount(2)
-            .And.BeEquivalentTo(["star academy".ToUpper(), "academy star".ToUpper()]);
+        result.Should().HaveCount(3)
+            .And.BeEquivalentTo(["star academy".ToUpper(), "academy star".ToUpper(), "we are code star".ToUpper()]);
     }
 
     [Fact]
     public void ExtractQueries_ShouldReturnQuotedPhrases_WithPlusPrefix()
     {
 
-        string query = @"get +illness +disease -cough -""star academy"" -""academy star"" +""fake phrase"" +""plus query"" ""no prefix""";
+        string query = @"get +illness +disease +""we are code star"" -cough -""star academy"" -""academy star"" +""fake phrase"" +""plus query"" ""no prefix""";
         string pattern = @"\+""([^""]+)""";
 
         var result = _phraseExtractor.ExtractQueries(query, pattern);
 
-        result.Should().HaveCount(2)
-            .And.BeEquivalentTo(["fake phrase".ToUpper(), "plus query".ToUpper()]);
+        result.Should().HaveCount(3)
+            .And.BeEquivalentTo(["fake phrase".ToUpper(), "plus query".ToUpper(), "we are code star".ToUpper()]);
     }
 
     [Fact]
     public void ExtractQueries_ShouldReturnQuotedPhrases_WithoutPrefix()
     {
-        string query = @"get +illness +disease -cough ""star academy"" -""academy star"" +""plus query"" ""hello world""";
+        string query = @"get +illness +disease -cough ""we are code star"" ""star academy"" -""academy star"" +""plus query"" ""hello world""";
         string pattern = @"(?<!\S)""([^""]+)""";
 
 
         var result = _phraseExtractor.ExtractQueries(query, pattern);
 
-        result.Should().HaveCount(2)
-            .And.BeEquivalentTo(["star academy".ToUpper(), "hello world".ToUpper()]);
+        result.Should().HaveCount(3)
+            .And.BeEquivalentTo(["star academy".ToUpper(), "hello world".ToUpper(), "we are code star".ToUpper()]);
     }
 
 }

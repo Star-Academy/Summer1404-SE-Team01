@@ -20,7 +20,7 @@ namespace FullTextSearch
 
             var simpleSearch = new SimpleSearch();
             var phraseSearch = new PhraseSearch(tokenizer);
-            var queryExtractor = new QueryExtractor();
+            var queryExtractor = new SingleWordQueryExtractor();
             var phraseQueryExtractor = new PhraseQueryExtractor();
             var app = new SearchApplication(
                 fileReader,
