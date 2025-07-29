@@ -5,33 +5,32 @@ using FullTextSearch.InvertedIndex.QueryBuilder.Abstractions;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 using NSubstitute;
 
-namespace FullTextSearch.Tests.SpecificationsTests;
+namespace FullTextSearch.Tests.FilterStrategyTests.SingleWordStrategyTests;
 
-public class NecessarySpecificationTests
+public class ExcludedStrategyTests
 {
 
     private readonly ISearch _simpleSearch;
     private readonly IQueryExtractor _queryExtractor;
     private readonly string _query;
     private readonly InvertedIndexDto _dto;
-
-    public NecessarySpecificationTests()
+    private readonly string _pattern;
+    public ExcludedStrategyTests()
     {
         _simpleSearch = Substitute.For<ISearch>();
         _queryExtractor = Substitute.For<IQueryExtractor>();
         _dto = Substitute.For<InvertedIndexDto>();
-        _query = "get help +illness +disease -cough";
+        _query = "get help +illness +disease -cough -star";
+        _pattern = @"^\-\w+";
     }
 
     [Fact]
     public void Constructor_ShouldInitializeWithValidDependencies()
     {
+        _queryExtractor.ExtractQueries(_query, _pattern)
+            .Returns(new List<string> { "COUGH", "STAR" });
 
-
-        _queryExtractor.ExtractQueries(_query, @"^[^-+]\w+")
-            .Returns(new List<string> { "GET", "HELP" });
-
-        var spec = new RequiredStrategy(_simpleSearch, _queryExtractor);
+        var spec = new ExcludedStrategy(_simpleSearch, _queryExtractor, _pattern);
 
         spec.Should().NotBeNull();
     }
@@ -41,7 +40,7 @@ public class NecessarySpecificationTests
     public void Constructor_ShouldThrowArgumentNullException_WhenSearchIsNull()
     {
 
-        Action act = () => new RequiredStrategy(null, _queryExtractor);
+        Action act = () => new ExcludedStrategy(null, _queryExtractor, _pattern);
 
 
         act.Should().Throw<ArgumentNullException>()
@@ -52,7 +51,7 @@ public class NecessarySpecificationTests
     public void Constructor_ShouldThrowArgumentNullException_WhenQueryExtractorIsNull()
     {
 
-        Action act = () => new RequiredStrategy(_simpleSearch, null);
+        Action act = () => new ExcludedStrategy(_simpleSearch, null, _pattern);
 
 
         act.Should().Throw<ArgumentNullException>()
@@ -60,22 +59,23 @@ public class NecessarySpecificationTests
     }
 
     [Fact]
-    public void FilterDocumentsByQuery_ShouldIntersectDocuments_WithSearchResults()
+    public void FilterDocumentsByQuery_ShouldExcludeDocuments_WithSearchResults()
     {
 
-        var expectedKeywords = new List<string> { "GET", "HELP" };
-        _queryExtractor.ExtractQueries(_query, @"^[^-+]\w+")
+        var expectedKeywords = new List<string> { "COUGH", "STAR" };
+        _queryExtractor.ExtractQueries(_query, _pattern)
             .Returns(expectedKeywords);
 
-        _simpleSearch.Search("GET", _dto).Returns(new SortedSet<string> { "doc1", "doc2", "doc3" });
-        _simpleSearch.Search("HELP", _dto).Returns(new SortedSet<string> { "doc2", "doc3", "doc4" });
+        _simpleSearch.Search("COUGH", _dto).Returns(new SortedSet<string> { "doc1", "doc2", "doc3" });
+        _simpleSearch.Search("STAR", _dto).Returns(new SortedSet<string> { "doc1", "doc2", "doc4" });
 
-        var documents = new SortedSet<string> { "doc1", "doc2", "doc3", "doc5" };
+        var documents = new SortedSet<string> { "doc1", "doc2", "doc3", "doc4", "doc5" };
 
-        var spec = new RequiredStrategy(_simpleSearch, _queryExtractor);
+        var spec = new ExcludedStrategy(_simpleSearch, _queryExtractor, _pattern);
+
         spec.FilterDocumentsByQuery(documents, _query, _dto);
 
-        documents.Should().BeEquivalentTo(new[] { "doc2", "doc3" });
+        documents.Should().BeEquivalentTo(new[] { "doc5" });
     }
 
 

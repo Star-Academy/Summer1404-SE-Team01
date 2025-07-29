@@ -4,5 +4,5 @@ namespace FullTextSearch.InvertedIndex.FilterStrategies.Abstractions;
 
 public interface IStrategy
 {
-    void FilterDocumentsByQuery(SortedSet<string> result, string query, InvertedIndexDto dto);
+    void FilterDocumentsByQuery(SortedSet<string> result, string input, InvertedIndexDto inIndexDto);
 }

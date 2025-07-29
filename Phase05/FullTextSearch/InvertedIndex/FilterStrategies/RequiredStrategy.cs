@@ -9,17 +9,18 @@ public class RequiredStrategy : IStrategy
 {
     private readonly ISearch _simpleSearch;
     private readonly IQueryExtractor _queryExtractor;
+    private readonly string _pattern;
 
-    public RequiredStrategy(ISearch simpleSearch, IQueryExtractor queryExtractor)
+    public RequiredStrategy(ISearch simpleSearch, IQueryExtractor queryExtractor, string pattern)
     {
         _simpleSearch = simpleSearch ?? throw new ArgumentNullException(nameof(simpleSearch));
         _queryExtractor = queryExtractor ?? throw new ArgumentNullException(nameof(queryExtractor));
-
+        _pattern = pattern;
     }
 
-    public void FilterDocumentsByQuery(SortedSet<string> result, string query, InvertedIndexDto dto)
+    public void FilterDocumentsByQuery(SortedSet<string> result, string query, InvertedIndexDto inIndexDto)
     {
-        var keywords = _queryExtractor.ExtractQueries(query, @"^[^-+]\w+");
+        var keywords = _queryExtractor.ExtractQueries(query, _pattern);
 
         if (keywords.Count == 0)
         {
@@ -28,7 +29,7 @@ public class RequiredStrategy : IStrategy
 
         foreach (var word in keywords)
         {
-            var currentDocIds = _simpleSearch.Search(word, dto);
+            var currentDocIds = _simpleSearch.Search(word, inIndexDto);
 
             result.IntersectWith(currentDocIds);
         }

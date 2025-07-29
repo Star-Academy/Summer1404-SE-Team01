@@ -19,13 +19,17 @@ namespace FullTextSearch
             var invertedIndex = new InvertedIndexBuilder(tokenizer);
 
             var simpleSearch = new SimpleSearch();
+            var phraseSearch = new PhraseSearch(tokenizer);
             var queryExtractor = new QueryExtractor();
+            var phraseQueryExtractor = new PhraseQueryExtractor();
             var app = new SearchApplication(
                 fileReader,
                 invertedIndex,
                 logger,
                 simpleSearch,
-                queryExtractor);
+                queryExtractor,
+                phraseSearch,
+                phraseQueryExtractor);
 
             app.Run();
         }

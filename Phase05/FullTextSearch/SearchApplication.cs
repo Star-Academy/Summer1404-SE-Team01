@@ -1,4 +1,5 @@
 ﻿using FullTextSearch.InvertedIndex;
+using FullTextSearch.InvertedIndex.Constants;
 using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.InvertedIndex.FilterStrategies;
 using FullTextSearch.InvertedIndex.FilterStrategies.Abstractions;
@@ -19,20 +20,26 @@ public class SearchApplication
     private readonly IInvertedIndexBuilder _invertedIndex;
     private readonly ILogger _logger;
     private readonly ISearch _simpleSearch;
+    private readonly ISearch _phraseSearch;
     private readonly IQueryExtractor _queryExtractor;
+    private readonly IQueryExtractor _phraseQueryExtractor;
 
     public SearchApplication(
         IFileReader fileReader,
         IInvertedIndexBuilder invertedIndex,
         ILogger logger,
         ISearch simpleSearch,
-        IQueryExtractor queryExtractor)
+        IQueryExtractor queryExtractor,
+        ISearch phraseSearch,
+        IQueryExtractor phraseQueryExtractor)
     {
         _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
         _invertedIndex = invertedIndex ?? throw new ArgumentNullException(nameof(invertedIndex));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _simpleSearch = simpleSearch ?? throw new ArgumentNullException(nameof(simpleSearch));
         _queryExtractor = queryExtractor ?? throw new ArgumentNullException(nameof(queryExtractor));
+        _phraseSearch = phraseSearch;
+        _phraseQueryExtractor = phraseQueryExtractor;
     }
 
     public void Run()
@@ -184,9 +191,12 @@ public class SearchApplication
     {
         return new List<IStrategy>
         {
-            new RequiredStrategy(_simpleSearch, _queryExtractor),
-            new OptionalStrategy(_simpleSearch, _queryExtractor),
-            new ExcludedStrategy(_simpleSearch, _queryExtractor)
+            new RequiredStrategy(_simpleSearch, _queryExtractor, StrategyPatterns.RequiredSingleWord),
+            new RequiredStrategy(_phraseSearch, _phraseQueryExtractor, StrategyPatterns.RequiredPhrase),
+            new OptionalStrategy(_simpleSearch, _queryExtractor, StrategyPatterns.OptionalSingleWord),
+            new OptionalStrategy(_phraseSearch, _phraseQueryExtractor, StrategyPatterns.OptionalPhrase),
+            new ExcludedStrategy(_simpleSearch, _queryExtractor, StrategyPatterns.ExcludedSingleWord),
+            new ExcludedStrategy(_phraseSearch, _phraseQueryExtractor, StrategyPatterns.ExcludedPhrase)
         };
     }
 

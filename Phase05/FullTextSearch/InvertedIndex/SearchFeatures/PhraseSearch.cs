@@ -1,5 +1,4 @@
 ﻿using FullTextSearch.InvertedIndex.Dtos;
-using FullTextSearch.InvertedIndex.FilterStrategies.Abstractions;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 using FullTextSearch.Services.TokenizerService;
 
@@ -8,29 +7,35 @@ namespace FullTextSearch.InvertedIndex.SearchFeatures;
 public class PhraseSearch : ISearch
 {
     private readonly ITokenizer _tokenizer;
-    private readonly ISearch _search;
-    private readonly ISequentialPhrase _sequentialPhrase;
 
-    public PhraseSearch(ITokenizer tokenizer, ISearch simpleSearch, ISequentialPhrase sequentialPhrase)
+    public PhraseSearch(ITokenizer tokenizer)
     {
         _tokenizer = tokenizer ?? throw new ArgumentNullException(nameof(tokenizer));
-        _search = simpleSearch ?? throw new ArgumentNullException(nameof(simpleSearch));
-        _sequentialPhrase = sequentialPhrase;
     }
 
     public SortedSet<string> Search(string phrase, InvertedIndexDto dto)
     {
-        var words = _tokenizer.Tokenize(phrase);
-        var tempDocs = new SortedSet<string>(dto.AllDocuments);
-        foreach (var word in words)
+        var words = _tokenizer.Tokenize(phrase).ToList();
+        var results = new SortedSet<DocumentInfo>();
+        for (int i = 0; i < words.Count(); i++)
         {
-            var currentDocIds = _search.Search(word, dto);
-            tempDocs.IntersectWith(currentDocIds);
+            if (dto.InvertedIndexMap.ContainsKey(words[i]))
+            {
+                var docInfo = new SortedSet<DocumentInfo>(dto.InvertedIndexMap[words[i]]);
+                foreach (var info in docInfo)
+                {
+                    // Fix: Convert the result of Select to a SortedSet<long> instead of List<long>
+                    info.Indexes = new SortedSet<long>(info.Indexes.Select(index => index - i));
+                }
+                if (i == 0)
+                    results.UnionWith(docInfo);
+                else
+                    results.IntersectWith(docInfo);
+            }
+            else
+                return new SortedSet<string>();
         }
-
-        _sequentialPhrase.FindConsecutivePhrases(tempDocs, words, dto);
-
-
-        return tempDocs;
+        var resultSet = results.Select(d => d.DocId);
+        return new SortedSet<string>(resultSet);
     }
 }
