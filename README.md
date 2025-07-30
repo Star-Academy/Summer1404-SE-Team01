@@ -1,0 +1,1 @@
+[![.github/workflows/buildPipeline.yml](https://github.com/Star-Academy/Summer1404-SE-Team01/actions/workflows/buildPipeline.yml/badge.svg)](https://github.com/Star-Academy/Summer1404-SE-Team01/actions/workflows/buildPipeline.yml)
