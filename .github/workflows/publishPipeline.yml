@@ -26,4 +26,4 @@ jobs:
         working-directory: Phase05/FullTextSearch/
 
       - name: Publish NuGet Package
-        run: dotnet nuget push ./**/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ./**/*.nupkg -k ${{ secrets.NUGET_API_KEY_NEW }} -s https://api.nuget.org/v3/index.json
