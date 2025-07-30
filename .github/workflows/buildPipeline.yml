@@ -19,9 +19,12 @@ jobs:
                   dotnet-version: 8.0.x
 
             - name: Install dependencies
-              run: dotnet restore Phase*/*.sln
+              run: |
+                for sln in Phase*/*.sln; do
+                  echo "Restoring $sln"
+                  dotnet restore "$sln"
+                done
               shell: bash
-
 
             - name: Build
               run: |
