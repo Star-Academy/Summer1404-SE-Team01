@@ -1,5 +1,3 @@
-name: build
-
 on:
     push:
         branches: [main]
@@ -17,34 +15,15 @@ jobs:
               uses: actions/setup-dotnet@v2
               with:
                   dotnet-version: 8.0.x
-            
-            - name: Debug List solution files
-              run: |
-                echo "Current directory: $(pwd)"
-                echo "List of folders:"
-                ls -l
-                echo "Matching .sln files:"
-                find . -name "*.sln"
-              shell: bash
 
             - name: Install dependencies
-              run: |
-                for sln in Phase*/*.sln; do
-                  echo "Restoring $sln"
-                  dotnet restore "$sln"
-                done
-              shell: bash
+              run: dotnet restore
+              working-directory: ./Phase*/
 
             - name: Build
-              run: |
-                for sln in Phase*/*.sln; do
-                  dotnet build "$sln" --configuration Release --no-restore
-                done
-              shell: bash
-              
+              run: dotnet build --configuration Release --no-restore
+              working-directory: ./Phase*/
+
             - name: Test
-              run: |
-                for sln in Phase*/*.sln; do
-                  dotnet test "$sln" --no-restore --verbosity normal --collect:"XPlat Code Coverage"
-                done
-              shell: bash
+              run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+              working-directory: ./Phase*/
