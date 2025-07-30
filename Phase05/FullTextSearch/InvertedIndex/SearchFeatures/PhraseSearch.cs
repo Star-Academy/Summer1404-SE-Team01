@@ -70,24 +70,5 @@ public class PhraseSearch : ISearch
 
         return result;
 
-        // for (int i = 0; i < words.Count(); i++)
-        // {
-        //     if (dto.InvertedIndexMap.ContainsKey(words[i]))
-        //     {
-        //         var docInfo = new SortedSet<DocumentInfo>(dto.InvertedIndexMap[words[i]]);
-        //         foreach (var info in docInfo)
-        //         {
-        //             // Fix: Convert the result of Select to a SortedSet<long> instead of List<long>
-        //             info.Indexes = new SortedSet<long>(info.Indexes.Select(index => index - i));
-        //         }
-        //         if (i == 0)
-        //             results.UnionWith(docInfo);
-        //         else
-        //             results.IntersectWith(docInfo);
-        //     }
-        //     else
-        //         return new SortedSet<string>();
-        // }
-
     }
 }
