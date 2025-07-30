@@ -4,20 +4,19 @@ on:
   release:
     types: published
 
-
 jobs:
   publish:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
 
-steps:
-  - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 8.0.x
 
-  - name: Setup .NET
-    uses: actions/setup-dotnet@v2
-    with:
-      dotnet-version: 8.0.x
-  - name: Get current release version
-    id: version
-    uses: pozetroninc/github-action-get-latest-release@master
-    with:
-      repository: Star-Academy/Summer1404-SE-Team01
+      - name: Get current release version
+        id: version
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: Star-Academy/Summer1404-SE-Team01
