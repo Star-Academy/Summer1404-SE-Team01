@@ -17,6 +17,15 @@ jobs:
               uses: actions/setup-dotnet@v2
               with:
                   dotnet-version: 8.0.x
+            
+            - name: Debug List solution files
+              run: |
+                echo "Current directory: $(pwd)"
+                echo "List of folders:"
+                ls -l
+                echo "Matching .sln files:"
+                find . -name "*.sln"
+              shell: bash
 
             - name: Install dependencies
               run: |
