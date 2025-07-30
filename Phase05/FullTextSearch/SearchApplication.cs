@@ -70,9 +70,8 @@ public class SearchApplication
             _logger.LogInformation("Building inverted index...");
             var dto = _invertedIndex.Build(docs);
 
-            return dto;
-
             _logger.LogInformation($"Index built successfully. {docs.Count} documents loaded.");
+            return dto;
         }
         catch (Exception e)
         {
