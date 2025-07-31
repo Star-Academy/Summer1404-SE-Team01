@@ -6,13 +6,13 @@ using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 
 namespace FullTextSearch.Tests.SearchFeaturesTests;
 
-public class SimpleSearchTests
+public class WordSearchTests
 {
     private readonly SortedSet<DocumentInfo> appleDocInfos;
     private readonly ISearch _search;
     private readonly InvertedIndexDto _dto;
 
-    public SimpleSearchTests()
+    public WordSearchTests()
     {
         _dto = new InvertedIndexDto
         {
@@ -42,7 +42,7 @@ public class SimpleSearchTests
 
         _dto.InvertedIndexMap["APPLE"] = appleDocInfos;
 
-        _search = new SimpleSearch();
+        _search = new WordSearch();
     }
 
     [Fact]

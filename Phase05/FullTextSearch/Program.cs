@@ -18,7 +18,7 @@ namespace FullTextSearch
             var fileReader = new FileReader();
             var invertedIndex = new InvertedIndexBuilder(tokenizer);
 
-            var simpleSearch = new SimpleSearch();
+            var simpleSearch = new WordSearch();
             var phraseSearch = new PhraseSearch(tokenizer);
             var queryExtractor = new SingleWordQueryExtractor();
             var phraseQueryExtractor = new PhraseQueryExtractor();

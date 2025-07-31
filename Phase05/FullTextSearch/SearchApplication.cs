@@ -38,8 +38,8 @@ public class SearchApplication
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _simpleSearch = simpleSearch ?? throw new ArgumentNullException(nameof(simpleSearch));
         _queryExtractor = queryExtractor ?? throw new ArgumentNullException(nameof(queryExtractor));
-        _phraseSearch = phraseSearch;
-        _phraseQueryExtractor = phraseQueryExtractor;
+        _phraseSearch = phraseSearch ?? throw new ArgumentNullException(nameof(phraseSearch));
+        _phraseQueryExtractor = phraseQueryExtractor ?? throw new ArgumentNullException(nameof(phraseQueryExtractor));
     }
 
     public void Run()
