@@ -4,5 +4,5 @@ namespace FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 
 public interface ISearch
 {
-    SortedSet<string> Search(string input, InvertedIndexDto dto);
+    SortedSet<string> Search(string input, InvertedIndexDto invIdxDto);
 }

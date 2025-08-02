@@ -2,73 +2,43 @@
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 using FullTextSearch.Services.TokenizerService;
 
-namespace FullTextSearch.InvertedIndex.SearchFeatures;
-
 public class PhraseSearch : ISearch
 {
     private readonly ITokenizer _tokenizer;
+    private readonly ISequentialValidator _sequentialValidator;
 
-    public PhraseSearch(ITokenizer tokenizer)
+    public PhraseSearch(ITokenizer tokenizer, ISequentialValidator sequentialValidator)
     {
         _tokenizer = tokenizer ?? throw new ArgumentNullException(nameof(tokenizer));
+        _sequentialValidator = sequentialValidator ?? throw new ArgumentNullException(nameof(sequentialValidator));
     }
 
-    public SortedSet<string> Search(string phrase, InvertedIndexDto dto)
+    public SortedSet<string> Search(string phrase, InvertedIndexDto invIdxDto)
     {
-        
-        var words = _tokenizer.Tokenize(phrase).ToList();
-        var docIdsContainsWords = new SortedSet<string>(dto.AllDocuments);
-        
+        if (string.IsNullOrWhiteSpace(phrase))
+        {
+            return new SortedSet<string>();
+        }
+
+        var words = _tokenizer.Tokenize(phrase)?.ToList();
+        if (words == null || words.Count == 0)
+        {
+            return new SortedSet<string>();
+        }
+
+        var docIdsContainingWords = new SortedSet<string>(invIdxDto.AllDocuments);
         foreach (var word in words)
         {
-            if (dto.InvertedIndexMap.TryGetValue(word, out var docInfoSet))
+            if (invIdxDto.InvertedIndexMap.TryGetValue(word, out var docInfoSet))
             {
-                var currentWordDocIds = docInfoSet.Select(d => d.DocId);
-
-                docIdsContainsWords.IntersectWith(currentWordDocIds);
+                docIdsContainingWords.IntersectWith(docInfoSet.Select(d => d.DocId));
             }
             else
             {
                 return new SortedSet<string>();
             }
-
-
-        }
-        
-        
-        var result = new SortedSet<string>();
-        foreach (var docId in docIdsContainsWords)
-        {
-            var firstWord = words[0];
-            var firstWordDocumentInfoCurrentDocId = dto.InvertedIndexMap[firstWord].Single(d => d.DocId == docId);
-            var firstWordCurrentDocIdIndexes = firstWordDocumentInfoCurrentDocId.Indexes;
-            var commonIndexesOfCurrentDocId = new SortedSet<long>(firstWordCurrentDocIdIndexes);
-            
-            bool isDocIdHasThisPhrase = true;
-            for (int i = 1; i < words.Count; i++)
-            {
-                var word = words.ElementAt(i);
-                var wordDocInfo = dto.InvertedIndexMap[word].FirstOrDefault(d => d.DocId == docId);
-                var wordIndexesReducedI =  new SortedSet<long>(
-                    wordDocInfo!.Indexes.Select(index => index - i)
-                );
-                commonIndexesOfCurrentDocId.IntersectWith(wordIndexesReducedI); 
-                
-                if (!commonIndexesOfCurrentDocId.Any())
-                {
-                    isDocIdHasThisPhrase = false;
-                    break;
-                }
-            }
-            
-            if (isDocIdHasThisPhrase)
-            {
-                result.Add(docId);
-            }
-            
         }
 
-        return result;
-
+        return _sequentialValidator.Validate(words, docIdsContainingWords, invIdxDto);
     }
 }

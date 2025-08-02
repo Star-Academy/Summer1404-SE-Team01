@@ -5,11 +5,11 @@ namespace FullTextSearch.Tests.QueryExtractorTests;
 
 public class SingleWordQueryExtractorTests
 {
-    private readonly SingleWordQueryExtractor _extractor;
+    private readonly SingleWordQueryExtractor _sut;
     private readonly string _query;
     public SingleWordQueryExtractorTests()
     {
-        _extractor = new SingleWordQueryExtractor();
+        _sut = new SingleWordQueryExtractor();
         _query = @"apple -banana +carrot delta -omega +date ""I have orange"" +""hello world"" -""hi man""";
     }
 
@@ -18,9 +18,9 @@ public class SingleWordQueryExtractorTests
     {
         var pattern = @"\-\w+";
 
-        var result = _extractor.ExtractQueries(_query, pattern);
+        var expected = _sut.ExtractQueries(_query, pattern);
 
-        result.Should().BeEquivalentTo(new List<string> { "BANANA", "OMEGA" });
+        expected.Should().BeEquivalentTo(new List<string> { "BANANA", "OMEGA" });
     }
 
     [Fact]
@@ -28,9 +28,9 @@ public class SingleWordQueryExtractorTests
     {
         var pattern = @"\+\w+";
 
-        var result = _extractor.ExtractQueries(_query, pattern);
+        var expected = _sut.ExtractQueries(_query, pattern);
 
-        result.Should().BeEquivalentTo(new List<string> { "CARROT", "DATE" });
+        expected.Should().BeEquivalentTo(new List<string> { "CARROT", "DATE" });
     }
 
     [Fact]
@@ -38,9 +38,9 @@ public class SingleWordQueryExtractorTests
     {
         var pattern = @"^[^-+""][a-zA-Z]+$";
 
-        var result = _extractor.ExtractQueries(_query, pattern);
+        var expected = _sut.ExtractQueries(_query, pattern);
 
-        result.Should().BeEquivalentTo(new List<string> { "APPLE", "DELTA" });
+        expected.Should().BeEquivalentTo(new List<string> { "APPLE", "DELTA" });
     }
 
     [Fact]
@@ -49,9 +49,9 @@ public class SingleWordQueryExtractorTests
         var query = @"apple banana carrot ""we are code star""";
         var pattern = @"\+\w+";
 
-        var result = _extractor.ExtractQueries(query, pattern);
+        var expected = _sut.ExtractQueries(query, pattern);
 
-        result.Should().BeEmpty();
+        expected.Should().BeEmpty();
     }
 
     [Fact]
@@ -60,19 +60,19 @@ public class SingleWordQueryExtractorTests
         var query = "";
         var pattern = @"\-\w+";
 
-        var result = _extractor.ExtractQueries(query, pattern);
+        var expected = _sut.ExtractQueries(query, pattern);
 
-        result.Should().BeEmpty();
+        expected.Should().BeEmpty();
     }
 
     [Fact]
-    public void ExtractQueries_ShouldNotContainsUnspecifiedQueries()
+    public void ExtractQueries_ShouldNotContains_WhenIncludingUnspecifiedQueries()
     {
         var query = "90832490 *word &%word $fake -plush +day should";
         var pattern = @"^[-+]?[a-zA-Z]+$";
 
-        var result = _extractor.ExtractQueries(query, pattern);
+        var expected = _sut.ExtractQueries(query, pattern);
 
-        result.Should().BeEquivalentTo(new List<string> { "PLUSH", "DAY", "SHOULD" });
+        expected.Should().BeEquivalentTo(new List<string> { "PLUSH", "DAY", "SHOULD" });
     }
 }

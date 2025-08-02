@@ -15,11 +15,12 @@ namespace FullTextSearch
         {
             var logger = new ConsoleLogger();
             var tokenizer = new Tokenizer();
+            var sequentialValidator = new SequentialValidator();
             var fileReader = new FileReader();
             var invertedIndex = new InvertedIndexBuilder(tokenizer);
 
             var simpleSearch = new WordSearch();
-            var phraseSearch = new PhraseSearch(tokenizer);
+            var phraseSearch = new PhraseSearch(tokenizer, sequentialValidator);
             var queryExtractor = new SingleWordQueryExtractor();
             var phraseQueryExtractor = new PhraseQueryExtractor();
             var app = new SearchApplication(

@@ -5,10 +5,10 @@ namespace FullTextSearch.Tests.QueryExtractorTests;
 
 public class PhraseQueryExtractorTests
 {
-    private readonly PhraseQueryExtractor _phraseExtractor;
+    private readonly PhraseQueryExtractor _sut;
     public PhraseQueryExtractorTests()
     {
-        _phraseExtractor = new PhraseQueryExtractor();
+        _sut = new PhraseQueryExtractor();
 
     }
 
@@ -19,9 +19,9 @@ public class PhraseQueryExtractorTests
         string query = @"get +illness +disease -cough -""we are code star"" -""star academy"" -""academy star"" +""fake phrase"" ""no prefix""";
         string pattern = @"-""([^""]+)""";
 
-        var result = _phraseExtractor.ExtractQueries(query, pattern);
+        var expected = _sut.ExtractQueries(query, pattern);
 
-        result.Should().HaveCount(3)
+        expected.Should().HaveCount(3)
             .And.BeEquivalentTo(["star academy".ToUpper(), "academy star".ToUpper(), "we are code star".ToUpper()]);
     }
 
@@ -32,9 +32,9 @@ public class PhraseQueryExtractorTests
         string query = @"get +illness +disease +""we are code star"" -cough -""star academy"" -""academy star"" +""fake phrase"" +""plus query"" ""no prefix""";
         string pattern = @"\+""([^""]+)""";
 
-        var result = _phraseExtractor.ExtractQueries(query, pattern);
+        var expected = _sut.ExtractQueries(query, pattern);
 
-        result.Should().HaveCount(3)
+        expected.Should().HaveCount(3)
             .And.BeEquivalentTo(["fake phrase".ToUpper(), "plus query".ToUpper(), "we are code star".ToUpper()]);
     }
 
@@ -45,9 +45,9 @@ public class PhraseQueryExtractorTests
         string pattern = @"(?<!\S)""([^""]+)""";
 
 
-        var result = _phraseExtractor.ExtractQueries(query, pattern);
+        var expected = _sut.ExtractQueries(query, pattern);
 
-        result.Should().HaveCount(3)
+        expected.Should().HaveCount(3)
             .And.BeEquivalentTo(["star academy".ToUpper(), "hello world".ToUpper(), "we are code star".ToUpper()]);
     }
 

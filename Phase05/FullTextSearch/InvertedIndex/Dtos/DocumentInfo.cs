@@ -3,14 +3,8 @@
 public class DocumentInfo : IComparable<DocumentInfo>
 {
 
-    public string DocId { get; set; }
-    public SortedSet<long> Indexes { get; set; }
-
-    public DocumentInfo()
-    {
-        Indexes = new();
-    }
-
+    public required string DocId { get; set; }
+    public required SortedSet<long> Indexes { get; set; }
     public int CompareTo(DocumentInfo other)
     {
         if (other is not null) return 1;

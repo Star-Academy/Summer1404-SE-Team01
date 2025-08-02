@@ -1,110 +1,212 @@
 ﻿using FluentAssertions;
 using FullTextSearch.InvertedIndex.Dtos;
-using FullTextSearch.InvertedIndex.SearchFeatures;
+using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 using FullTextSearch.Services.TokenizerService;
 using NSubstitute;
 
-namespace FullTextSearch.Tests.SearchFeaturesTests
+namespace FullTextSearch.Tests.SearchFeaturesTests;
+
+public class PhraseSearchTests
 {
-    public class PhraseSearchTests
+    private readonly ITokenizer _tokenizer;
+    private readonly ISequentialValidator _sequentialValidator;
+    private readonly PhraseSearch _sut;
+
+    public PhraseSearchTests()
     {
-        private readonly ITokenizer _tokenizer;
-        private readonly PhraseSearch _phraseSearch;
+        _tokenizer = Substitute.For<ITokenizer>();
+        _sequentialValidator = Substitute.For<ISequentialValidator>();
+        _sut = new PhraseSearch(_tokenizer, _sequentialValidator);
+    }
 
-        public PhraseSearchTests()
+    [Fact]
+    public void Constructor_ShouldThrowArgumentNullException_WhenTokenizerIsNull()
+    {
+        Action act = () => new PhraseSearch(null, _sequentialValidator);
+        act.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'tokenizer')");
+    }
+
+    [Fact]
+    public void Constructor_ShouldThrowArgumentNullException_WhenSequentialValidatorIsNull()
+    {
+        Action act = () => new PhraseSearch(_tokenizer, null);
+        act.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'sequentialValidator')");
+    }
+
+    [Fact]
+    public void Search_ShouldReturnDocumentsContainingExactPhrase_WhenAllWordsExistInSequence()
+    {
+        // Arrange
+        var phrase = "hello world";
+        _tokenizer.Tokenize(phrase).Returns(new[] { "HELLO", "WORLD" });
+
+        var dto = CreateTestIndexDto();
+        _sequentialValidator.Validate(
+            Arg.Is<List<string>>(x => x.SequenceEqual(new[] { "HELLO", "WORLD" })),
+            Arg.Is<SortedSet<string>>(x => x.SetEquals(new[] { "doc1", "doc2", "doc3" })),
+            Arg.Any<InvertedIndexDto>())
+            .Returns(new SortedSet<string>(new[] { "doc1", "doc3" }));
+
+        // Act
+        var result = _sut.Search(phrase, dto);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(new[] { "doc1", "doc3" });
+    }
+
+    [Fact]
+    public void Search_ShouldReturnEmptySet_WhenFirstWordIsMissingFromIndex()
+    {
+        // Arrange
+        var phrase = "missing world";
+        _tokenizer.Tokenize(phrase).Returns(["MISSING", "WORLD"]);
+        var dto = CreateTestIndexDto();
+
+        // Act
+        var expected = _sut.Search(phrase, dto);
+
+        // Assert
+        expected.Should().BeEmpty();
+        _sequentialValidator.DidNotReceive().Validate(
+            Arg.Any<List<string>>(),
+            Arg.Any<SortedSet<string>>(),
+            Arg.Any<InvertedIndexDto>());
+    }
+
+    [Fact]
+    public void Search_ShouldReturnEmptySet_WhenSubsequentWordIsMissingFromIndex()
+    {
+        // Arrange
+        var phrase = "hello missing";
+        _tokenizer.Tokenize(phrase).Returns(["HELLO", "MISSING"]);
+        var dto = CreateTestIndexDto();
+
+        // Act
+        var expected = _sut.Search(phrase, dto);
+
+        // Assert
+        expected.Should().BeEmpty();
+        _sequentialValidator.DidNotReceive().Validate(
+            Arg.Any<List<string>>(),
+            Arg.Any<SortedSet<string>>(),
+            Arg.Any<InvertedIndexDto>());
+    }
+
+    [Fact]
+    public void Search_ShouldReturnEmptySet_WhenNoDocumentsContainAllWords()
+    {
+        // Arrange
+        var phrase = "hello world";
+        _tokenizer.Tokenize(phrase).Returns(["HELLO", "WORLD"]);
+
+        var dto = CreateModifiedIndexDto(dto =>
         {
-            _tokenizer = Substitute.For<ITokenizer>();
-            _phraseSearch = new PhraseSearch(_tokenizer);
-        }
+            dto.InvertedIndexMap.Remove("WORLD");
+        });
 
-        [Fact]
-        public void Search_ShouldReturnDocumentsContainingExactPhrase()
+        // Act
+        var expected = _sut.Search(phrase, dto);
+
+        // Assert
+        expected.Should().BeEmpty();
+        _sequentialValidator.DidNotReceive().Validate(
+            Arg.Any<List<string>>(),
+            Arg.Any<SortedSet<string>>(),
+            Arg.Any<InvertedIndexDto>());
+    }
+
+    [Fact]
+    public void Search_ShouldReturnEmptySet_WhenPhraseIsEmpty()
+    {
+        // Arrange
+        var phrase = string.Empty;
+        var dto = CreateTestIndexDto();
+
+        // Act
+        var result = _sut.Search(phrase, dto);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEmpty();
+        _tokenizer.DidNotReceive().Tokenize(Arg.Any<string>());
+        _sequentialValidator.DidNotReceive().Validate(
+            Arg.Any<List<string>>(),
+            Arg.Any<SortedSet<string>>(),
+            Arg.Any<InvertedIndexDto>());
+    }
+
+    [Fact]
+    public void Search_ShouldReturnSingleWordDocuments_WhenPhraseHasOneWord()
+    {
+        // Arrange
+        var phrase = "hello";
+        _tokenizer.Tokenize(phrase).Returns(new[] { "HELLO" });
+
+        var dto = CreateTestIndexDto();
+        _sequentialValidator.Validate(
+            Arg.Is<List<string>>(x => x.SequenceEqual(new[] { "HELLO" })),
+            Arg.Is<SortedSet<string>>(x => x.SetEquals(new[] { "doc1", "doc2", "doc3" })),
+            Arg.Any<InvertedIndexDto>())
+            .Returns(new SortedSet<string>(new[] { "doc1", "doc2", "doc3" }));
+
+        // Act
+        var result = _sut.Search(phrase, dto);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(new[] { "doc1", "doc2", "doc3" });
+    }
+
+    [Fact]
+    public void Search_ShouldBeCaseInsensitive_WhenTokenizingPhrase()
+    {
+        // Arrange
+        var phrase = "HeLLo WoRLD";
+        _tokenizer.Tokenize(phrase).Returns(new[] { "HELLO", "WORLD" });
+
+        var dto = CreateTestIndexDto();
+        _sequentialValidator.Validate(
+            Arg.Is<List<string>>(x => x.SequenceEqual(new[] { "HELLO", "WORLD" })),
+            Arg.Any<SortedSet<string>>(),
+            Arg.Any<InvertedIndexDto>())
+            .Returns(new SortedSet<string>(new[] { "doc1", "doc3" }));
+
+        // Act
+        var result = _sut.Search(phrase, dto);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(new[] { "doc1", "doc3" });
+    }
+
+    private static InvertedIndexDto CreateTestIndexDto()
+    {
+        return new InvertedIndexDto
         {
-            // Arrange
-            var inputPhrase = "code star";
-            _tokenizer.Tokenize(inputPhrase).Returns(new List<string> { "CODE", "STAR" });
-
-            var dto = new InvertedIndexDto
+            AllDocuments = new SortedSet<string>(["doc1", "doc2", "doc3"]),
+            InvertedIndexMap = new SortedDictionary<string, SortedSet<DocumentInfo>>
             {
-                AllDocuments = new SortedSet<string> { "doc1", "doc2", "doc3" },
-                InvertedIndexMap = new SortedDictionary<string, SortedSet<DocumentInfo>>()
-            };
+                ["HELLO"] = new()
+                {
+                    new() { DocId = "doc1", Indexes = [10] },
+                    new() { DocId = "doc2", Indexes = [5] },
+                    new() { DocId = "doc3", Indexes = [15] }
+                },
+                ["WORLD"] = new()
+                {
+                    new() { DocId = "doc1", Indexes = [11] },
+                    new() { DocId = "doc2", Indexes = [8] }, // Not sequential with HELLO@5
+                    new() { DocId = "doc3", Indexes = [16] }
+                }
+            }
+        };
+    }
 
-            // doc1 and doc2 contain the phrase at positions [(0,1)]
-            dto.InvertedIndexMap["CODE"] = new SortedSet<DocumentInfo>
-            {
-                new DocumentInfo { DocId = "doc1", Indexes = new SortedSet<long> { 0 } },
-                new DocumentInfo { DocId = "doc2", Indexes = new SortedSet<long> { 12 } }
-            };
-            dto.InvertedIndexMap["STAR"] = new SortedSet<DocumentInfo>
-            {
-                new DocumentInfo { DocId = "doc1", Indexes = new SortedSet<long> { 1 } },
-                new DocumentInfo { DocId = "doc2", Indexes = new SortedSet<long> { 13 } },
-                new DocumentInfo { DocId = "doc3", Indexes = new SortedSet<long> { 5 } }
-            };
-
-            // Act
-            var result = _phraseSearch.Search(inputPhrase, dto);
-
-            // Assert
-            result.Should().BeEquivalentTo(new[] { "doc1", "doc2" });
-        }
-
-        [Fact]
-        public void Search_ShouldReturnEmpty_WhenNoExactPhraseMatchAcrossDocuments()
-        {
-            // Arrange
-            var inputPhrase = "code star";
-            _tokenizer.Tokenize(inputPhrase).Returns(new List<string> { "CODE", "STAR" });
-
-            var dto = new InvertedIndexDto
-            {
-                AllDocuments = new SortedSet<string> { "doc1", "doc2" },
-                InvertedIndexMap = new SortedDictionary<string, SortedSet<DocumentInfo>>()
-            };
-
-            // doc1 has CODE at 0 but STAR at 2 (no consecutive)
-            dto.InvertedIndexMap["CODE"] = new SortedSet<DocumentInfo>
-            {
-                new DocumentInfo { DocId = "doc1", Indexes = new SortedSet<long> { 0 } }
-            };
-            dto.InvertedIndexMap["STAR"] = new SortedSet<DocumentInfo>
-            {
-                new DocumentInfo { DocId = "doc1", Indexes = new SortedSet<long> { 2 } }
-            };
-
-            // Act
-            var result = _phraseSearch.Search(inputPhrase, dto);
-
-            // Assert
-            result.Should().BeEmpty();
-        }
-
-        [Fact]
-        public void Search_ShouldReturnEmpty_WhenAnyWordMissingFromIndex()
-        {
-            // Arrange
-            var inputPhrase = "code star";
-            _tokenizer.Tokenize(inputPhrase).Returns(new List<string> { "CODE", "STAR" });
-
-            var dto = new InvertedIndexDto
-            {
-                AllDocuments = new SortedSet<string> { "doc1" },
-                InvertedIndexMap = new SortedDictionary<string, SortedSet<DocumentInfo>>()
-            };
-
-            // Only CODE present
-            dto.InvertedIndexMap["CODE"] = new SortedSet<DocumentInfo>
-            {
-                new DocumentInfo { DocId = "doc1", Indexes = new SortedSet<long> { 0 } }
-            };
-            // STAR missing
-
-            // Act
-            var result = _phraseSearch.Search(inputPhrase, dto);
-
-            // Assert
-            result.Should().BeEmpty();
-        }
+    private static InvertedIndexDto CreateModifiedIndexDto(Action<InvertedIndexDto> modifier)
+    {
+        var dto = CreateTestIndexDto();
+        modifier(dto);
+        return dto;
     }
 }

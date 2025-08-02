@@ -5,10 +5,10 @@ namespace FullTextSearch.InvertedIndex.SearchFeatures;
 
 public class WordSearch : ISearch
 {
-    public SortedSet<string> Search(string input, InvertedIndexDto dto)
+    public SortedSet<string> Search(string input, InvertedIndexDto invIdxDto)
     {
         var key = input.ToUpper();
-        return dto.InvertedIndexMap.TryGetValue(key, out var docs) && docs.Count > 0
+        return invIdxDto.InvertedIndexMap.TryGetValue(key, out var docs) && docs.Count > 0
             ? new SortedSet<string>(docs.Select(d => d.DocId))
             : new SortedSet<string>();
     }

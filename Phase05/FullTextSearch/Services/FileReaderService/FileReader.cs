@@ -1,8 +1,9 @@
 ﻿using FullTextSearch.Exceptions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FullTextSearch.Services.FileReaderService
 {
-
+    [ExcludeFromCodeCoverage]
     public class FileReader : IFileReader
     {
         public Dictionary<string, string> ReadAllFiles(string basePath)

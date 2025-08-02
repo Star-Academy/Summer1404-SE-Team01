@@ -171,9 +171,9 @@ public class SearchApplication
 
             try
             {
-                var specifications = CreateSpecifications();
+                var strategies = CreateFilterStrategies();
 
-                var advancedSearch = new AdvancedSearch(specifications);
+                var advancedSearch = new AdvancedSearch(strategies);
 
                 var results = advancedSearch.Search(query, dto);
                 DisplayResults(results);
@@ -186,9 +186,9 @@ public class SearchApplication
         }
     }
 
-    private List<IStrategy> CreateSpecifications()
+    private List<IFilterStrategy> CreateFilterStrategies()
     {
-        return new List<IStrategy>
+        return new List<IFilterStrategy>
         {
             new RequiredStrategy(_simpleSearch, _queryExtractor, StrategyPatterns.RequiredSingleWord),
             new RequiredStrategy(_phraseSearch, _phraseQueryExtractor, StrategyPatterns.RequiredPhrase),

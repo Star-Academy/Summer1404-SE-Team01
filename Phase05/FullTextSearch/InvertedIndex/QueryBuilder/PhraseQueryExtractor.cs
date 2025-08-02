@@ -5,7 +5,7 @@ namespace FullTextSearch.InvertedIndex.QueryBuilder;
 
 public class PhraseQueryExtractor : IQueryExtractor
 {
-    public List<string> ExtractQueries(string query, string pattern)
+    public IReadOnlyCollection<string> ExtractQueries(string query, string pattern)
     {
         var matches = Regex.Matches(query, pattern);
         if (matches.Count == 0) return new List<string>();

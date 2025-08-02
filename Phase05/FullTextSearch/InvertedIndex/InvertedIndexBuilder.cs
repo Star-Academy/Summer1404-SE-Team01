@@ -15,7 +15,7 @@ namespace FullTextSearch.InvertedIndex
         public InvertedIndexDto Build(Dictionary<string, string> documents)
         {
 
-            var dto = new InvertedIndexDto
+            var invIdxDto = new InvertedIndexDto
             {
                 InvertedIndexMap = new(),
                 AllDocuments = new(),
@@ -23,32 +23,36 @@ namespace FullTextSearch.InvertedIndex
             foreach (var (docId, contents) in documents)
             {
                 var tokens = _tokenizer.Tokenize(contents);
-    
+
                 foreach (var (word, index) in tokens.Select((w, i) => (w, i)))
                 {
-                    if (!dto.InvertedIndexMap.ContainsKey(word))
+                    if (!invIdxDto.InvertedIndexMap.ContainsKey(word))
                     {
-                        dto.InvertedIndexMap[word] = new SortedSet<DocumentInfo>();
+                        invIdxDto.InvertedIndexMap[word] = new SortedSet<DocumentInfo>();
                     }
 
                     DocumentInfo documentInfo;
-                    if (dto.InvertedIndexMap[word].All(docInfo => docInfo.DocId != docId))
+                    if (invIdxDto.InvertedIndexMap[word].All(docInfo => docInfo.DocId != docId))
                     {
-                        documentInfo = new DocumentInfo { DocId = docId };
-                        dto.InvertedIndexMap[word].Add(documentInfo);
+                        documentInfo = new DocumentInfo
+                        {
+                            DocId = docId,
+                            Indexes = new()
+                        };
+                        invIdxDto.InvertedIndexMap[word].Add(documentInfo);
                     }
                     else
                     {
-                        documentInfo = dto.InvertedIndexMap[word].Single(docInfo => docInfo.DocId == docId);
+                        documentInfo = invIdxDto.InvertedIndexMap[word].Single(docInfo => docInfo.DocId == docId);
                     }
 
-                    documentInfo.Indexes.Add(index); 
+                    documentInfo.Indexes.Add(index);
                 }
 
-                
+
             }
-            dto.AllDocuments = new SortedSet<string>(documents.Keys);
-            return dto;
+            invIdxDto.AllDocuments = new SortedSet<string>(documents.Keys);
+            return invIdxDto;
         }
     }
 }

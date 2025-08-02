@@ -5,7 +5,7 @@ namespace FullTextSearch.InvertedIndex.QueryBuilder
 {
     public class SingleWordQueryExtractor : IQueryExtractor
     {
-        public List<string> ExtractQueries(string query, string pattern)
+        public IReadOnlyCollection<string> ExtractQueries(string query, string pattern)
         {
             string queryWithoutPhrase = Regex.Replace(query!, @"[-+]?""[^""]+""", "").Trim();
             var words = Regex.Split(queryWithoutPhrase, @"\s+");

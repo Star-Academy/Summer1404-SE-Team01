@@ -2,5 +2,5 @@
 
 public interface IQueryExtractor
 {
-    List<string> ExtractQueries(string query, string pattern);
+    IReadOnlyCollection<string> ExtractQueries(string query, string pattern);
 }

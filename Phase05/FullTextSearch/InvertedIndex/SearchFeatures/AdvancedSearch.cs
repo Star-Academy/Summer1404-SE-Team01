@@ -6,22 +6,23 @@ namespace FullTextSearch.InvertedIndex.SearchFeatures;
 
 public class AdvancedSearch : ISearch
 {
-    private readonly List<IStrategy> _filterStrategies;
+    private readonly List<IFilterStrategy> _filterStrategies;
 
-    public AdvancedSearch(List<IStrategy> strategies)
+    public AdvancedSearch(List<IFilterStrategy> strategies)
     {
         _filterStrategies = strategies;
     }
 
-    public SortedSet<string> Search(string query, InvertedIndexDto dto)
+    public SortedSet<string> Search(string query, InvertedIndexDto invIdxDto)
     {
-        var result = new SortedSet<string>(dto.AllDocuments);
+        var result = new SortedSet<string>(invIdxDto.AllDocuments);
 
         foreach (var strategy in _filterStrategies)
         {
-
-            strategy.FilterDocumentsByQuery(result, query, dto);
+            var currDocIds = strategy.FilterDocumentsByQuery(query, invIdxDto);
+            result.IntersectWith(currDocIds);
         }
+
         return result;
     }
 }

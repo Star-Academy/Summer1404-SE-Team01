@@ -3,69 +3,98 @@ using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.InvertedIndex.SearchFeatures;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 
-
 namespace FullTextSearch.Tests.SearchFeaturesTests;
 
 public class WordSearchTests
 {
-    private readonly SortedSet<DocumentInfo> appleDocInfos;
-    private readonly ISearch _search;
-    private readonly InvertedIndexDto _dto;
+    private readonly ISearch _sut;
 
     public WordSearchTests()
     {
-        _dto = new InvertedIndexDto
-        {
-            AllDocuments = new(),
-            InvertedIndexMap = new()
-        };
-
-        appleDocInfos = new SortedSet<DocumentInfo>
-        {
-            new DocumentInfo
-            {
-                DocId = "doc1",
-                Indexes =
-                {
-                    50, 43, 44,
-                }
-            },
-            new DocumentInfo
-            {
-                DocId = "doc2",
-                Indexes =
-                {
-                    51, 99, 90
-                }
-            }
-        };
-
-        _dto.InvertedIndexMap["APPLE"] = appleDocInfos;
-
-        _search = new WordSearch();
+        _sut = new WordSearch();
     }
 
     [Fact]
     public void Search_ShouldReturnMatchingDocuments_WhenWordExists()
     {
-        var result = _search.Search("apple", _dto);
+        // Arrange
+        var dtoWithAppleDocs = CreateTestDtoWithAppleDocuments();
+        var expectedAppleDocIds = new SortedSet<string> { "doc1", "doc2" };
 
-        result.Should().BeEquivalentTo(appleDocInfos.Select(d => d.DocId));
+        // Act
+        var expected = _sut.Search("apple", dtoWithAppleDocs);
+
+        // Assert
+        expected.Should().BeEquivalentTo(expectedAppleDocIds);
     }
 
     [Fact]
     public void Search_ShouldReturnEmptySet_WhenWordNotExists()
     {
-        var result = _search.Search("orange", _dto);
+        // Arrange
+        var dtoWithAppleDocs = CreateTestDtoWithAppleDocuments();
 
-        result.Should().BeEmpty();
+        // Act
+        var expected = _sut.Search("orange", dtoWithAppleDocs);
+
+        // Assert
+        expected.Should().BeEmpty();
     }
 
     [Fact]
     public void Search_ShouldBeCaseInsensitive()
     {
-        var result = _search.Search("ApPLe", _dto);
+        // Arrange
+        var dtoWithAppleDocs = CreateTestDtoWithAppleDocuments();
+        var expectedAppleDocIds = new SortedSet<string> { "doc1", "doc2" };
 
-        result.Should().BeEquivalentTo(appleDocInfos.Select(d => d.DocId));
+        // Act
+        var expected = _sut.Search("ApPLe", dtoWithAppleDocs);
+
+        // Assert
+        expected.Should().BeEquivalentTo(expectedAppleDocIds);
+    }
+
+    [Fact]
+    public void Search_ShouldReturnEmptySet_WhenDtoIsEmpty()
+    {
+        // Arrange
+        var emptyDto = new InvertedIndexDto
+        {
+            AllDocuments = new(),
+            InvertedIndexMap = new()
+        };
+
+        // Act
+        var expected = _sut.Search("apple", emptyDto);
+
+        // Assert
+        expected.Should().BeEmpty();
+    }
+
+    private static InvertedIndexDto CreateTestDtoWithAppleDocuments()
+    {
+        var appleDocInfos = new SortedSet<DocumentInfo>
+        {
+            new DocumentInfo
+            {
+                DocId = "doc1",
+                Indexes = [50, 43, 44]
+            },
+            new DocumentInfo
+            {
+                DocId = "doc2",
+                Indexes = [51, 99, 90]
+            }
+        };
+
+        return new InvertedIndexDto
+        {
+            AllDocuments = new(),
+            InvertedIndexMap = new()
+            {
+                ["APPLE"] = appleDocInfos
+            }
+        };
     }
 }
