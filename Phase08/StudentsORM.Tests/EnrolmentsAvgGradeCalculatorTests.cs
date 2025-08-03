@@ -4,19 +4,16 @@ using StudentsORM.DbConfig;
 using StudentsORM.Domain;
 using StudentsORM.DTO;
 using StudentsORM.Services;
-using Xunit;
 
 public class EnrolmentsAvgGradeCalculatorTests
 {
     private static AppDbContext CreateInMemoryContext()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
-       .UseInMemoryDatabase("TestDb")
+       .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
        .Options;
 
         var context = new AppDbContext(options);
-        context.Database.EnsureDeleted();
-        context.Database.EnsureCreated();
         context.Enrollments.AddRange(new List<Enrollment>
         {
             new Enrollment { StudentId = 1, CourseId = 1, Grade = 80 },

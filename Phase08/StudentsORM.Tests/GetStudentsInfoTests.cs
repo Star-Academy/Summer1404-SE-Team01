@@ -6,7 +6,6 @@ using StudentsORM.Domain;
 using StudentsORM.DTO;
 using StudentsORM.Services;
 using StudentsORM.Services.Abstract;
-using Xunit;
 
 namespace StudentsORM.Tests;
 
@@ -15,7 +14,7 @@ public class GetStudentsInfoTests
     private AppDbContext CreateInMemoryDbContext()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDb_" + Guid.NewGuid())
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
         var context = new AppDbContext(options);
@@ -70,7 +69,7 @@ public class GetStudentsInfoTests
             Average = 15
         });
     }
-    
+
     [Fact]
     public void GetStudents_ShouldReturnTopStudents_WithDescendingOrderByAverage()
     {
