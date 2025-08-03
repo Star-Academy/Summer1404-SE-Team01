@@ -1,5 +1,4 @@
 ﻿using StudentsORM.DbConfig;
-using StudentsORM.DbConfig.Abstractions;
 using StudentsORM.DTO;
 using StudentsORM.Services.Abstract;
 
@@ -7,14 +6,14 @@ namespace StudentsORM.Services;
 
 public class GetStudentsInfo : IGetStudentsInfo
 {
-    private readonly IStudentDbSet _context;
+    private readonly AppDbContext _context;
     private readonly IEnrollmentAverageGradeCalculator _enrollmentAverageGradeCalculator;
 
     public GetStudentsInfo(AppDbContext context, IEnrollmentAverageGradeCalculator enrollmentAverageGradeCalculator)
     {
         _context = context;
         _enrollmentAverageGradeCalculator = enrollmentAverageGradeCalculator;
-    } 
+    }
 
     public IReadOnlyCollection<StudentWithAverageDto> GetTopStudents(int count = 10)
     {
@@ -24,14 +23,14 @@ public class GetStudentsInfo : IGetStudentsInfo
 
         var result = topStudentInfo
             .Join(averges,
-                s   => s.Id,
+                s => s.Id,
                 dto => dto.StudentId,
                 (s, dto) => new StudentWithAverageDto
                 {
-                    Id       = s.Id,
+                    Id = s.Id,
                     FirstName = s.FirstName,
                     LastName = s.LastName,
-                    Average  = dto.Average
+                    Average = dto.Average
                 })
             .OrderByDescending(s => s.Average)
             .ToList();

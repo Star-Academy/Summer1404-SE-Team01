@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using StudentsORM.DbConfig;
 using StudentsORM.Domain;
@@ -10,17 +8,15 @@ using Xunit;
 
 public class EnrolmentsAvgGradeCalculatorTests
 {
-    private AppDbContext CreateInMemoryContext()
+    private static AppDbContext CreateInMemoryContext()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDb")
-            .Options;
+       .UseInMemoryDatabase("TestDb")
+       .Options;
 
-        return new AppDbContext(options);
-    }
-
-    private static void PopulateContext(AppDbContext context)
-    {
+        var context = new AppDbContext(options);
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
         context.Enrollments.AddRange(new List<Enrollment>
         {
             new Enrollment { StudentId = 1, CourseId = 1, Grade = 80 },
@@ -28,8 +24,10 @@ public class EnrolmentsAvgGradeCalculatorTests
             new Enrollment { StudentId = 2, CourseId = 5, Grade = 70 },
             new Enrollment { StudentId = 3, CourseId = 5, Grade = 100 }
         });
-        
+
         context.SaveChanges();
+
+        return context;
     }
 
     [Fact]
@@ -37,7 +35,6 @@ public class EnrolmentsAvgGradeCalculatorTests
     {
         // Arrange
         using var context = CreateInMemoryContext();
-        PopulateContext(context);
 
         var service = new EnrolmentsAvgGradeCalculator(context);
 
@@ -50,13 +47,12 @@ public class EnrolmentsAvgGradeCalculatorTests
         result.Should().ContainEquivalentOf(new AveragesDto { StudentId = 2, Average = 70 });
         result.Should().ContainEquivalentOf(new AveragesDto { StudentId = 3, Average = 100 });
     }
-    
+
     [Fact]
     public void CalculateAverages_ShouldReturn_WithDescendingOrderByAverage()
     {
         // Arrange
         using var context = CreateInMemoryContext();
-        PopulateContext(context);
 
         var service = new EnrolmentsAvgGradeCalculator(context);
 

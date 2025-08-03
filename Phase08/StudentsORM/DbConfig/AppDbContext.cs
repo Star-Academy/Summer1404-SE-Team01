@@ -1,22 +1,21 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
-using StudentsORM.DbConfig.Abstractions;
+﻿using Microsoft.EntityFrameworkCore;
 using StudentsORM.Domain;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StudentsORM.DbConfig;
 
 [ExcludeFromCodeCoverage]
-public class AppDbContext : DbContext ,  IStudentDbSet, IEnrollmentDbSet
+public class AppDbContext : DbContext
 {
-    
+
     public DbSet<Course> Courses { get; set; }
     public DbSet<Student> Students { get; set; }
     public DbSet<Enrollment> Enrollments { get; set; }
-    
-    public AppDbContext(){}
 
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
-    
+    public AppDbContext() { }
+
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (optionsBuilder.IsConfigured == false)
@@ -25,19 +24,19 @@ public class AppDbContext : DbContext ,  IStudentDbSet, IEnrollmentDbSet
         }
 
     }
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-         
+
         modelBuilder.Entity<Enrollment>()
             .HasKey(e => new { e.StudentId, e.CourseId });
-            
-         
+
+
         modelBuilder.Entity<Enrollment>()
             .HasOne(e => e.Student)
             .WithMany(s => s.Enrollments)
             .HasForeignKey(e => e.StudentId);
-            
+
         modelBuilder.Entity<Enrollment>()
             .HasOne(e => e.Course)
             .WithMany(c => c.Enrollments)
