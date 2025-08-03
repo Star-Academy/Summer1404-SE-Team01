@@ -9,5 +9,7 @@ public class Student
     public string FirstName { get; set; }
     public string LastName { get; set; }
     
+    public string Fullname => $"{FirstName} {LastName}";
+    
     public List<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
 }
