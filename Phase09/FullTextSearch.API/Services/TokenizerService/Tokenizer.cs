@@ -10,6 +10,7 @@ public class Tokenizer : ITokenizer
     {
         return _wordRegex.Matches(content.ToUpper())
             .Select(m => m.Value)
-            .Where(w => !string.IsNullOrEmpty(w));
+            .Where(w => !string.IsNullOrEmpty(w))
+            .Select(w => w.ToUpper());
     }
 }

@@ -1,6 +1,6 @@
 ﻿using FullTextSearch.API.InvertedIndex.Dtos;
 
-namespace FullTextSearch.API.InvertedIndex;
+namespace FullTextSearch.API.InvertedIndex.BuilderServices.Abstraction;
 
 public interface IInvertedIndexBuilder
 {

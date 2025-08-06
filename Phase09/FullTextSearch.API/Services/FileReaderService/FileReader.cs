@@ -1,4 +1,4 @@
-﻿using FullTextSearch.Exceptions;
+﻿using FullTextSearch.API.Exceptions;
 using System.Diagnostics.CodeAnalysis;
 
 namespace FullTextSearch.API.Services.FileReaderService

@@ -4,5 +4,5 @@ namespace FullTextSearch.API.InvertedIndex.SearchFeatures.Abstractions;
 
 public interface ISequentialValidator
 {
-    public SortedSet<string> Validate(IList<string> words, SortedSet<string> docIdsContainingWords, InvertedIndexDto invIdxDto);
+    public HashSet<string> Validate(IList<string> words, HashSet<string> docIdsContainingWords, InvertedIndexDto invIdxDto);
 }

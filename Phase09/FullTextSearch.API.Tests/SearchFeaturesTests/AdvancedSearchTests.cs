@@ -11,13 +11,22 @@ public class AdvancedSearchTests
     private readonly IFilterStrategy _filter1;
     private readonly IFilterStrategy _filter2;
     private readonly AdvancedSearch _sut;
-    private const string Query = "get help +illness +disease -cough";
-
+    
+    
+    public static QueryDto CreateSampleQueryDto()
+    {
+        return new QueryDto
+        {
+            Optional = new List<string> { "ILLNESS", "DISEASE", "OPTIONAL PHRASE INCLUDED" },
+            Required = new List<string> { "GET", "HELP", "HELLO WORLD PHRASE" },
+            Excluded = new List<string> { "COUGH", "STAR" }
+        };
+    }
     public AdvancedSearchTests()
     {
         _filter1 = Substitute.For<IFilterStrategy>();
         _filter2 = Substitute.For<IFilterStrategy>();
-        _sut = new AdvancedSearch([_filter1, _filter2]);
+        _sut = new AdvancedSearch();
     }
 
     [Fact]
@@ -30,16 +39,17 @@ public class AdvancedSearchTests
             InvertedIndexMap = []
         };
 
-        _filter1.FilterDocumentsByQuery(Query, dto).Returns(["doc1", "doc2", "doc3"]);
-        _filter2.FilterDocumentsByQuery(Query, dto).Returns(["doc2", "doc3", "doc4"]);
+        var querDto = CreateSampleQueryDto();
+        _filter1.FilterDocumentsByQuery(querDto, dto).Returns(["doc1", "doc2", "doc3"]);
+        _filter2.FilterDocumentsByQuery(querDto, dto).Returns(["doc2", "doc3", "doc4"]);
 
         // Act
-        var expected = _sut.Search(Query, dto);
+        var expected = _sut.Search(querDto, dto, new List<IFilterStrategy>{_filter1, _filter2});
 
         // Assert
         expected.Should().BeEquivalentTo(["doc2", "doc3"]);
-        _filter1.Received(1).FilterDocumentsByQuery(Query, dto);
-        _filter2.Received(1).FilterDocumentsByQuery(Query, dto);
+        _filter1.Received(1).FilterDocumentsByQuery(querDto, dto);
+        _filter2.Received(1).FilterDocumentsByQuery(querDto, dto);
     }
 
     [Fact]
@@ -52,11 +62,12 @@ public class AdvancedSearchTests
             InvertedIndexMap = []
         };
 
-        _filter1.FilterDocumentsByQuery(Query, dto).Returns(["doc1", "doc2"]);
-        _filter2.FilterDocumentsByQuery(Query, dto).Returns(["doc3"]);
+        var queryDto = CreateSampleQueryDto();
+        _filter1.FilterDocumentsByQuery(queryDto, dto).Returns(["doc1", "doc2"]);
+        _filter2.FilterDocumentsByQuery(queryDto, dto).Returns(["doc3"]);
 
         // Act
-        var expected = _sut.Search(Query, dto);
+        var expected = _sut.Search(queryDto, dto, new List<IFilterStrategy>{_filter1, _filter2});
 
         // Assert
         expected.Should().BeEmpty();
@@ -72,10 +83,11 @@ public class AdvancedSearchTests
             InvertedIndexMap = []
         };
 
-        var sut = new AdvancedSearch([]);
+        var sut = new AdvancedSearch();
+        var queryDto = CreateSampleQueryDto();
 
         // Act
-        var expected = sut.Search(Query, dto);
+        var expected = sut.Search(queryDto, dto, new List<IFilterStrategy>());
 
         // Assert
         expected.Should().BeEquivalentTo(dto.AllDocuments);
@@ -90,11 +102,12 @@ public class AdvancedSearchTests
             AllDocuments = [],
             InvertedIndexMap = []
         };
-        _filter1.FilterDocumentsByQuery(Arg.Any<string>(), Arg.Any<InvertedIndexDto>()).Returns([]);
-        _filter2.FilterDocumentsByQuery(Arg.Any<string>(), Arg.Any<InvertedIndexDto>()).Returns([]);
+        _filter1.FilterDocumentsByQuery(Arg.Any<QueryDto>(), Arg.Any<InvertedIndexDto>()).Returns([]);
+        _filter2.FilterDocumentsByQuery(Arg.Any<QueryDto>(), Arg.Any<InvertedIndexDto>()).Returns([]);
+        var queryDto = CreateSampleQueryDto();
 
         // Act
-        var expected = _sut.Search(Query, dto);
+        var expected = _sut.Search(queryDto, dto,  new List<IFilterStrategy>{_filter1, _filter2});
 
         // Assert
         expected.Should().BeEmpty();

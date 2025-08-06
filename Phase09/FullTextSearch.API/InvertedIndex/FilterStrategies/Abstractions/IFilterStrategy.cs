@@ -4,5 +4,5 @@ namespace FullTextSearch.API.InvertedIndex.FilterStrategies.Abstractions;
 
 public interface IFilterStrategy
 {
-    SortedSet<string> FilterDocumentsByQuery(string input, InvertedIndexDto invIndexDto);
+    HashSet<string> FilterDocumentsByQuery(QueryDto queryDto, InvertedIndexDto invIndexDto);
 }

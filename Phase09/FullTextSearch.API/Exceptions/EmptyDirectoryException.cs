@@ -1,5 +1,8 @@
-﻿namespace FullTextSearch.API.Exceptions;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace FullTextSearch.API.Exceptions;
+
+[ExcludeFromCodeCoverage]
 public class EmptyDirectoryException : Exception
 {
     public EmptyDirectoryException()

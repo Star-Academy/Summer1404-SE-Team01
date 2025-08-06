@@ -1,5 +1,8 @@
-﻿namespace FullTextSearch.API.InvertedIndex.Dtos;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace FullTextSearch.API.InvertedIndex.Dtos;
+
+[ExcludeFromCodeCoverage]
 public class DocumentInfo : IComparable<DocumentInfo>
 {
 

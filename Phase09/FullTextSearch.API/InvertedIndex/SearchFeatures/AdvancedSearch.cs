@@ -4,22 +4,16 @@ using FullTextSearch.API.InvertedIndex.SearchFeatures.Abstractions;
 
 namespace FullTextSearch.API.InvertedIndex.SearchFeatures;
 
-public class AdvancedSearch : ISearch
+public class AdvancedSearch : IAdvanceSearch
 {
-    private readonly List<IFilterStrategy> _filterStrategies;
 
-    public AdvancedSearch(List<IFilterStrategy> strategies)
+    public HashSet<string> Search(QueryDto queryDto, InvertedIndexDto invIdxDto, List<IFilterStrategy> filterStrategies)
     {
-        _filterStrategies = strategies;
-    }
+        var result = new HashSet<string>(invIdxDto.AllDocuments);
 
-    public SortedSet<string> Search(string query, InvertedIndexDto invIdxDto)
-    {
-        var result = new SortedSet<string>(invIdxDto.AllDocuments);
-
-        foreach (var strategy in _filterStrategies)
+        foreach (var strategy in filterStrategies)
         {
-            var currDocIds = strategy.FilterDocumentsByQuery(query, invIdxDto);
+            var currDocIds = strategy.FilterDocumentsByQuery(queryDto, invIdxDto);
             result.IntersectWith(currDocIds);
         }
 
