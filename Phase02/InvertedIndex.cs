@@ -22,29 +22,29 @@ namespace FullTextSearch
                 {
                     if (!dto.InvertedIndexMap.TryGetValue(word, out var postings))
                     {
-                        postings = new SortedSet<string>();
+                        postings = new HashSet<string>();
                         dto.InvertedIndexMap[word] = postings;
                     }
                     postings.Add(docId);
                 }
             }
 
-            dto.DocIds = new SortedSet<string>(docs.Keys);
+            dto.DocIds = new HashSet<string>(docs.Keys);
             return dto;
         }
 
-        public static SortedSet<string> SearchWord(string word, InvertedIndexDto dto)
+        public static HashSet<string> SearchWord(string word, InvertedIndexDto dto)
         {
             if (string.IsNullOrWhiteSpace(word))
                 throw new ArgumentNullException(nameof(word));
 
             var key = word.Trim().ToUpper();
             return dto.InvertedIndexMap.TryGetValue(key, out var result)
-                ? new SortedSet<string>(result)
-                : new SortedSet<string>();
+                ? new HashSet<string>(result)
+                : new HashSet<string>();
         }
 
-        public static SortedSet<string> AdvancedSearch(string input, InvertedIndexDto dto)
+        public static HashSet<string> AdvancedSearch(string input, InvertedIndexDto dto)
         {
             if (string.IsNullOrWhiteSpace(input))
                 throw new ArgumentNullException(nameof(input));
@@ -54,14 +54,14 @@ namespace FullTextSearch
             var optional = tokens.Where(t => t.StartsWith("+")).Select(t => t.Substring(1)).ToList();
             var excluded = tokens.Where(t => t.StartsWith("-")).Select(t => t.Substring(1)).ToList();
 
-            var result = new SortedSet<string>(dto.DocIds);
+            var result = new HashSet<string>(dto.DocIds);
 
             foreach (var term in must)
                 result.IntersectWith(SearchWord(term, dto));
 
             if (optional.Any())
             {
-                var optSet = new SortedSet<string>();
+                var optSet = new HashSet<string>();
                 foreach (var term in optional)
                     optSet.UnionWith(SearchWord(term, dto));
                 result.IntersectWith(optSet);
