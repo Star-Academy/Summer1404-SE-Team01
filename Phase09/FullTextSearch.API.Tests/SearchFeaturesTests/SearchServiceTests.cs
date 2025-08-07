@@ -137,7 +137,7 @@ public class SearchServiceTests
             Arg.Any<HashSet<string>>(),
             Arg.Any<InvertedIndexDto>());
     }
-    
+
     [Fact]
     public void Search_ShouldReturnEmptySet_WhenInputIsNull()
     {
@@ -207,7 +207,7 @@ public class SearchServiceTests
         return new InvertedIndexDto
         {
             AllDocuments = new HashSet<string>(["doc1", "doc2", "doc3"]),
-            InvertedIndexMap = new SortedDictionary<string, SortedSet<DocumentInfo>>
+            InvertedIndexMap = new SortedDictionary<string, HashSet<DocumentInfo>>
             {
                 ["HELLO"] = new()
                 {

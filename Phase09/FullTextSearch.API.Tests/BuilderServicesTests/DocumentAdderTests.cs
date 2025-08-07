@@ -20,7 +20,7 @@ public class DocumentAdderTests
     {
         //Act
         Action act = () => new DocumentAdder(null);
-        
+
         act.Should().ThrowExactly<ArgumentNullException>()
             .WithMessage("Value cannot be null. (Parameter 'tokenizer')");
     }
@@ -31,21 +31,21 @@ public class DocumentAdderTests
         // Arrange 
         var docId = "doc1";
         var content = "content of doc1";
-        var tokens = new List<string>{"CONTENT", "OF", "DOC1"};
+        var tokens = new List<string> { "CONTENT", "OF", "DOC1" };
         _tokenizer.Tokenize(content).Returns(tokens);
 
         var indexDto = new InvertedIndexDto()
         {
             AllDocuments = [],
-            InvertedIndexMap = new SortedDictionary<string, SortedSet<DocumentInfo>>()
+            InvertedIndexMap = new SortedDictionary<string, HashSet<DocumentInfo>>()
         };
-        
+
         var sut = new DocumentAdder(_tokenizer);
-        
+
         // Act
         sut.AddDocument(docId, content, indexDto);
-        
-        
+
+
         // Assert
         foreach (var (word, index) in tokens.Select((w, i) => (w, i)))
         {
@@ -56,10 +56,10 @@ public class DocumentAdderTests
 
             var documentInfo = documentInfos.Single(doc => doc.DocId == docId);
             documentInfo.Indexes.Should().Contain(index);
-        }   
+        }
 
     }
-    
+
     [Fact]
     public void AddDocument_ShouldUpdateExistingDocumentInfo_WhenWordOccursMultipleTimes()
     {
@@ -73,7 +73,7 @@ public class DocumentAdderTests
         var indexDto = new InvertedIndexDto
         {
             AllDocuments = [],
-            InvertedIndexMap = new SortedDictionary<string, SortedSet<DocumentInfo>>()
+            InvertedIndexMap = new SortedDictionary<string, HashSet<DocumentInfo>>()
         };
 
         var sut = new DocumentAdder(_tokenizer);

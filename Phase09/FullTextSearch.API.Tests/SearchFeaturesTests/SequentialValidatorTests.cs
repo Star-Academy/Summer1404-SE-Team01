@@ -2,7 +2,6 @@
 using FullTextSearch.API.InvertedIndex.Dtos;
 using FullTextSearch.API.InvertedIndex.SearchFeatures;
 using FullTextSearch.API.InvertedIndex.SearchFeatures.Abstractions;
-using FullTextSearch.API.InvertedIndex.SearchFeatures;
 
 namespace FullTextSearch.API.Tests.SearchFeaturesTests;
 
@@ -229,7 +228,7 @@ public class SequentialValidatorTests
         return new InvertedIndexDto
         {
             AllDocuments = new HashSet<string> { "doc1", "doc2", "doc3" },
-            InvertedIndexMap = new SortedDictionary<string, SortedSet<DocumentInfo>>
+            InvertedIndexMap = new SortedDictionary<string, HashSet<DocumentInfo>>
             {
                 ["hello"] = new()
                 {
