@@ -9,7 +9,7 @@ namespace FullTextSearch
             var dto = new InvertedIndexDto
             {
                 InvertedIndexMap = new(),
-                DocIds = new()
+                DocIds = new HashSet<string>(docs.Keys)
             };
 
             foreach (var (docId, content) in docs)
@@ -29,7 +29,6 @@ namespace FullTextSearch
                 }
             }
 
-            dto.DocIds = new HashSet<string>(docs.Keys);
             return dto;
         }
 
