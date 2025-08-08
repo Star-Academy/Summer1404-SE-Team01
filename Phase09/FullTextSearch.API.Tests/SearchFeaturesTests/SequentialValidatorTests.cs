@@ -7,11 +7,11 @@ namespace FullTextSearch.API.Tests.SearchFeaturesTests;
 
 public class SequentialValidatorTests
 {
-    private readonly ISequentialFinder _sut;
+    private readonly ISequentialPhraseFinder _sut;
 
     public SequentialValidatorTests()
     {
-        _sut = new SequentialFinder();
+        _sut = new SequentialPhraseFinder();
     }
 
     [Fact]

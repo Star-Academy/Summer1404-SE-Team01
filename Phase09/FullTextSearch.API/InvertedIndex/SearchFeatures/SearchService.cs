@@ -7,9 +7,9 @@ namespace FullTextSearch.API.InvertedIndex.SearchFeatures;
 public class SearchService : ISearch
 {
     private readonly ITokenizer _tokenizer;
-    private readonly ISequentialFinder _sequentialFinder;
+    private readonly ISequentialPhraseFinder _sequentialFinder;
 
-    public SearchService(ITokenizer tokenizer, ISequentialFinder sequentialValidator)
+    public SearchService(ITokenizer tokenizer, ISequentialPhraseFinder sequentialValidator)
     {
         _tokenizer = tokenizer ?? throw new ArgumentNullException(nameof(tokenizer));
         _sequentialFinder = sequentialValidator ?? throw new ArgumentNullException(nameof(sequentialValidator));

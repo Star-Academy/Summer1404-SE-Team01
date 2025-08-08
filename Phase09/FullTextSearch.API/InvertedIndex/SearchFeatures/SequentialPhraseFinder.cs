@@ -3,7 +3,7 @@ using FullTextSearch.API.InvertedIndex.SearchFeatures.Abstractions;
 
 namespace FullTextSearch.API.InvertedIndex.SearchFeatures;
 
-public class SequentialFinder : ISequentialFinder
+public class SequentialPhraseFinder : ISequentialPhraseFinder
 {
     public HashSet<string> FindSequentialPhrase(IList<string> words, HashSet<string> docIdsContainingWords, InvertedIndexDto invIdxDto)
     {

@@ -10,13 +10,13 @@ namespace FullTextSearch.API.Tests.SearchFeaturesTests;
 public class SearchServiceTests
 {
     private readonly ITokenizer _tokenizer;
-    private readonly ISequentialFinder _sequentialValidator;
+    private readonly ISequentialPhraseFinder _sequentialValidator;
     private readonly SearchService _sut;
 
     public SearchServiceTests()
     {
         _tokenizer = Substitute.For<ITokenizer>();
-        _sequentialValidator = Substitute.For<ISequentialFinder>();
+        _sequentialValidator = Substitute.For<ISequentialPhraseFinder>();
         _sut = new SearchService(_tokenizer, _sequentialValidator);
     }
 
