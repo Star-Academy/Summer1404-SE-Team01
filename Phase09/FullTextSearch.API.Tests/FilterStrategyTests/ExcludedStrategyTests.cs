@@ -14,7 +14,7 @@ public class ExcludedStrategyTests
     {
         _search = Substitute.For<ISearch>();
     }
-    
+
     private static QueryDto CreateSampleQueryDto()
     {
         return new QueryDto
@@ -35,7 +35,7 @@ public class ExcludedStrategyTests
     }
 
     [Fact]
-    public void FilterDocumentsByQuery_ShouldExcludeMatchingDocuments()
+    public void FilterDocumentsByQuery_ShouldExcludeDocuments_WithSearchResults()
     {
         // Arrange
         var queryDto = CreateSampleQueryDto();
@@ -56,7 +56,7 @@ public class ExcludedStrategyTests
         var result = sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
-        result.Should().BeEquivalentTo(["doc4","doc5", "doc6"]);
+        result.Should().BeEquivalentTo(["doc4", "doc5", "doc6"]);
     }
 
     [Fact]

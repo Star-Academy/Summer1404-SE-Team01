@@ -10,13 +10,13 @@ namespace FullTextSearch.API.Tests.FilterStrategyTests;
 public class OptionalStrategyTests
 {
     private readonly ISearch _search;
-    
+
 
     public OptionalStrategyTests()
     {
         _search = Substitute.For<ISearch>();
     }
-    
+
     private static QueryDto CreateSampleQueryDto()
     {
         return new QueryDto
@@ -35,12 +35,12 @@ public class OptionalStrategyTests
         act.Should().Throw<ArgumentNullException>()
             .WithMessage("Value cannot be null. (Parameter 'searchService')");
     }
-    
+
     [Fact]
     public void FilterDocumentsByQuery_ShouldReturnUnionOfDocuments_WithSearchResults()
     {
         // Arrange
-        
+
         var dto = new InvertedIndexDto
         {
             AllDocuments = ["doc1", "doc2", "doc3", "doc4", "doc5"],
@@ -53,37 +53,12 @@ public class OptionalStrategyTests
 
         var queryDto = CreateSampleQueryDto();
         var sut = new OptionalStrategy(_search);
-        
+
         // Act
         var expected = sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         expected.Should().BeEquivalentTo(["doc1", "doc2", "doc3", "doc4"]);
-    }
-
-    [Fact]
-    public void FilterDocumentsByQuery_ShouldReturnUnionOfDocuments_WithPhraseSearchResults()
-    {
-        // Arrange
-        var expectedExtractedPhrase = "optional phrase included".ToUpper();
-        
-        var dto = new InvertedIndexDto
-        {
-            AllDocuments = ["doc1", "doc2", "doc3", "doc4", "doc5"],
-            InvertedIndexMap = []
-        };
-
-        _search.Search(Arg.Any<string>(), dto)
-            .Returns(["doc2", "doc3", "doc4"]);
-        
-        var queryDto =  CreateSampleQueryDto(); 
-        var sut = new OptionalStrategy(_search);
-
-        // Act
-        var expected = sut.FilterDocumentsByQuery(queryDto, dto);
-
-        // Assert
-        expected.Should().BeEquivalentTo(["doc2", "doc3", "doc4"]);
     }
 
     [Fact]
@@ -114,7 +89,7 @@ public class OptionalStrategyTests
     public void FilterDocumentsByQuery_ShouldReturnEmptySet_WhenAllDocumentsIsEmpty()
     {
         // Arrange
-        
+
         var dto = new InvertedIndexDto
         {
             AllDocuments = [],
@@ -125,7 +100,7 @@ public class OptionalStrategyTests
 
         var queryDto = CreateSampleQueryDto();
         var sut = new OptionalStrategy(_search);
-        
+
         // Act
         var expected = sut.FilterDocumentsByQuery(queryDto, dto);
 

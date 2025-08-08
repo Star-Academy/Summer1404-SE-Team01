@@ -13,7 +13,7 @@ public class RequiredStrategyTests
     {
         _search = Substitute.For<ISearch>();
     }
-    
+
     private static QueryDto CreateSampleQueryDto()
     {
         return new QueryDto
@@ -34,13 +34,13 @@ public class RequiredStrategyTests
         act.Should().Throw<ArgumentNullException>()
             .WithMessage("Value cannot be null. (Parameter 'searchService')");
     }
-    
+
 
     [Fact]
     public void FilterDocumentsByQuery_ShouldReturnIntersectionOfDocuments_WithSearchResults()
     {
         // Arrange
-        
+
         var dto = new InvertedIndexDto
         {
             AllDocuments = ["doc1", "doc2", "doc3", "doc4", "doc5"],
@@ -51,8 +51,8 @@ public class RequiredStrategyTests
         _search.Search("GET", dto).Returns(["doc1", "doc2"]);
         _search.Search("HELP", dto).Returns(["doc2", "doc3"]);
         _search.Search("HELLO WORLD PHRASE", dto).Returns(["doc2", "doc4"]);
-        
-        var queryDto  = CreateSampleQueryDto(); 
+
+        var queryDto = CreateSampleQueryDto();
         var sut = new RequiredStrategy(_search);
 
         // Act
@@ -66,14 +66,14 @@ public class RequiredStrategyTests
     public void FilterDocumentsByQuery_ShouldReturnEmptySet_WhenNoKeywordsFound()
     {
         // Arrange
-        
+
         var dto = new InvertedIndexDto
         {
             AllDocuments = ["doc1", "doc2"],
             InvertedIndexMap = []
 
         };
-        
+
         var queryDto = new QueryDto()
         {
             Required = []
@@ -92,7 +92,7 @@ public class RequiredStrategyTests
     public void FilterDocumentsByQuery_ShouldReturnEmptySet_WhenAllDocumentsIsEmpty()
     {
         // Arrange
-        
+
         var dto = new InvertedIndexDto
         {
             AllDocuments = new HashSet<string>(),
@@ -101,7 +101,7 @@ public class RequiredStrategyTests
         };
 
         _search.Search(Arg.Any<string>(), dto).Returns(["doc1"]);
-            
+
         var queryDto = CreateSampleQueryDto();
         var sut = new RequiredStrategy(_search);
 
