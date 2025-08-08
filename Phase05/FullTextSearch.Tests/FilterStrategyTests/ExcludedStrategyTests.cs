@@ -35,7 +35,7 @@ public class ExcludedStrategyTests
     }
 
     [Fact]
-    public void FilterDocumentsByQuery_ShouldExcludeMatchingDocuments()
+    public void FilterDocumentsByQuery_ShouldExcludeDocuments_WithSearchResults()
     {
         // Arrange
         var queryDto = CreateSampleQueryDto();

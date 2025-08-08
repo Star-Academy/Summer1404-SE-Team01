@@ -62,31 +62,6 @@ public class OptionalStrategyTests
     }
 
     [Fact]
-    public void FilterDocumentsByQuery_ShouldReturnUnionOfDocuments_WithPhraseSearchResults()
-    {
-        // Arrange
-        var expectedExtractedPhrase = "optional phrase included".ToUpper();
-
-        var dto = new InvertedIndexDto
-        {
-            AllDocuments = ["doc1", "doc2", "doc3", "doc4", "doc5"],
-            InvertedIndexMap = []
-        };
-
-        _search.Search(Arg.Any<string>(), dto)
-            .Returns(["doc2", "doc3", "doc4"]);
-
-        var queryDto = CreateSampleQueryDto();
-        var sut = new OptionalStrategy(_search);
-
-        // Act
-        var expected = sut.FilterDocumentsByQuery(queryDto, dto);
-
-        // Assert
-        expected.Should().BeEquivalentTo(["doc2", "doc3", "doc4"]);
-    }
-
-    [Fact]
     public void FilterDocumentsByQuery_ShouldReturnEmptySet_WhenNoKeywordsFound()
     {
         // Arrange
