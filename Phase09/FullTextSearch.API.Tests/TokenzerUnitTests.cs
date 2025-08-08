@@ -14,27 +14,27 @@ public class TokenizerUnitTests
     [Fact]
     public void Tokenize_ShouldReturnUppercasedTokens_FromInputQuery()
     {
-        var result = _sut.Tokenize("GET -hELp +illNeSS");
+        var expected = _sut.Tokenize("GET -hELp +illNeSS");
 
-        result.Should()
+        expected.Should()
             .BeEquivalentTo(new List<string> { "GET", "HELP", "ILLNESS" });
     }
 
     [Fact]
     public void Tokenize_ShouldIgnorePunctuation()
     {
-        var result = _sut.Tokenize("hello, world!");
+        var expected = _sut.Tokenize("hello, world!");
 
-        result.Should()
+        expected.Should()
             .BeEquivalentTo(new List<string> { "HELLO", "WORLD" });
     }
 
     [Fact]
     public void Tokenize_ShouldHandleApostrophes()
     {
-        var result = _sut.Tokenize("it's raining");
+        var expected = _sut.Tokenize("it's raining");
 
-        result.Should()
+        expected.Should()
             .BeEquivalentTo(new List<string> { "IT", "S", "RAINING" });
     }
 
@@ -43,27 +43,27 @@ public class TokenizerUnitTests
     [InlineData("    ")]
     public void Tokenize_ShouldReturnEmpty_ForEmptyString(string queryInput)
     {
-        var result = _sut.Tokenize(queryInput);
+        var expected = _sut.Tokenize(queryInput);
 
-        result.Should()
+        expected.Should()
             .BeEmpty();
     }
 
     [Fact]
     public void Tokenize_ShouldHandleMixedContent()
     {
-        var result = _sut.Tokenize("Hello123 _test_!");
+        var expected = _sut.Tokenize("Hello123 _test_!");
 
-        result.Should()
+        expected.Should()
             .BeEquivalentTo(new List<string> { "HELLO123", "_TEST_" });
     }
 
     [Fact]
     public void Tokenize_ShouldNotReturnInvalidTokens()
     {
-        var result = _sut.Tokenize("   ,,,   !");
+        var expected = _sut.Tokenize("   ,,,   !");
 
-        result.Should()
+        expected.Should()
             .BeEmpty();
     }
 }
