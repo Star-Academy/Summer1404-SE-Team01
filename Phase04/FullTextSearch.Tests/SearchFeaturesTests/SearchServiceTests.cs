@@ -82,11 +82,11 @@ public class SearchServiceTests
         _tokenizer.Tokenize(input).Returns(new List<string>());
 
         // Act
-        var result = _sut.Search(input, dto);
+        var expected = _sut.Search(input, dto);
 
         // Assert
-        result.Should().NotBeNull();
-        result.Should().BeEmpty();
+        expected.Should().NotBeNull();
+        expected.Should().BeEmpty();
         _tokenizer.DidNotReceive().Tokenize(Arg.Any<string>());
     }
 
@@ -98,11 +98,11 @@ public class SearchServiceTests
         var dto = CreateTestIndexDto();
 
         // Act
-        var result = _sut.Search(input, dto);
+        var expected = _sut.Search(input, dto);
 
         // Assert
-        result.Should().NotBeNull();
-        result.Should().BeEmpty();
+        expected.Should().NotBeNull();
+        expected.Should().BeEmpty();
         _tokenizer.DidNotReceive().Tokenize(Arg.Any<string>());
     }
 
@@ -116,11 +116,11 @@ public class SearchServiceTests
         var dto = CreateTestIndexDto();
 
         // Act
-        var result = _sut.Search(input, dto);
+        var expected = _sut.Search(input, dto);
 
         // Assert
-        result.Should().NotBeNull();
-        result.Should().BeEquivalentTo(new[] { "doc1", "doc2", "doc3" });
+        expected.Should().NotBeNull();
+        expected.Should().BeEquivalentTo(new[] { "doc1", "doc2", "doc3" });
     }
 
     [Fact]
@@ -133,11 +133,11 @@ public class SearchServiceTests
         var dto = CreateTestIndexDto();
 
         // Act
-        var result = _sut.Search(input, dto);
+        var expected = _sut.Search(input, dto);
 
         // Assert
-        result.Should().NotBeNull();
-        result.Should().BeEquivalentTo(["doc1", "doc2", "doc3"]);
+        expected.Should().NotBeNull();
+        expected.Should().BeEquivalentTo(["doc1", "doc2", "doc3"]);
     }
 
     private static InvertedIndexDto CreateTestIndexDto()
