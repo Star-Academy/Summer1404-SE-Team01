@@ -1,52 +1,45 @@
 ﻿using FluentAssertions;
-using FullTextSearch.InvertedIndex.Constants;
 using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.InvertedIndex.FilterStrategies;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
-using FullTextSearch.Services.QueryBuilder.Abstractions;
 using NSubstitute;
+
 
 namespace FullTextSearch.Tests.FilterStrategyTests;
 
 public class OptionalStrategyTests
 {
     private readonly ISearch _search;
-    private readonly IQueryExtractor _queryExtractor;
-    private const string Query = @"get help +illness +disease -cough -star ""hello world phrase"" +""optional phrase included"" ";
-    private const string SingleWordPattern = StrategyPatterns.OptionalSingleWord;
-    private const string PhrasePattern = StrategyPatterns.OptionalPhrase;
+
 
     public OptionalStrategyTests()
     {
         _search = Substitute.For<ISearch>();
-        _queryExtractor = Substitute.For<IQueryExtractor>();
+    }
+
+    private static QueryDto CreateSampleQueryDto()
+    {
+        return new QueryDto
+        {
+            Optional = new List<string> { "ILLNESS", "DISEASE", "OPTIONAL PHRASE INCLUDED" },
+            Required = new List<string> { "GET", "HELP", "HELLO WORLD PHRASE" },
+            Excluded = new List<string> { "COUGH", "STAR" }
+        };
     }
 
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenSearchIsNull()
     {
-        Action act = () => new OptionalStrategy(null, _queryExtractor, SingleWordPattern);
+        Action act = () => new OptionalStrategy(null);
 
         act.Should().Throw<ArgumentNullException>()
-            .WithMessage("Value cannot be null. (Parameter 'searchType')");
-    }
-
-    [Fact]
-    public void Constructor_ShouldThrowArgumentNullException_WhenQueryExtractorIsNull()
-    {
-        Action act = () => new OptionalStrategy(_search, null, SingleWordPattern);
-
-        act.Should().Throw<ArgumentNullException>()
-            .WithMessage("Value cannot be null. (Parameter 'queryExtractor')");
+            .WithMessage("Value cannot be null. (Parameter 'searchService')");
     }
 
     [Fact]
     public void FilterDocumentsByQuery_ShouldReturnUnionOfDocuments_WithSearchResults()
     {
         // Arrange
-        var expectedKeywords = new List<string> { "ILLNESS", "DISEASE" };
-        _queryExtractor.ExtractQueries(Query, SingleWordPattern)
-            .Returns(expectedKeywords);
 
         var dto = new InvertedIndexDto
         {
@@ -54,13 +47,15 @@ public class OptionalStrategyTests
             InvertedIndexMap = []
         };
 
-        _search.Search("ILLNESS", dto).Returns(["doc1", "doc2", "doc3"]);
-        _search.Search("DISEASE", dto).Returns(["doc2", "doc3", "doc4"]);
+        _search.Search("ILLNESS", dto).Returns(["doc1", "doc2"]);
+        _search.Search("DISEASE", dto).Returns(["doc2", "doc3"]);
+        _search.Search("optional phrase included".ToUpper(), dto).Returns(["doc3", "doc4"]);
 
-        var sut = new OptionalStrategy(_search, _queryExtractor, SingleWordPattern);
+        var queryDto = CreateSampleQueryDto();
+        var sut = new OptionalStrategy(_search);
 
         // Act
-        var expected = sut.FilterDocumentsByQuery(Query, dto);
+        var expected = sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         expected.Should().BeEquivalentTo(["doc1", "doc2", "doc3", "doc4"]);
@@ -71,9 +66,6 @@ public class OptionalStrategyTests
     {
         // Arrange
         var expectedExtractedPhrase = "optional phrase included".ToUpper();
-        var expectedKeywords = new List<string> { expectedExtractedPhrase };
-        _queryExtractor.ExtractQueries(Query, PhrasePattern)
-            .Returns(expectedKeywords);
 
         var dto = new InvertedIndexDto
         {
@@ -81,13 +73,14 @@ public class OptionalStrategyTests
             InvertedIndexMap = []
         };
 
-        _search.Search(expectedExtractedPhrase, dto)
+        _search.Search(Arg.Any<string>(), dto)
             .Returns(["doc2", "doc3", "doc4"]);
 
-        var sut = new OptionalStrategy(_search, _queryExtractor, PhrasePattern);
+        var queryDto = CreateSampleQueryDto();
+        var sut = new OptionalStrategy(_search);
 
         // Act
-        var expected = sut.FilterDocumentsByQuery(Query, dto);
+        var expected = sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         expected.Should().BeEquivalentTo(["doc2", "doc3", "doc4"]);
@@ -97,19 +90,20 @@ public class OptionalStrategyTests
     public void FilterDocumentsByQuery_ShouldReturnEmptySet_WhenNoKeywordsFound()
     {
         // Arrange
-        _queryExtractor.ExtractQueries(Query, SingleWordPattern)
-            .Returns(new List<string>());
-
         var dto = new InvertedIndexDto
         {
             AllDocuments = ["doc1", "doc2"],
             InvertedIndexMap = []
         };
 
-        var sut = new OptionalStrategy(_search, _queryExtractor, SingleWordPattern);
+        var queryDto = new QueryDto()
+        {
+            Optional = []
+        };
+        var sut = new OptionalStrategy(_search);
 
         // Act
-        var expected = sut.FilterDocumentsByQuery(Query, dto);
+        var expected = sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         expected.Should().BeEquivalentTo(dto.AllDocuments);
@@ -120,9 +114,6 @@ public class OptionalStrategyTests
     public void FilterDocumentsByQuery_ShouldReturnEmptySet_WhenAllDocumentsIsEmpty()
     {
         // Arrange
-        var expectedKeywords = new List<string> { "ILLNESS" };
-        _queryExtractor.ExtractQueries(Query, SingleWordPattern)
-            .Returns(expectedKeywords);
 
         var dto = new InvertedIndexDto
         {
@@ -130,12 +121,13 @@ public class OptionalStrategyTests
             InvertedIndexMap = []
         };
 
-        _search.Search("ILLNESS", dto).Returns(new HashSet<string>());
+        _search.Search(Arg.Any<string>(), dto).Returns([]);
 
-        var sut = new OptionalStrategy(_search, _queryExtractor, SingleWordPattern);
+        var queryDto = CreateSampleQueryDto();
+        var sut = new OptionalStrategy(_search);
 
         // Act
-        var expected = sut.FilterDocumentsByQuery(Query, dto);
+        var expected = sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         expected.Should().BeEmpty();

@@ -1,35 +1,36 @@
 ﻿using FluentAssertions;
 using FullTextSearch.InvertedIndex.Dtos;
+using FullTextSearch.InvertedIndex.SearchFeatures;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 using FullTextSearch.Services.TokenizerService;
 using NSubstitute;
 
 namespace FullTextSearch.Tests.SearchFeaturesTests;
 
-public class PhraseSearchTests
+public class SearchServiceTests
 {
     private readonly ITokenizer _tokenizer;
     private readonly ISequentialValidator _sequentialValidator;
-    private readonly PhraseSearch _sut;
+    private readonly SearchService _sut;
 
-    public PhraseSearchTests()
+    public SearchServiceTests()
     {
         _tokenizer = Substitute.For<ITokenizer>();
         _sequentialValidator = Substitute.For<ISequentialValidator>();
-        _sut = new PhraseSearch(_tokenizer, _sequentialValidator);
+        _sut = new SearchService(_tokenizer, _sequentialValidator);
     }
 
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenTokenizerIsNull()
     {
-        Action act = () => new PhraseSearch(null, _sequentialValidator);
+        Action act = () => new SearchService(null, _sequentialValidator);
         act.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'tokenizer')");
     }
 
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenSequentialValidatorIsNull()
     {
-        Action act = () => new PhraseSearch(_tokenizer, null);
+        Action act = () => new SearchService(_tokenizer, null);
         act.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'sequentialValidator')");
     }
 
@@ -117,14 +118,15 @@ public class PhraseSearchTests
     }
 
     [Fact]
-    public void Search_ShouldReturnEmptySet_WhenPhraseIsEmpty()
+    public void Search_ShouldReturnEmptySet_WhenInputIsEmpty()
     {
         // Arrange
-        var phrase = string.Empty;
+        var input = "  ";
         var dto = CreateTestIndexDto();
+        _tokenizer.Tokenize(input).Returns(new List<string>());
 
         // Act
-        var result = _sut.Search(phrase, dto);
+        var result = _sut.Search(input, dto);
 
         // Assert
         result.Should().NotBeNull();
@@ -137,11 +139,31 @@ public class PhraseSearchTests
     }
 
     [Fact]
-    public void Search_ShouldReturnSingleWordDocuments_WhenPhraseHasOneWord()
+    public void Search_ShouldReturnEmptySet_WhenInputIsNull()
     {
         // Arrange
-        var phrase = "hello";
-        _tokenizer.Tokenize(phrase).Returns(new[] { "HELLO" });
+        string input = null;
+        var dto = CreateTestIndexDto();
+
+        // Act
+        var result = _sut.Search(input, dto);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEmpty();
+        _tokenizer.DidNotReceive().Tokenize(Arg.Any<string>());
+        _sequentialValidator.DidNotReceive().Validate(
+            Arg.Any<List<string>>(),
+            Arg.Any<HashSet<string>>(),
+            Arg.Any<InvertedIndexDto>());
+    }
+
+    [Fact]
+    public void Search_ShouldReturnSingleWordDocuments_WhenInputHasOneWord()
+    {
+        // Arrange
+        var input = "hello";
+        _tokenizer.Tokenize(input).Returns(new[] { "HELLO" });
 
         var dto = CreateTestIndexDto();
         _sequentialValidator.Validate(
@@ -151,7 +173,7 @@ public class PhraseSearchTests
             .Returns(new HashSet<string>(new[] { "doc1", "doc2", "doc3" }));
 
         // Act
-        var result = _sut.Search(phrase, dto);
+        var result = _sut.Search(input, dto);
 
         // Assert
         result.Should().NotBeNull();
@@ -159,11 +181,11 @@ public class PhraseSearchTests
     }
 
     [Fact]
-    public void Search_ShouldBeCaseInsensitive_WhenTokenizingPhrase()
+    public void Search_ShouldBeCaseInsensitive_WhenTokenizingInput()
     {
         // Arrange
-        var phrase = "HeLLo WoRLD";
-        _tokenizer.Tokenize(phrase).Returns(new[] { "HELLO", "WORLD" });
+        var input = "HeLLo WoRLD";
+        _tokenizer.Tokenize(input).Returns(new[] { "HELLO", "WORLD" });
 
         var dto = CreateTestIndexDto();
         _sequentialValidator.Validate(
@@ -173,7 +195,7 @@ public class PhraseSearchTests
             .Returns(new HashSet<string>(new[] { "doc1", "doc3" }));
 
         // Act
-        var result = _sut.Search(phrase, dto);
+        var result = _sut.Search(input, dto);
 
         // Assert
         result.Should().NotBeNull();

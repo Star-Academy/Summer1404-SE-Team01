@@ -1,9 +1,7 @@
 ﻿using FluentAssertions;
-using FullTextSearch.InvertedIndex.Constants;
 using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.InvertedIndex.FilterStrategies;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
-using FullTextSearch.Services.QueryBuilder.Abstractions;
 using NSubstitute;
 
 namespace FullTextSearch.Tests.FilterStrategyTests;
@@ -11,46 +9,37 @@ namespace FullTextSearch.Tests.FilterStrategyTests;
 public class RequiredStrategyTests
 {
     private readonly ISearch _search;
-    private readonly IQueryExtractor _queryExtractor;
-    private const string Query = @"get help +illness +disease -cough -star ""hello world phrase"" +""optional phrase included"" ";
-    private const string SingleWordPattern = StrategyPatterns.RequiredSingleWord;
-    private const string PhrasePattern = StrategyPatterns.RequiredPhrase;
-
     public RequiredStrategyTests()
     {
         _search = Substitute.For<ISearch>();
-        _queryExtractor = Substitute.For<IQueryExtractor>();
+    }
+
+    private static QueryDto CreateSampleQueryDto()
+    {
+        return new QueryDto
+        {
+            Optional = new List<string> { "ILLNESS", "DISEASE", "OPTIONAL PHRASE INCLUDED" },
+            Required = new List<string> { "GET", "HELP", "HELLO WORLD PHRASE" },
+            Excluded = new List<string> { "COUGH", "STAR" }
+        };
     }
 
     [Fact]
     public void Constructor_ShouldThrowArgumentNullException_WhenSearchIsNull()
     {
         // Arrange & Act
-        Action act = () => new RequiredStrategy(null, _queryExtractor, SingleWordPattern);
+        Action act = () => new RequiredStrategy(null);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
-            .WithMessage("Value cannot be null. (Parameter 'searchType')");
+            .WithMessage("Value cannot be null. (Parameter 'searchService')");
     }
 
-    [Fact]
-    public void Constructor_ShouldThrowArgumentNullException_WhenQueryExtractorIsNull()
-    {
-        // Arrange & Act
-        Action act = () => new RequiredStrategy(_search, null, SingleWordPattern);
-
-        // Assert
-        act.Should().Throw<ArgumentNullException>()
-            .WithMessage("Value cannot be null. (Parameter 'queryExtractor')");
-    }
 
     [Fact]
     public void FilterDocumentsByQuery_ShouldReturnIntersectionOfDocuments_WithSearchResults()
     {
         // Arrange
-        var expectedKeywords = new List<string> { "GET", "HELP" };
-        _queryExtractor.ExtractQueries(Query, SingleWordPattern)
-            .Returns(expectedKeywords);
 
         var dto = new InvertedIndexDto
         {
@@ -59,52 +48,24 @@ public class RequiredStrategyTests
 
         };
 
-        _search.Search("GET", dto).Returns(["doc1", "doc2", "doc3"]);
-        _search.Search("HELP", dto).Returns(["doc2", "doc3", "doc4"]);
+        _search.Search("GET", dto).Returns(["doc1", "doc2"]);
+        _search.Search("HELP", dto).Returns(["doc2", "doc3"]);
+        _search.Search("HELLO WORLD PHRASE", dto).Returns(["doc2", "doc4"]);
 
-        var sut = new RequiredStrategy(_search, _queryExtractor, SingleWordPattern);
-
-        // Act
-        var result = sut.FilterDocumentsByQuery(Query, dto);
-
-        // Assert
-        result.Should().BeEquivalentTo(["doc2", "doc3"]);
-    }
-
-    [Fact]
-    public void FilterDocumentsByQuery_ShouldReturnIntersectionOfDocuments_WithPhraseSearchResults()
-    {
-        // Arrange
-        var expectedExtractedPhrase = "hello world phrase".ToUpper();
-        var expectedKeywords = new List<string> { expectedExtractedPhrase };
-        _queryExtractor.ExtractQueries(Query, PhrasePattern)
-            .Returns(expectedKeywords);
-
-        var dto = new InvertedIndexDto
-        {
-            AllDocuments = ["doc1", "doc2", "doc3", "doc4", "doc5"],
-            InvertedIndexMap = []
-
-        };
-
-        _search.Search(expectedExtractedPhrase, dto)
-            .Returns(["doc2", "doc3", "doc4"]);
-
-        var sut = new RequiredStrategy(_search, _queryExtractor, PhrasePattern);
+        var queryDto = CreateSampleQueryDto();
+        var sut = new RequiredStrategy(_search);
 
         // Act
-        var result = sut.FilterDocumentsByQuery(Query, dto);
+        var result = sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
-        result.Should().BeEquivalentTo(["doc2", "doc3", "doc4"]);
+        result.Should().BeEquivalentTo(["doc2"]);
     }
 
     [Fact]
     public void FilterDocumentsByQuery_ShouldReturnEmptySet_WhenNoKeywordsFound()
     {
         // Arrange
-        _queryExtractor.ExtractQueries(Query, SingleWordPattern)
-            .Returns(new List<string>());
 
         var dto = new InvertedIndexDto
         {
@@ -113,10 +74,14 @@ public class RequiredStrategyTests
 
         };
 
-        var sut = new RequiredStrategy(_search, _queryExtractor, SingleWordPattern);
+        var queryDto = new QueryDto()
+        {
+            Required = []
+        };
+        var sut = new RequiredStrategy(_search);
 
         // Act
-        var result = sut.FilterDocumentsByQuery(Query, dto);
+        var result = sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         result.Should().BeEquivalentTo(dto.AllDocuments);
@@ -127,9 +92,6 @@ public class RequiredStrategyTests
     public void FilterDocumentsByQuery_ShouldReturnEmptySet_WhenAllDocumentsIsEmpty()
     {
         // Arrange
-        var expectedKeywords = new List<string> { "GET" };
-        _queryExtractor.ExtractQueries(Query, SingleWordPattern)
-            .Returns(expectedKeywords);
 
         var dto = new InvertedIndexDto
         {
@@ -138,12 +100,13 @@ public class RequiredStrategyTests
 
         };
 
-        _search.Search("GET", dto).Returns(["doc1"]);
+        _search.Search(Arg.Any<string>(), dto).Returns(["doc1"]);
 
-        var sut = new RequiredStrategy(_search, _queryExtractor, SingleWordPattern);
+        var queryDto = CreateSampleQueryDto();
+        var sut = new RequiredStrategy(_search);
 
         // Act
-        var result = sut.FilterDocumentsByQuery(Query, dto);
+        var result = sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         result.Should().BeEmpty();
@@ -153,9 +116,6 @@ public class RequiredStrategyTests
     public void FilterDocumentsByQuery_ShouldReturnEmptySet_WhenNoDocumentsMatchAllRequiredWords()
     {
         // Arrange
-        var expectedKeywords = new List<string> { "GET", "HELP" };
-        _queryExtractor.ExtractQueries(Query, SingleWordPattern)
-            .Returns(expectedKeywords);
 
         var dto = new InvertedIndexDto
         {
@@ -166,11 +126,12 @@ public class RequiredStrategyTests
 
         _search.Search("GET", dto).Returns(["doc1", "doc2"]);
         _search.Search("HELP", dto).Returns(["doc3"]);
-
-        var sut = new RequiredStrategy(_search, _queryExtractor, SingleWordPattern);
+        _search.Search("HELLO WORLD PHRASE", dto).Returns(["doc4"]);
+        var queryDto = CreateSampleQueryDto();
+        var sut = new RequiredStrategy(_search);
 
         // Act
-        var result = sut.FilterDocumentsByQuery(Query, dto);
+        var result = sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         result.Should().BeEmpty();
