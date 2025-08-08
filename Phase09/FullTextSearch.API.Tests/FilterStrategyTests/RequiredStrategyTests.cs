@@ -32,7 +32,7 @@ public class RequiredStrategyTests
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
-            .WithMessage("Value cannot be null. (Parameter 'searchType')");
+            .WithMessage("Value cannot be null. (Parameter 'searchService')");
     }
     
 

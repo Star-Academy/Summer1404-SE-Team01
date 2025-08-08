@@ -5,5 +5,5 @@ namespace FullTextSearch.API.InvertedIndex.SearchFeatures.Abstractions;
 
 public interface IAdvanceSearch
 {
-    HashSet<string> Search(QueryDto queryDto, InvertedIndexDto invIdxDto, List<IFilterStrategy> filterStrategies);
+    HashSet<string> Search(QueryDto queryDto, InvertedIndexDto invIdxDto, IEnumerable<IFilterStrategy> filterStrategies);
 }

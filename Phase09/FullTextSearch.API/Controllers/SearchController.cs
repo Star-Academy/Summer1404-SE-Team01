@@ -26,7 +26,7 @@ namespace FullTextSearch.API.Controllers
         public ActionResult<HashSet<string>> Word(string term)
         {
             var invIdxDto = _initiator.GetData();
-            QueryDto queryDto = new QueryDto();
+            var queryDto = new QueryDto();
             queryDto.Required.Add(term);
             var requiredStrategy = new RequiredStrategy(_searchService);
             var result = _advancedSearch.Search(queryDto, invIdxDto, new List<IFilterStrategy> { requiredStrategy });

@@ -33,7 +33,7 @@ public class OptionalStrategyTests
         Action act = () => new OptionalStrategy(null);
 
         act.Should().Throw<ArgumentNullException>()
-            .WithMessage("Value cannot be null. (Parameter 'searchType')");
+            .WithMessage("Value cannot be null. (Parameter 'searchService')");
     }
     
     [Fact]

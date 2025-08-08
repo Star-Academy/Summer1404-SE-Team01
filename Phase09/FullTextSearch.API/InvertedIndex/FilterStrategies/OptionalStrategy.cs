@@ -8,9 +8,9 @@ public class OptionalStrategy : IFilterStrategy
 {
 
     private readonly ISearch _search;
-    public OptionalStrategy(ISearch searchType)
+    public OptionalStrategy(ISearch searchService)
     {
-        _search = searchType ?? throw new ArgumentNullException(nameof(searchType));
+        _search = searchService ?? throw new ArgumentNullException(nameof(searchService));
     }
 
     public HashSet<string> FilterDocumentsByQuery(QueryDto queryDto, InvertedIndexDto invIndexDto)

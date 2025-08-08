@@ -7,7 +7,7 @@ namespace FullTextSearch.API.InvertedIndex.SearchFeatures;
 public class AdvancedSearch : IAdvanceSearch
 {
 
-    public HashSet<string> Search(QueryDto queryDto, InvertedIndexDto invIdxDto, List<IFilterStrategy> filterStrategies)
+    public HashSet<string> Search(QueryDto queryDto, InvertedIndexDto invIdxDto, IEnumerable<IFilterStrategy> filterStrategies)
     {
         var result = new HashSet<string>(invIdxDto.AllDocuments);
 
