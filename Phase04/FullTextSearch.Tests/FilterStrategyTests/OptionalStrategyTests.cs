@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.InvertedIndex.FilterStrategies;
+using FullTextSearch.InvertedIndex.FilterStrategies.Abstractions;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 using NSubstitute;
 
@@ -10,11 +11,12 @@ namespace FullTextSearch.Tests.FilterStrategyTests;
 public class OptionalStrategyTests
 {
     private readonly ISearch _search;
-
+    private readonly IFilterStrategy _sut;
 
     public OptionalStrategyTests()
     {
         _search = Substitute.For<ISearch>();
+        _sut = new OptionalStrategy(_search);
     }
 
     private static QueryDto CreateSampleQueryDto()
@@ -51,10 +53,9 @@ public class OptionalStrategyTests
         _search.Search("DISEASE", dto).Returns(["doc2", "doc3", "doc4"]);
 
         var queryDto = CreateSampleQueryDto();
-        var sut = new OptionalStrategy(_search);
 
         // Act
-        var expected = sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         expected.Should().BeEquivalentTo(["doc1", "doc2", "doc3", "doc4"]);
@@ -75,10 +76,9 @@ public class OptionalStrategyTests
             InvertedIndexMap = []
         };
 
-        var sut = new OptionalStrategy(_search);
 
         // Act
-        var expected = sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         expected.Should().BeEquivalentTo(dto.AllDocuments);
@@ -99,10 +99,9 @@ public class OptionalStrategyTests
         _search.Search(Arg.Any<string>(), dto).Returns([]);
 
         var queryDto = CreateSampleQueryDto();
-        var sut = new OptionalStrategy(_search);
 
         // Act
-        var expected = sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         expected.Should().BeEmpty();
