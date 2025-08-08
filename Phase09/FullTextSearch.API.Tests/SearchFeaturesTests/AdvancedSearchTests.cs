@@ -11,8 +11,8 @@ public class AdvancedSearchTests
     private readonly IFilterStrategy _filter1;
     private readonly IFilterStrategy _filter2;
     private readonly AdvancedSearch _sut;
-    
-    
+
+
     public static QueryDto CreateSampleQueryDto()
     {
         return new QueryDto
@@ -44,7 +44,7 @@ public class AdvancedSearchTests
         _filter2.FilterDocumentsByQuery(querDto, dto).Returns(["doc2", "doc3", "doc4"]);
 
         // Act
-        var expected = _sut.Search(querDto, dto, new List<IFilterStrategy>{_filter1, _filter2});
+        var expected = _sut.Search(querDto, dto, new List<IFilterStrategy> { _filter1, _filter2 });
 
         // Assert
         expected.Should().BeEquivalentTo(["doc2", "doc3"]);
@@ -67,7 +67,7 @@ public class AdvancedSearchTests
         _filter2.FilterDocumentsByQuery(queryDto, dto).Returns(["doc3"]);
 
         // Act
-        var expected = _sut.Search(queryDto, dto, new List<IFilterStrategy>{_filter1, _filter2});
+        var expected = _sut.Search(queryDto, dto, new List<IFilterStrategy> { _filter1, _filter2 });
 
         // Assert
         expected.Should().BeEmpty();
@@ -107,7 +107,7 @@ public class AdvancedSearchTests
         var queryDto = CreateSampleQueryDto();
 
         // Act
-        var expected = _sut.Search(queryDto, dto,  new List<IFilterStrategy>{_filter1, _filter2});
+        var expected = _sut.Search(queryDto, dto, new List<IFilterStrategy> { _filter1, _filter2 });
 
         // Assert
         expected.Should().BeEmpty();

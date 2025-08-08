@@ -1,7 +1,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using FullTextSearch.API.AppInitiator;
-using FullTextSearch.API.InvertedIndex;
 using FullTextSearch.API.InvertedIndex.BuilderServices;
 using FullTextSearch.API.InvertedIndex.BuilderServices.Abstraction;
 using FullTextSearch.API.InvertedIndex.FilterStrategies;
@@ -28,16 +27,16 @@ namespace FullTextSearch.API
             services.AddSwaggerGen();
             services.AddSingleton<IFileReader, FileReader>();
             services.AddSingleton<ITokenizer, Tokenizer>();
-            services.AddSingleton<IInvertedIndexBuilder,  InvertedIndexBuilder>();
+            services.AddSingleton<IInvertedIndexBuilder, InvertedIndexBuilder>();
             services.AddSingleton<IDocumentAdder, DocumentAdder>();
-            services.AddSingleton<ISearch,  SearchService>();
-            services.AddSingleton<ISequentialValidator,  SequentialValidator>();
-            services.AddSingleton<IFilterStrategy,  ExcludedStrategy>();
-            services.AddSingleton<IFilterStrategy,  OptionalStrategy>();
-            services.AddSingleton<IFilterStrategy,  RequiredStrategy>();
+            services.AddSingleton<ISearch, SearchService>();
+            services.AddSingleton<ISequentialFinder, SequentialFinder>();
+            services.AddSingleton<IFilterStrategy, ExcludedStrategy>();
+            services.AddSingleton<IFilterStrategy, OptionalStrategy>();
+            services.AddSingleton<IFilterStrategy, RequiredStrategy>();
             services.AddSingleton<IAdvanceSearch, AdvancedSearch>();
             services.AddSingleton<IInvertedIndexInitiator, InvertedIndexInitiator>();
-            
+
 
             var app = builder.Build();
 
