@@ -7,11 +7,11 @@ namespace FullTextSearch.Tests.SearchFeaturesTests;
 
 public class SequentialValidatorTests
 {
-    private readonly ISequentialValidator _sut;
+    private readonly ISequentialPhraseFinder _sut;
 
     public SequentialValidatorTests()
     {
-        _sut = new SequentialValidator();
+        _sut = new SequentialPhraseFinder();
     }
 
     [Fact]
@@ -23,7 +23,7 @@ public class SequentialValidatorTests
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
-        var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
+        var expected = _sut.FindSequentialPhrase(words, candidateDocs, invertedIndexDto);
 
         // Assert
         expected.Should().BeEquivalentTo(["doc1"]);
@@ -38,7 +38,7 @@ public class SequentialValidatorTests
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
-        var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
+        var expected = _sut.FindSequentialPhrase(words, candidateDocs, invertedIndexDto);
 
         // Assert
         expected.Should().BeEmpty();
@@ -53,7 +53,7 @@ public class SequentialValidatorTests
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
-        var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
+        var expected = _sut.FindSequentialPhrase(words, candidateDocs, invertedIndexDto);
 
         // Assert
         expected.Should().BeEquivalentTo(["doc1", "doc2", "doc3"]);
@@ -68,7 +68,7 @@ public class SequentialValidatorTests
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
-        var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
+        var expected = _sut.FindSequentialPhrase(words, candidateDocs, invertedIndexDto);
 
         // Assert
         expected.Should().BeEquivalentTo(["doc1"]);
@@ -83,7 +83,7 @@ public class SequentialValidatorTests
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
-        var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
+        var expected = _sut.FindSequentialPhrase(words, candidateDocs, invertedIndexDto);
 
         // Assert
         expected.Should().BeEmpty();
@@ -98,7 +98,7 @@ public class SequentialValidatorTests
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
-        var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
+        var expected = _sut.FindSequentialPhrase(words, candidateDocs, invertedIndexDto);
 
         // Assert
         expected.Should().BeEmpty();
@@ -113,7 +113,7 @@ public class SequentialValidatorTests
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
-        var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
+        var expected = _sut.FindSequentialPhrase(words, candidateDocs, invertedIndexDto);
 
         // Assert
         expected.Should().BeEquivalentTo(["doc1", "doc2", "doc3"]);
@@ -133,7 +133,7 @@ public class SequentialValidatorTests
         var candidateDocs = new HashSet<string> { "doc1" };
 
         // Act
-        var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
+        var expected = _sut.FindSequentialPhrase(words, candidateDocs, invertedIndexDto);
 
         // Assert
         expected.Should().BeEquivalentTo(["doc1"]);
@@ -152,7 +152,7 @@ public class SequentialValidatorTests
         var candidateDocs = new HashSet<string> { "doc2" };
 
         // Act
-        var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
+        var expected = _sut.FindSequentialPhrase(words, candidateDocs, invertedIndexDto);
 
         // Assert
         expected.Should().BeEmpty();
@@ -167,7 +167,7 @@ public class SequentialValidatorTests
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
-        var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
+        var expected = _sut.FindSequentialPhrase(words, candidateDocs, invertedIndexDto);
 
         // Assert
         expected.Should().BeEmpty();
@@ -182,7 +182,7 @@ public class SequentialValidatorTests
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
-        var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
+        var expected = _sut.FindSequentialPhrase(words, candidateDocs, invertedIndexDto);
 
         // Assert
         expected.Should().BeEmpty();
@@ -201,7 +201,7 @@ public class SequentialValidatorTests
         var candidateDocs = new HashSet<string> { "doc2" };
 
         // Act
-        var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
+        var expected = _sut.FindSequentialPhrase(words, candidateDocs, invertedIndexDto);
 
         // Assert
         expected.Should().BeEmpty();
@@ -217,7 +217,7 @@ public class SequentialValidatorTests
         var candidateDocs = new HashSet<string> { "doc1" };
 
         // Act
-        var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
+        var expected = _sut.FindSequentialPhrase(words, candidateDocs, invertedIndexDto);
 
         // Assert
         expected.Should().BeEmpty();

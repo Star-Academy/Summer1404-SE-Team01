@@ -19,8 +19,8 @@ namespace FullTextSearch
             var documentAdder = new DocumentAdder(tokenizer);
             var invertedIndex = new InvertedIndexBuilder(documentAdder);
 
-            var sequentialValidator = new SequentialValidator();
-            var searchService = new SearchService(tokenizer, sequentialValidator);
+            var sequentialPhraseFinder = new SequentialPhraseFinder();
+            var searchService = new SearchService(tokenizer, sequentialPhraseFinder);
             var advanceSearch = new AdvancedSearch();
             var singleWordExtractor = new SingleWordQueryExtractor();
             var phraseExtractor = new PhraseQueryExtractor();
