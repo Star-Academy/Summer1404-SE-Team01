@@ -4,24 +4,19 @@ using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 
 namespace FullTextSearch.InvertedIndex.SearchFeatures;
 
-public class AdvancedSearch : ISearch
+public class AdvancedSearch : IAdvancedSearch
 {
-    private readonly List<IStrategy> _filterStrategies;
 
-    public AdvancedSearch(List<IStrategy> strategies)
+    public HashSet<string> Search(QueryDto queryDto, InvertedIndexDto invIdxDto, IEnumerable<IFilterStrategy> filterStrategies)
     {
-        _filterStrategies = strategies;
-    }
+        var result = new HashSet<string>(invIdxDto.AllDocuments);
 
-    public SortedSet<string> Search(string query, InvertedIndexDto dto)
-    {
-        var result = new SortedSet<string>(dto.AllDocuments);
-
-        foreach (var strategy in _filterStrategies)
+        foreach (var strategy in filterStrategies)
         {
-
-            strategy.FilterDocumentsByQuery(result, query, dto);
+            var currDocIds = strategy.FilterDocumentsByQuery(queryDto, invIdxDto);
+            result.IntersectWith(currDocIds);
         }
+
         return result;
     }
 }

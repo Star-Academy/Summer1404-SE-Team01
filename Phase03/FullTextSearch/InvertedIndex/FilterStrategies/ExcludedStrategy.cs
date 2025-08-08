@@ -1,34 +1,28 @@
 ﻿using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.InvertedIndex.FilterStrategies.Abstractions;
-using FullTextSearch.InvertedIndex.QueryBuilder.Abstractions;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 
 namespace FullTextSearch.InvertedIndex.FilterStrategies;
 
-public class ExcludedStrategy : IStrategy
+public class ExcludedStrategy : IFilterStrategy
 {
 
-    private readonly ISearch _simpleSearch;
-    private readonly IQueryExtractor _queryExtractor;
+    private readonly ISearch _search;
 
-    public ExcludedStrategy(ISearch simpleSearch, IQueryExtractor queryExtractor)
+    public ExcludedStrategy(ISearch searchService)
     {
-        _simpleSearch = simpleSearch ?? throw new ArgumentNullException(nameof(simpleSearch));
-        _queryExtractor = queryExtractor ?? throw new ArgumentNullException(nameof(queryExtractor));
+        _search = searchService ?? throw new ArgumentNullException(nameof(searchService));
     }
-    public void FilterDocumentsByQuery(SortedSet<string> result, string query, InvertedIndexDto dto)
+    public HashSet<string> FilterDocumentsByQuery(QueryDto queryDto, InvertedIndexDto invIndexDto)
     {
-        var keywords = _queryExtractor.ExtractQueries(query, @"^\-\w+");
+        var result = new HashSet<string>(invIndexDto.AllDocuments);
 
-        if (keywords.Count == 0)
+        foreach (var word in queryDto.Excluded)
         {
-            return;
+            var docsWithoutWord = _search.Search(word, invIndexDto);
+            result.ExceptWith(docsWithoutWord);
         }
 
-        foreach (var word in keywords)
-        {
-            var DocsWithoutWord = _simpleSearch.Search(word, dto);
-            result.ExceptWith(DocsWithoutWord);
-        }
+        return result;
     }
 }

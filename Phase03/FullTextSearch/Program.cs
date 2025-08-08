@@ -1,10 +1,10 @@
-﻿using FullTextSearch.InvertedIndex;
-using FullTextSearch.InvertedIndex.QueryBuilder;
+﻿using System.Diagnostics.CodeAnalysis;
+using FullTextSearch.InvertedIndex.BuilderServices;
 using FullTextSearch.InvertedIndex.SearchFeatures;
 using FullTextSearch.Services.FileReaderService;
 using FullTextSearch.Services.LoggerService;
+using FullTextSearch.Services.QueryBuilder;
 using FullTextSearch.Services.TokenizerService;
-using System.Diagnostics.CodeAnalysis;
 
 namespace FullTextSearch
 {
@@ -13,19 +13,22 @@ namespace FullTextSearch
     {
         static void Main(string[] args)
         {
+            var fileReader = new FileReader();
             var logger = new ConsoleLogger();
             var tokenizer = new Tokenizer();
-            var fileReader = new FileReader();
-            var invertedIndex = new InvertedIndexBuilder(tokenizer);
+            var documentAdder = new DocumentAdder(tokenizer);
+            var invertedIndex = new InvertedIndexBuilder(documentAdder);
 
-            var simpleSearch = new SimpleSearch();
-            var queryExtractor = new QueryExtractor();
+            var searchService = new SearchService(tokenizer);
+            var advanceSearch = new AdvancedSearch();
+            var singleWordExtractor = new SingleWordQueryExtractor();
             var app = new SearchApplication(
                 fileReader,
                 invertedIndex,
                 logger,
-                simpleSearch,
-                queryExtractor);
+                searchService,
+                advanceSearch,
+                singleWordExtractor);
 
             app.Run();
         }
