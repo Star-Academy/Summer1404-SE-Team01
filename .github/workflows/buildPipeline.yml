@@ -20,15 +20,15 @@ jobs:
 
       - name: Install dependencies
         run: dotnet restore
-        working-directory: Phase05/
+        working-directory: Phase06/
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
-        working-directory: Phase05/
+        working-directory: Phase06/
 
       - name: Test
         run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
-        working-directory: Phase05/
+        working-directory: Phase06/
 
       - name: Publish code coverage reports to codecove.io
         uses: codecov/codecov-action@v1
