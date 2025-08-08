@@ -5,9 +5,9 @@ namespace FullTextSearch.InvertedIndex.SearchFeatures;
 
 public class SequentialValidator : ISequentialValidator
 {
-    public SortedSet<string> Validate(IList<string> words, SortedSet<string> docIdsContainingWords, InvertedIndexDto invIdxDto)
+    public HashSet<string> Validate(IList<string> words, HashSet<string> docIdsContainingWords, InvertedIndexDto invIdxDto)
     {
-        var result = new SortedSet<string>();
+        var result = new HashSet<string>();
 
         if (words.Count == 0 || docIdsContainingWords.Count == 0)
         {
@@ -23,10 +23,6 @@ public class SequentialValidator : ISequentialValidator
         foreach (var docId in docIdsContainingWords)
         {
             var firstWordDocInfo = firstWordDocInfos.FirstOrDefault(d => d.DocId == docId);
-            if (firstWordDocInfo == null)
-            {
-                continue;
-            }
 
             var firstWordCurrentDocIdIndexes = firstWordDocInfo.Indexes;
             var commonIndexesOfCurrentDocId = new SortedSet<long>(firstWordCurrentDocIdIndexes);

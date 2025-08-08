@@ -1,6 +1,5 @@
 ﻿using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.InvertedIndex.FilterStrategies.Abstractions;
-using FullTextSearch.InvertedIndex.QueryBuilder.Abstractions;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 
 namespace FullTextSearch.InvertedIndex.FilterStrategies;
@@ -9,23 +8,17 @@ public class OptionalStrategy : IFilterStrategy
 {
 
     private readonly ISearch _search;
-    private readonly IQueryExtractor _queryExtractor;
-    private readonly string _pattern;
-
-    public OptionalStrategy(ISearch searchType, IQueryExtractor queryExtractor, string pattern)
+    public OptionalStrategy(ISearch searchService)
     {
-        _search = searchType ?? throw new ArgumentNullException(nameof(searchType));
-        _queryExtractor = queryExtractor ?? throw new ArgumentNullException(nameof(queryExtractor));
-        _pattern = pattern;
+        _search = searchService ?? throw new ArgumentNullException(nameof(searchService));
     }
 
-    public SortedSet<string> FilterDocumentsByQuery(string query, InvertedIndexDto invIndexDto)
+    public HashSet<string> FilterDocumentsByQuery(QueryDto queryDto, InvertedIndexDto invIndexDto)
     {
-        var keywords = _queryExtractor.ExtractQueries(query, _pattern);
-        var result = new SortedSet<string>(invIndexDto.AllDocuments);
+        var result = new HashSet<string>(invIndexDto.AllDocuments);
 
-        var optionalDocIds = new SortedSet<string>();
-        foreach (var word in keywords)
+        var optionalDocIds = new HashSet<string>();
+        foreach (var word in queryDto.Optional)
         {
             var currentDocIds = _search.Search(word, invIndexDto);
             optionalDocIds.UnionWith(currentDocIds);

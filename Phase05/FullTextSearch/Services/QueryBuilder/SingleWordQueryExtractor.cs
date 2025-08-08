@@ -1,7 +1,7 @@
-﻿using FullTextSearch.InvertedIndex.QueryBuilder.Abstractions;
+﻿using FullTextSearch.Services.QueryBuilder.Abstractions;
 using System.Text.RegularExpressions;
 
-namespace FullTextSearch.InvertedIndex.QueryBuilder
+namespace FullTextSearch.Services.QueryBuilder
 {
     public class SingleWordQueryExtractor : IQueryExtractor
     {

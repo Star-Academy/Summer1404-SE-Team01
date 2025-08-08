@@ -2,8 +2,8 @@
 using FullTextSearch.InvertedIndex.Constants;
 using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.InvertedIndex.FilterStrategies;
-using FullTextSearch.InvertedIndex.QueryBuilder.Abstractions;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
+using FullTextSearch.Services.QueryBuilder.Abstractions;
 using NSubstitute;
 
 namespace FullTextSearch.Tests.FilterStrategyTests;
@@ -130,7 +130,7 @@ public class OptionalStrategyTests
             InvertedIndexMap = []
         };
 
-        _search.Search("ILLNESS", dto).Returns(new SortedSet<string>());
+        _search.Search("ILLNESS", dto).Returns(new HashSet<string>());
 
         var sut = new OptionalStrategy(_search, _queryExtractor, SingleWordPattern);
 

@@ -19,7 +19,7 @@ public class SequentialValidatorTests
     {
         // Arrange
         var words = new List<string> { "hello", "world", "phrase" };
-        var candidateDocs = new SortedSet<string> { "doc1", "doc3" };
+        var candidateDocs = new HashSet<string> { "doc1", "doc3" };
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
@@ -34,7 +34,7 @@ public class SequentialValidatorTests
     {
         // Arrange
         var words = new List<string> { "hello", "world", "missing" };
-        var candidateDocs = new SortedSet<string> { "doc1", "doc2", "doc3" };
+        var candidateDocs = new HashSet<string> { "doc1", "doc2", "doc3" };
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
@@ -49,7 +49,7 @@ public class SequentialValidatorTests
     {
         // Arrange
         var words = new List<string> { "hello", "world" };
-        var candidateDocs = new SortedSet<string> { "doc1", "doc2", "doc3" };
+        var candidateDocs = new HashSet<string> { "doc1", "doc2", "doc3" };
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
@@ -64,7 +64,7 @@ public class SequentialValidatorTests
     {
         // Arrange
         var words = new List<string> { "hello", "world" };
-        var candidateDocs = new SortedSet<string> { "doc1" };
+        var candidateDocs = new HashSet<string> { "doc1" };
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
@@ -79,7 +79,7 @@ public class SequentialValidatorTests
     {
         // Arrange
         var words = new List<string> { "hello", "world" };
-        var candidateDocs = new SortedSet<string>();
+        var candidateDocs = new HashSet<string>();
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
@@ -94,7 +94,7 @@ public class SequentialValidatorTests
     {
         // Arrange
         var words = new List<string>();
-        var candidateDocs = new SortedSet<string> { "doc1", "doc2" };
+        var candidateDocs = new HashSet<string> { "doc1", "doc2" };
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
@@ -109,7 +109,7 @@ public class SequentialValidatorTests
     {
         // Arrange
         var words = new List<string> { "hello" };
-        var candidateDocs = new SortedSet<string> { "doc1", "doc2", "doc3" };
+        var candidateDocs = new HashSet<string> { "doc1", "doc2", "doc3" };
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
@@ -130,7 +130,7 @@ public class SequentialValidatorTests
         });
 
         var words = new List<string> { "hello", "world" };
-        var candidateDocs = new SortedSet<string> { "doc1" };
+        var candidateDocs = new HashSet<string> { "doc1" };
 
         // Act
         var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
@@ -149,7 +149,7 @@ public class SequentialValidatorTests
         });
 
         var words = new List<string> { "hello", "world" };
-        var candidateDocs = new SortedSet<string> { "doc2" };
+        var candidateDocs = new HashSet<string> { "doc2" };
 
         // Act
         var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
@@ -163,7 +163,7 @@ public class SequentialValidatorTests
     {
         // Arrange
         var words = new List<string> { "missing", "world" };
-        var candidateDocs = new SortedSet<string> { "doc1", "doc2" };
+        var candidateDocs = new HashSet<string> { "doc1", "doc2" };
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
@@ -178,7 +178,7 @@ public class SequentialValidatorTests
     {
         // Arrange
         var words = new List<string> { "hello", "missing" };
-        var candidateDocs = new SortedSet<string> { "doc1", "doc2" };
+        var candidateDocs = new HashSet<string> { "doc1", "doc2" };
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         // Act
@@ -198,7 +198,7 @@ public class SequentialValidatorTests
         });
 
         var words = new List<string> { "world", "phrase" };
-        var candidateDocs = new SortedSet<string> { "doc2" };
+        var candidateDocs = new HashSet<string> { "doc2" };
 
         // Act
         var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
@@ -214,7 +214,7 @@ public class SequentialValidatorTests
         var invertedIndexDto = CreateTestInvertedIndexDto();
 
         var words = new List<string> { "hello", "phrase" };
-        var candidateDocs = new SortedSet<string> { "doc1" };
+        var candidateDocs = new HashSet<string> { "doc1" };
 
         // Act
         var expected = _sut.Validate(words, candidateDocs, invertedIndexDto);
@@ -227,8 +227,8 @@ public class SequentialValidatorTests
     {
         return new InvertedIndexDto
         {
-            AllDocuments = new SortedSet<string> { "doc1", "doc2", "doc3" },
-            InvertedIndexMap = new SortedDictionary<string, SortedSet<DocumentInfo>>
+            AllDocuments = new HashSet<string> { "doc1", "doc2", "doc3" },
+            InvertedIndexMap = new SortedDictionary<string, HashSet<DocumentInfo>>
             {
                 ["hello"] = new()
                 {

@@ -11,7 +11,7 @@ public class WordSearchTests
 
     public WordSearchTests()
     {
-        _sut = new WordSearch();
+        _sut = new SearchService();
     }
 
     [Fact]
@@ -19,7 +19,7 @@ public class WordSearchTests
     {
         // Arrange
         var dtoWithAppleDocs = CreateTestDtoWithAppleDocuments();
-        var expectedAppleDocIds = new SortedSet<string> { "doc1", "doc2" };
+        var expectedAppleDocIds = new HashSet<string> { "doc1", "doc2" };
 
         // Act
         var expected = _sut.Search("apple", dtoWithAppleDocs);
@@ -46,7 +46,7 @@ public class WordSearchTests
     {
         // Arrange
         var dtoWithAppleDocs = CreateTestDtoWithAppleDocuments();
-        var expectedAppleDocIds = new SortedSet<string> { "doc1", "doc2" };
+        var expectedAppleDocIds = new HashSet<string> { "doc1", "doc2" };
 
         // Act
         var expected = _sut.Search("ApPLe", dtoWithAppleDocs);
@@ -74,7 +74,7 @@ public class WordSearchTests
 
     private static InvertedIndexDto CreateTestDtoWithAppleDocuments()
     {
-        var appleDocInfos = new SortedSet<DocumentInfo>
+        var appleDocInfos = new HashSet<DocumentInfo>
         {
             new DocumentInfo
             {

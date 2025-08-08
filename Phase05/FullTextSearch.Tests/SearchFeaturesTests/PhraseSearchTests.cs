@@ -43,9 +43,9 @@ public class PhraseSearchTests
         var dto = CreateTestIndexDto();
         _sequentialValidator.Validate(
             Arg.Is<List<string>>(x => x.SequenceEqual(new[] { "HELLO", "WORLD" })),
-            Arg.Is<SortedSet<string>>(x => x.SetEquals(new[] { "doc1", "doc2", "doc3" })),
+            Arg.Is<HashSet<string>>(x => x.SetEquals(new[] { "doc1", "doc2", "doc3" })),
             Arg.Any<InvertedIndexDto>())
-            .Returns(new SortedSet<string>(new[] { "doc1", "doc3" }));
+            .Returns(new HashSet<string>(new[] { "doc1", "doc3" }));
 
         // Act
         var result = _sut.Search(phrase, dto);
@@ -70,7 +70,7 @@ public class PhraseSearchTests
         expected.Should().BeEmpty();
         _sequentialValidator.DidNotReceive().Validate(
             Arg.Any<List<string>>(),
-            Arg.Any<SortedSet<string>>(),
+            Arg.Any<HashSet<string>>(),
             Arg.Any<InvertedIndexDto>());
     }
 
@@ -89,7 +89,7 @@ public class PhraseSearchTests
         expected.Should().BeEmpty();
         _sequentialValidator.DidNotReceive().Validate(
             Arg.Any<List<string>>(),
-            Arg.Any<SortedSet<string>>(),
+            Arg.Any<HashSet<string>>(),
             Arg.Any<InvertedIndexDto>());
     }
 
@@ -112,7 +112,7 @@ public class PhraseSearchTests
         expected.Should().BeEmpty();
         _sequentialValidator.DidNotReceive().Validate(
             Arg.Any<List<string>>(),
-            Arg.Any<SortedSet<string>>(),
+            Arg.Any<HashSet<string>>(),
             Arg.Any<InvertedIndexDto>());
     }
 
@@ -132,7 +132,7 @@ public class PhraseSearchTests
         _tokenizer.DidNotReceive().Tokenize(Arg.Any<string>());
         _sequentialValidator.DidNotReceive().Validate(
             Arg.Any<List<string>>(),
-            Arg.Any<SortedSet<string>>(),
+            Arg.Any<HashSet<string>>(),
             Arg.Any<InvertedIndexDto>());
     }
 
@@ -146,9 +146,9 @@ public class PhraseSearchTests
         var dto = CreateTestIndexDto();
         _sequentialValidator.Validate(
             Arg.Is<List<string>>(x => x.SequenceEqual(new[] { "HELLO" })),
-            Arg.Is<SortedSet<string>>(x => x.SetEquals(new[] { "doc1", "doc2", "doc3" })),
+            Arg.Is<HashSet<string>>(x => x.SetEquals(new[] { "doc1", "doc2", "doc3" })),
             Arg.Any<InvertedIndexDto>())
-            .Returns(new SortedSet<string>(new[] { "doc1", "doc2", "doc3" }));
+            .Returns(new HashSet<string>(new[] { "doc1", "doc2", "doc3" }));
 
         // Act
         var result = _sut.Search(phrase, dto);
@@ -168,9 +168,9 @@ public class PhraseSearchTests
         var dto = CreateTestIndexDto();
         _sequentialValidator.Validate(
             Arg.Is<List<string>>(x => x.SequenceEqual(new[] { "HELLO", "WORLD" })),
-            Arg.Any<SortedSet<string>>(),
+            Arg.Any<HashSet<string>>(),
             Arg.Any<InvertedIndexDto>())
-            .Returns(new SortedSet<string>(new[] { "doc1", "doc3" }));
+            .Returns(new HashSet<string>(new[] { "doc1", "doc3" }));
 
         // Act
         var result = _sut.Search(phrase, dto);
@@ -184,8 +184,8 @@ public class PhraseSearchTests
     {
         return new InvertedIndexDto
         {
-            AllDocuments = new SortedSet<string>(["doc1", "doc2", "doc3"]),
-            InvertedIndexMap = new SortedDictionary<string, SortedSet<DocumentInfo>>
+            AllDocuments = new HashSet<string>(["doc1", "doc2", "doc3"]),
+            InvertedIndexMap = new SortedDictionary<string, HashSet<DocumentInfo>>
             {
                 ["HELLO"] = new()
                 {

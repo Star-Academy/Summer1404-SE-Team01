@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using FullTextSearch.InvertedIndex;
+using FullTextSearch.InvertedIndex.BuilderServices;
 using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.Services.TokenizerService;
 using NSubstitute;
@@ -55,7 +55,7 @@ public class InvertedIndexBuilderTests
         var docs = CreateTestDocuments();
         SetupTokenizerMocks();
 
-        var expectedAppleDocs = new SortedSet<DocumentInfo>
+        var expectedAppleDocs = new HashSet<DocumentInfo>
         {
             new() { DocId = "doc1", Indexes = [0] },
             new() { DocId = "doc3", Indexes = [0] }
@@ -76,7 +76,7 @@ public class InvertedIndexBuilderTests
         var docs = CreateTestDocuments();
         SetupTokenizerMocks();
 
-        var expectedBananaDocs = new SortedSet<DocumentInfo>
+        var expectedBananaDocs = new HashSet<DocumentInfo>
         {
             new() { DocId = "doc1", Indexes = [1] },
             new() { DocId = "doc2", Indexes = [0] }
@@ -97,7 +97,7 @@ public class InvertedIndexBuilderTests
         var docs = CreateTestDocuments();
         SetupTokenizerMocks();
 
-        var expectedCarrotDocs = new SortedSet<DocumentInfo>
+        var expectedCarrotDocs = new HashSet<DocumentInfo>
         {
             new() { DocId = "doc2", Indexes = [1] },
             new() { DocId = "doc3", Indexes = [1] }

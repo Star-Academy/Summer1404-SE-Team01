@@ -1,14 +1,13 @@
-﻿using FullTextSearch.InvertedIndex;
+﻿using System.Diagnostics.CodeAnalysis;
+using FullTextSearch.InvertedIndex.BuilderServices.Abstractions;
 using FullTextSearch.InvertedIndex.Constants;
 using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.InvertedIndex.FilterStrategies;
 using FullTextSearch.InvertedIndex.FilterStrategies.Abstractions;
-using FullTextSearch.InvertedIndex.QueryBuilder.Abstractions;
-using FullTextSearch.InvertedIndex.SearchFeatures;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 using FullTextSearch.Services.FileReaderService;
 using FullTextSearch.Services.LoggerService;
-using System.Diagnostics.CodeAnalysis;
+using FullTextSearch.Services.QueryBuilder.Abstractions;
 
 namespace FullTextSearch;
 
@@ -16,30 +15,30 @@ namespace FullTextSearch;
 public class SearchApplication
 {
     private const string DataSetPath = "EnglishData";
+
     private readonly IFileReader _fileReader;
     private readonly IInvertedIndexBuilder _invertedIndex;
     private readonly ILogger _logger;
-    private readonly ISearch _simpleSearch;
-    private readonly ISearch _phraseSearch;
-    private readonly IQueryExtractor _queryExtractor;
-    private readonly IQueryExtractor _phraseQueryExtractor;
+    private readonly ISearch _searchService;
+    private readonly IAdvancedSearch _advancedSearch;
+    private readonly IQueryExtractor _wordExtractor;
+    private readonly IQueryExtractor _phraseExtractor;
 
-    public SearchApplication(
-        IFileReader fileReader,
+    public SearchApplication(IFileReader fileReader,
         IInvertedIndexBuilder invertedIndex,
         ILogger logger,
-        ISearch simpleSearch,
-        IQueryExtractor queryExtractor,
-        ISearch phraseSearch,
-        IQueryExtractor phraseQueryExtractor)
+        ISearch searchService,
+        IAdvancedSearch advancedSearch,
+        IQueryExtractor wordExtractor,
+        IQueryExtractor phraseExtractor)
     {
-        _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
-        _invertedIndex = invertedIndex ?? throw new ArgumentNullException(nameof(invertedIndex));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _simpleSearch = simpleSearch ?? throw new ArgumentNullException(nameof(simpleSearch));
-        _queryExtractor = queryExtractor ?? throw new ArgumentNullException(nameof(queryExtractor));
-        _phraseSearch = phraseSearch ?? throw new ArgumentNullException(nameof(phraseSearch));
-        _phraseQueryExtractor = phraseQueryExtractor ?? throw new ArgumentNullException(nameof(phraseQueryExtractor));
+        _fileReader = fileReader;
+        _invertedIndex = invertedIndex;
+        _logger = logger;
+        _searchService = searchService;
+        _advancedSearch = advancedSearch;
+        _wordExtractor = wordExtractor;
+        _phraseExtractor = phraseExtractor;
     }
 
     public void Run()
@@ -47,9 +46,9 @@ public class SearchApplication
         try
         {
             _logger.LogInformation("Initializing search application...");
-            var dto = InitializeIndex();
-            if (dto is null) throw new ArgumentNullException($"InvertedIndex {nameof(dto)} is null)");
-            RunMainLoop(dto);
+            var invIdxDto = InitializeIndex();
+            if (invIdxDto is null) throw new ArgumentNullException($"InvertedIndex {nameof(invIdxDto)} is null)");
+            RunMainLoop(invIdxDto);
         }
         catch (Exception ex)
         {
@@ -68,10 +67,10 @@ public class SearchApplication
         {
             var docs = _fileReader.ReadAllFiles(DataSetPath);
             _logger.LogInformation("Building inverted index...");
-            var dto = _invertedIndex.Build(docs);
+            var invIdxDto = _invertedIndex.Build(docs);
 
             _logger.LogInformation($"Index built successfully. {docs.Count} documents loaded.");
-            return dto;
+            return invIdxDto;
         }
         catch (Exception e)
         {
@@ -82,7 +81,7 @@ public class SearchApplication
         return null;
     }
 
-    private void RunMainLoop(InvertedIndexDto dto)
+    private void RunMainLoop(InvertedIndexDto invIdxDto)
     {
         while (true)
         {
@@ -94,7 +93,7 @@ public class SearchApplication
                 break;
             }
 
-            ProcessUserChoice(choice, dto);
+            ProcessUserChoice(choice, invIdxDto);
         }
     }
 
@@ -107,15 +106,15 @@ public class SearchApplication
         Console.Write("Your choice: ");
     }
 
-    private void ProcessUserChoice(string choice, InvertedIndexDto dto)
+    private void ProcessUserChoice(string choice, InvertedIndexDto invIdxDto)
     {
         switch (choice)
         {
             case "1":
-                RunSearchLoop("word", dto, SearchSingleWord);
+                RunSearchLoop(invIdxDto, SearchSingleWord);
                 break;
             case "2":
-                RunAdvancedSearchLoop(dto);
+                RunAdvancedSearchLoop(invIdxDto);
                 break;
             default:
                 Console.WriteLine("Invalid option. Please try again.");
@@ -123,11 +122,11 @@ public class SearchApplication
         }
     }
 
-    private void RunSearchLoop(string searchType, InvertedIndexDto dto, Func<string, InvertedIndexDto, IEnumerable<string>> searchFunction)
+    private void RunSearchLoop(InvertedIndexDto invIdxDto, Func<string, InvertedIndexDto, IEnumerable<string>> searchFunction)
     {
         while (true)
         {
-            Console.WriteLine($"\nEnter a {searchType} to search (or 'q' to return to menu):");
+            Console.WriteLine($"\nEnter a word to search (or 'q' to return to menu):");
             Console.Write("> ");
             var input = Console.ReadLine()?.Trim();
 
@@ -141,7 +140,7 @@ public class SearchApplication
 
             try
             {
-                var results = searchFunction(input, dto);
+                var results = searchFunction(input, invIdxDto);
                 DisplayResults(results);
             }
             catch (Exception ex)
@@ -152,18 +151,19 @@ public class SearchApplication
         }
     }
 
-    private void RunAdvancedSearchLoop(InvertedIndexDto dto)
+    private void RunAdvancedSearchLoop(InvertedIndexDto invIdxDto)
     {
+
         while (true)
         {
-            Console.WriteLine("\nEnter an advanced query to search (or 'q' to return to menu):");
+            Console.WriteLine("\nEnter a query to search (or 'q' to return to menu):");
             Console.WriteLine("Example: +apple -banana orange");
             Console.Write("> ");
-            var query = Console.ReadLine()?.Trim();
+            var input = Console.ReadLine()?.Trim();
 
-            if (query?.ToLower() == "q") break;
+            if (input?.ToLower() == "q") break;
 
-            if (string.IsNullOrWhiteSpace(query))
+            if (string.IsNullOrWhiteSpace(input))
             {
                 Console.WriteLine("Input cannot be empty");
                 continue;
@@ -173,9 +173,9 @@ public class SearchApplication
             {
                 var strategies = CreateFilterStrategies();
 
-                var advancedSearch = new AdvancedSearch(strategies);
+                var queryDto = CreateQueryDto(input);
 
-                var results = advancedSearch.Search(query, dto);
+                var results = _advancedSearch.Search(queryDto, invIdxDto, strategies);
                 DisplayResults(results);
             }
             catch (Exception ex)
@@ -190,18 +190,31 @@ public class SearchApplication
     {
         return new List<IFilterStrategy>
         {
-            new RequiredStrategy(_simpleSearch, _queryExtractor, StrategyPatterns.RequiredSingleWord),
-            new RequiredStrategy(_phraseSearch, _phraseQueryExtractor, StrategyPatterns.RequiredPhrase),
-            new OptionalStrategy(_simpleSearch, _queryExtractor, StrategyPatterns.OptionalSingleWord),
-            new OptionalStrategy(_phraseSearch, _phraseQueryExtractor, StrategyPatterns.OptionalPhrase),
-            new ExcludedStrategy(_simpleSearch, _queryExtractor, StrategyPatterns.ExcludedSingleWord),
-            new ExcludedStrategy(_phraseSearch, _phraseQueryExtractor, StrategyPatterns.ExcludedPhrase)
+            new RequiredStrategy(_searchService),
+            new OptionalStrategy(_searchService),
+            new ExcludedStrategy(_searchService),
         };
     }
 
-    private IEnumerable<string> SearchSingleWord(string word, InvertedIndexDto dto)
+    private QueryDto CreateQueryDto(string input)
     {
-        return _simpleSearch.Search(word.ToUpper(), dto);
+        var queryDto = new QueryDto();
+        var requiredWords = _wordExtractor.ExtractQueries(input, StrategyPatterns.RequiredSingleWord);
+        var requiredPhrases = _phraseExtractor.ExtractQueries(input, StrategyPatterns.RequiredPhrase);
+        var optionalWords = _wordExtractor.ExtractQueries(input, StrategyPatterns.OptionalSingleWord);
+        var optionalPhrases = _phraseExtractor.ExtractQueries(input, StrategyPatterns.OptionalPhrase);
+        var excludedWords = _wordExtractor.ExtractQueries(input, StrategyPatterns.ExcludedSingleWord);
+        var excludedPhrases = _phraseExtractor.ExtractQueries(input, StrategyPatterns.ExcludedPhrase);
+        queryDto.Required = new([.. requiredWords, .. requiredPhrases]);
+        queryDto.Optional = new([.. optionalWords, .. optionalPhrases]);
+        queryDto.Excluded = new([.. excludedWords, .. excludedPhrases]);
+
+        return queryDto;
+    }
+
+    private IEnumerable<string> SearchSingleWord(string input, InvertedIndexDto invIdxDto)
+    {
+        return _searchService.Search(input, invIdxDto);
     }
 
     private void DisplayResults(IEnumerable<string> results)

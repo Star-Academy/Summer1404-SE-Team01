@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using FullTextSearch.InvertedIndex.QueryBuilder;
+using FullTextSearch.Services.QueryBuilder;
 
 namespace FullTextSearch.Tests.QueryExtractorTests;
 
