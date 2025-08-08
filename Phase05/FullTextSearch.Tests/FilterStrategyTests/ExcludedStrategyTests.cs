@@ -54,10 +54,10 @@ public class ExcludedStrategyTests
         _search.Search("EXCLUDED PHRASE", dto).Returns(["doc3"]);
 
         // Act
-        var result = _sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
-        result.Should().BeEquivalentTo(["doc4", "doc5", "doc6"]);
+        expected.Should().BeEquivalentTo(["doc4", "doc5", "doc6"]);
     }
 
     [Fact]
@@ -76,10 +76,10 @@ public class ExcludedStrategyTests
         };
 
         // Act
-        var result = _sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
-        result.Should().BeEquivalentTo(dto.AllDocuments);
+        expected.Should().BeEquivalentTo(dto.AllDocuments);
         _search.DidNotReceive().Search(Arg.Any<string>(), Arg.Any<InvertedIndexDto>());
     }
 
@@ -98,9 +98,9 @@ public class ExcludedStrategyTests
         _search.Search(Arg.Any<string>(), indexDto).Returns([]);
 
         // Act
-        var result = _sut.FilterDocumentsByQuery(queryDto, indexDto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, indexDto);
 
         // Assert
-        result.Should().BeEmpty();
+        expected.Should().BeEmpty();
     }
 }
