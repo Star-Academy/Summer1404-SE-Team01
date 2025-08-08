@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using FullTextSearch.InvertedIndex.Dtos;
 using FullTextSearch.InvertedIndex.FilterStrategies;
+using FullTextSearch.InvertedIndex.FilterStrategies.Abstractions;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 using NSubstitute;
 
@@ -9,9 +10,11 @@ namespace FullTextSearch.Tests.FilterStrategyTests;
 public class RequiredStrategyTests
 {
     private readonly ISearch _search;
+    private readonly IFilterStrategy _sut;
     public RequiredStrategyTests()
     {
         _search = Substitute.For<ISearch>();
+        _sut = new RequiredStrategy(_search);
     }
 
     private static QueryDto CreateSampleQueryDto()
@@ -53,10 +56,9 @@ public class RequiredStrategyTests
         _search.Search("HELLO WORLD PHRASE", dto).Returns(["doc2", "doc4"]);
 
         var queryDto = CreateSampleQueryDto();
-        var sut = new RequiredStrategy(_search);
 
         // Act
-        var result = sut.FilterDocumentsByQuery(queryDto, dto);
+        var result = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         result.Should().BeEquivalentTo(["doc2"]);
@@ -78,10 +80,9 @@ public class RequiredStrategyTests
         {
             Required = []
         };
-        var sut = new RequiredStrategy(_search);
 
         // Act
-        var result = sut.FilterDocumentsByQuery(queryDto, dto);
+        var result = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         result.Should().BeEquivalentTo(dto.AllDocuments);
@@ -103,10 +104,9 @@ public class RequiredStrategyTests
         _search.Search(Arg.Any<string>(), dto).Returns(["doc1"]);
 
         var queryDto = CreateSampleQueryDto();
-        var sut = new RequiredStrategy(_search);
 
         // Act
-        var result = sut.FilterDocumentsByQuery(queryDto, dto);
+        var result = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         result.Should().BeEmpty();
@@ -128,10 +128,9 @@ public class RequiredStrategyTests
         _search.Search("HELP", dto).Returns(["doc3"]);
         _search.Search("HELLO WORLD PHRASE", dto).Returns(["doc4"]);
         var queryDto = CreateSampleQueryDto();
-        var sut = new RequiredStrategy(_search);
 
         // Act
-        var result = sut.FilterDocumentsByQuery(queryDto, dto);
+        var result = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         result.Should().BeEmpty();

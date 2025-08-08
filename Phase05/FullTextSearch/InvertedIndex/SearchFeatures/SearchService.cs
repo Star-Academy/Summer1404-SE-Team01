@@ -7,12 +7,12 @@ namespace FullTextSearch.InvertedIndex.SearchFeatures;
 public class SearchService : ISearch
 {
     private readonly ITokenizer _tokenizer;
-    private readonly ISequentialPhraseFinder _sequentialPhraseFinder;
+    private readonly ISequentialPhraseFinder _sequentialFinder;
 
     public SearchService(ITokenizer tokenizer, ISequentialPhraseFinder sequentialValidator)
     {
         _tokenizer = tokenizer ?? throw new ArgumentNullException(nameof(tokenizer));
-        _sequentialPhraseFinder = sequentialValidator ?? throw new ArgumentNullException(nameof(sequentialValidator));
+        _sequentialFinder = sequentialValidator ?? throw new ArgumentNullException(nameof(sequentialValidator));
     }
 
     public HashSet<string> Search(string input, InvertedIndexDto invIdxDto)
@@ -42,6 +42,6 @@ public class SearchService : ISearch
             return docIdsContainingWords;
         }
 
-        return _sequentialPhraseFinder.FindSequentialPhrase(words, docIdsContainingWords, invIdxDto);
+        return _sequentialFinder.FindSequentialPhrase(words, docIdsContainingWords, invIdxDto);
     }
 }
