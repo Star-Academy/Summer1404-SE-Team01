@@ -20,6 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: dotnet restore
+        
         working-directory: Phase09/
 
       - name: Build
