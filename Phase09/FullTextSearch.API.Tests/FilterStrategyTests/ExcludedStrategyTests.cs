@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using FullTextSearch.API.InvertedIndex.Dtos;
 using FullTextSearch.API.InvertedIndex.FilterStrategies;
+using FullTextSearch.API.InvertedIndex.FilterStrategies.Abstractions;
 using FullTextSearch.API.InvertedIndex.SearchFeatures.Abstractions;
 using NSubstitute;
 
@@ -9,12 +10,14 @@ namespace FullTextSearch.API.Tests.FilterStrategyTests;
 public class ExcludedStrategyTests
 {
     private readonly ISearch _search;
+    private readonly IFilterStrategy _sut;
 
     public ExcludedStrategyTests()
     {
         _search = Substitute.For<ISearch>();
+        _sut = new ExcludedStrategy(_search);
     }
-    
+
     private static QueryDto CreateSampleQueryDto()
     {
         return new QueryDto
@@ -35,7 +38,7 @@ public class ExcludedStrategyTests
     }
 
     [Fact]
-    public void FilterDocumentsByQuery_ShouldExcludeMatchingDocuments()
+    public void FilterDocumentsByQuery_ShouldExcludeDocuments_WithSearchResults()
     {
         // Arrange
         var queryDto = CreateSampleQueryDto();
@@ -50,13 +53,11 @@ public class ExcludedStrategyTests
         _search.Search("STAR", dto).Returns(["doc2"]);
         _search.Search("EXCLUDED PHRASE", dto).Returns(["doc3"]);
 
-        var sut = new ExcludedStrategy(_search);
-
         // Act
-        var result = sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
-        result.Should().BeEquivalentTo(["doc4","doc5", "doc6"]);
+        expected.Should().BeEquivalentTo(["doc4", "doc5", "doc6"]);
     }
 
     [Fact]
@@ -74,13 +75,11 @@ public class ExcludedStrategyTests
             InvertedIndexMap = []
         };
 
-        var sut = new ExcludedStrategy(_search);
-
         // Act
-        var result = sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
-        result.Should().BeEquivalentTo(dto.AllDocuments);
+        expected.Should().BeEquivalentTo(dto.AllDocuments);
         _search.DidNotReceive().Search(Arg.Any<string>(), Arg.Any<InvertedIndexDto>());
     }
 
@@ -98,12 +97,10 @@ public class ExcludedStrategyTests
 
         _search.Search(Arg.Any<string>(), indexDto).Returns([]);
 
-        var sut = new ExcludedStrategy(_search);
-
         // Act
-        var result = sut.FilterDocumentsByQuery(queryDto, indexDto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, indexDto);
 
         // Assert
-        result.Should().BeEmpty();
+        expected.Should().BeEmpty();
     }
 }

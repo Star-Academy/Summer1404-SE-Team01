@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using FullTextSearch.API.InvertedIndex.Dtos;
 using FullTextSearch.API.InvertedIndex.FilterStrategies;
+using FullTextSearch.API.InvertedIndex.FilterStrategies.Abstractions;
 using FullTextSearch.API.InvertedIndex.SearchFeatures.Abstractions;
 using NSubstitute;
 
@@ -9,11 +10,13 @@ namespace FullTextSearch.API.Tests.FilterStrategyTests;
 public class RequiredStrategyTests
 {
     private readonly ISearch _search;
+    private readonly IFilterStrategy _sut;
     public RequiredStrategyTests()
     {
         _search = Substitute.For<ISearch>();
+        _sut = new RequiredStrategy(_search);
     }
-    
+
     private static QueryDto CreateSampleQueryDto()
     {
         return new QueryDto
@@ -32,15 +35,15 @@ public class RequiredStrategyTests
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
-            .WithMessage("Value cannot be null. (Parameter 'searchType')");
+            .WithMessage("Value cannot be null. (Parameter 'searchService')");
     }
-    
+
 
     [Fact]
     public void FilterDocumentsByQuery_ShouldReturnIntersectionOfDocuments_WithSearchResults()
     {
         // Arrange
-        
+
         var dto = new InvertedIndexDto
         {
             AllDocuments = ["doc1", "doc2", "doc3", "doc4", "doc5"],
@@ -51,40 +54,38 @@ public class RequiredStrategyTests
         _search.Search("GET", dto).Returns(["doc1", "doc2"]);
         _search.Search("HELP", dto).Returns(["doc2", "doc3"]);
         _search.Search("HELLO WORLD PHRASE", dto).Returns(["doc2", "doc4"]);
-        
-        var queryDto  = CreateSampleQueryDto(); 
-        var sut = new RequiredStrategy(_search);
+
+        var queryDto = CreateSampleQueryDto();
 
         // Act
-        var result = sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
-        result.Should().BeEquivalentTo(["doc2"]);
+        expected.Should().BeEquivalentTo(["doc2"]);
     }
 
     [Fact]
     public void FilterDocumentsByQuery_ShouldReturnEmptySet_WhenNoKeywordsFound()
     {
         // Arrange
-        
+
         var dto = new InvertedIndexDto
         {
             AllDocuments = ["doc1", "doc2"],
             InvertedIndexMap = []
 
         };
-        
+
         var queryDto = new QueryDto()
         {
             Required = []
         };
-        var sut = new RequiredStrategy(_search);
 
         // Act
-        var result = sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
-        result.Should().BeEquivalentTo(dto.AllDocuments);
+        expected.Should().BeEquivalentTo(dto.AllDocuments);
         _search.DidNotReceive().Search(Arg.Any<string>(), Arg.Any<InvertedIndexDto>());
     }
 
@@ -92,7 +93,7 @@ public class RequiredStrategyTests
     public void FilterDocumentsByQuery_ShouldReturnEmptySet_WhenAllDocumentsIsEmpty()
     {
         // Arrange
-        
+
         var dto = new InvertedIndexDto
         {
             AllDocuments = new HashSet<string>(),
@@ -101,15 +102,14 @@ public class RequiredStrategyTests
         };
 
         _search.Search(Arg.Any<string>(), dto).Returns(["doc1"]);
-            
+
         var queryDto = CreateSampleQueryDto();
-        var sut = new RequiredStrategy(_search);
 
         // Act
-        var result = sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
-        result.Should().BeEmpty();
+        expected.Should().BeEmpty();
     }
 
     [Fact]
@@ -128,12 +128,11 @@ public class RequiredStrategyTests
         _search.Search("HELP", dto).Returns(["doc3"]);
         _search.Search("HELLO WORLD PHRASE", dto).Returns(["doc4"]);
         var queryDto = CreateSampleQueryDto();
-        var sut = new RequiredStrategy(_search);
 
         // Act
-        var result = sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
-        result.Should().BeEmpty();
+        expected.Should().BeEmpty();
     }
 }

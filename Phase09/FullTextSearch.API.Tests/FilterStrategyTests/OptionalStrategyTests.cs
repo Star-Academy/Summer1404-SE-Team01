@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using FullTextSearch.API.InvertedIndex.Dtos;
 using FullTextSearch.API.InvertedIndex.FilterStrategies;
+using FullTextSearch.API.InvertedIndex.FilterStrategies.Abstractions;
 using FullTextSearch.API.InvertedIndex.SearchFeatures.Abstractions;
 using NSubstitute;
 
@@ -10,13 +11,15 @@ namespace FullTextSearch.API.Tests.FilterStrategyTests;
 public class OptionalStrategyTests
 {
     private readonly ISearch _search;
-    
+    private readonly IFilterStrategy _sut;
+
 
     public OptionalStrategyTests()
     {
         _search = Substitute.For<ISearch>();
+        _sut = new OptionalStrategy(_search);
     }
-    
+
     private static QueryDto CreateSampleQueryDto()
     {
         return new QueryDto
@@ -33,14 +36,14 @@ public class OptionalStrategyTests
         Action act = () => new OptionalStrategy(null);
 
         act.Should().Throw<ArgumentNullException>()
-            .WithMessage("Value cannot be null. (Parameter 'searchType')");
+            .WithMessage("Value cannot be null. (Parameter 'searchService')");
     }
-    
+
     [Fact]
     public void FilterDocumentsByQuery_ShouldReturnUnionOfDocuments_WithSearchResults()
     {
         // Arrange
-        
+
         var dto = new InvertedIndexDto
         {
             AllDocuments = ["doc1", "doc2", "doc3", "doc4", "doc5"],
@@ -52,38 +55,12 @@ public class OptionalStrategyTests
         _search.Search("optional phrase included".ToUpper(), dto).Returns(["doc3", "doc4"]);
 
         var queryDto = CreateSampleQueryDto();
-        var sut = new OptionalStrategy(_search);
-        
+
         // Act
-        var expected = sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         expected.Should().BeEquivalentTo(["doc1", "doc2", "doc3", "doc4"]);
-    }
-
-    [Fact]
-    public void FilterDocumentsByQuery_ShouldReturnUnionOfDocuments_WithPhraseSearchResults()
-    {
-        // Arrange
-        var expectedExtractedPhrase = "optional phrase included".ToUpper();
-        
-        var dto = new InvertedIndexDto
-        {
-            AllDocuments = ["doc1", "doc2", "doc3", "doc4", "doc5"],
-            InvertedIndexMap = []
-        };
-
-        _search.Search(Arg.Any<string>(), dto)
-            .Returns(["doc2", "doc3", "doc4"]);
-        
-        var queryDto =  CreateSampleQueryDto(); 
-        var sut = new OptionalStrategy(_search);
-
-        // Act
-        var expected = sut.FilterDocumentsByQuery(queryDto, dto);
-
-        // Assert
-        expected.Should().BeEquivalentTo(["doc2", "doc3", "doc4"]);
     }
 
     [Fact]
@@ -100,10 +77,9 @@ public class OptionalStrategyTests
         {
             Optional = []
         };
-        var sut = new OptionalStrategy(_search);
 
         // Act
-        var expected = sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         expected.Should().BeEquivalentTo(dto.AllDocuments);
@@ -114,7 +90,7 @@ public class OptionalStrategyTests
     public void FilterDocumentsByQuery_ShouldReturnEmptySet_WhenAllDocumentsIsEmpty()
     {
         // Arrange
-        
+
         var dto = new InvertedIndexDto
         {
             AllDocuments = [],
@@ -124,10 +100,9 @@ public class OptionalStrategyTests
         _search.Search(Arg.Any<string>(), dto).Returns([]);
 
         var queryDto = CreateSampleQueryDto();
-        var sut = new OptionalStrategy(_search);
-        
+
         // Act
-        var expected = sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
         expected.Should().BeEmpty();

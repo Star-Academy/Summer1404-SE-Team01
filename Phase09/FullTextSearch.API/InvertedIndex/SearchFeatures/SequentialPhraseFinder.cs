@@ -3,9 +3,9 @@ using FullTextSearch.API.InvertedIndex.SearchFeatures.Abstractions;
 
 namespace FullTextSearch.API.InvertedIndex.SearchFeatures;
 
-public class SequentialValidator : ISequentialValidator
+public class SequentialPhraseFinder : ISequentialPhraseFinder
 {
-    public HashSet<string> Validate(IList<string> words, HashSet<string> docIdsContainingWords, InvertedIndexDto invIdxDto)
+    public HashSet<string> FindSequentialPhrase(IList<string> words, HashSet<string> docIdsContainingWords, InvertedIndexDto invIdxDto)
     {
         var result = new HashSet<string>();
 

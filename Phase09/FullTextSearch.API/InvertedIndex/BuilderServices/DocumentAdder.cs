@@ -10,9 +10,9 @@ public class DocumentAdder : IDocumentAdder
 
     public DocumentAdder(ITokenizer tokenizer)
     {
-        _tokenizer = tokenizer ??  throw new ArgumentNullException(nameof(tokenizer));
+        _tokenizer = tokenizer ?? throw new ArgumentNullException(nameof(tokenizer));
     }
-    
+
     public void AddDocument(string docId, string contents, InvertedIndexDto invIdxDto)
     {
         var tokens = _tokenizer.Tokenize(contents);
@@ -21,7 +21,7 @@ public class DocumentAdder : IDocumentAdder
         {
             if (!invIdxDto.InvertedIndexMap.ContainsKey(word))
             {
-                invIdxDto.InvertedIndexMap[word] = new SortedSet<DocumentInfo>();
+                invIdxDto.InvertedIndexMap[word] = new();
             }
 
             DocumentInfo documentInfo;
@@ -42,6 +42,6 @@ public class DocumentAdder : IDocumentAdder
             documentInfo.Indexes.Add(index);
         }
 
-        
+
     }
 }
