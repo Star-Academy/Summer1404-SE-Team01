@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using FullTextSearch.API.AppInitiator;
 using FullTextSearch.API.InvertedIndex.Dtos;
 using FullTextSearch.API.InvertedIndex.FilterStrategies;
@@ -23,7 +24,7 @@ namespace FullTextSearch.API.Controllers
 
 
         [HttpGet]
-        public ActionResult<HashSet<string>> Word(string term)
+        public ActionResult<HashSet<string>> WordSearch(string term)
         {
             var invIdxDto = _initiator.GetData();
             var queryDto = new QueryDto();
@@ -35,13 +36,14 @@ namespace FullTextSearch.API.Controllers
 
 
         [HttpPost]
-        public ActionResult<HashSet<string>> Post([FromBody] QueryDto query)
+        public ActionResult<HashSet<string>> QuerySearch([FromBody] QueryDto query)
         {
             var invIdxDto = _initiator.GetData();
             var result = _advancedSearch.Search(query, invIdxDto, CreateFilterStrategies());
             return Ok(result);
         }
-
+        
+        [ExcludeFromCodeCoverage]
         private List<IFilterStrategy> CreateFilterStrategies()
         {
             return new List<IFilterStrategy>
