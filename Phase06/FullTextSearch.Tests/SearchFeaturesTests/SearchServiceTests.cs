@@ -10,13 +10,13 @@ namespace FullTextSearch.Tests.SearchFeaturesTests;
 public class SearchServiceTests
 {
     private readonly ITokenizer _tokenizer;
-    private readonly ISequentialValidator _sequentialValidator;
+    private readonly ISequentialPhraseFinder _sequentialValidator;
     private readonly SearchService _sut;
 
     public SearchServiceTests()
     {
         _tokenizer = Substitute.For<ITokenizer>();
-        _sequentialValidator = Substitute.For<ISequentialValidator>();
+        _sequentialValidator = Substitute.For<ISequentialPhraseFinder>();
         _sut = new SearchService(_tokenizer, _sequentialValidator);
     }
 
@@ -42,7 +42,7 @@ public class SearchServiceTests
         _tokenizer.Tokenize(phrase).Returns(new[] { "HELLO", "WORLD" });
 
         var dto = CreateTestIndexDto();
-        _sequentialValidator.Validate(
+        _sequentialValidator.FindSequentialPhrase(
             Arg.Is<List<string>>(x => x.SequenceEqual(new[] { "HELLO", "WORLD" })),
             Arg.Is<HashSet<string>>(x => x.SetEquals(new[] { "doc1", "doc2", "doc3" })),
             Arg.Any<InvertedIndexDto>())
@@ -69,7 +69,7 @@ public class SearchServiceTests
 
         // Assert
         expected.Should().BeEmpty();
-        _sequentialValidator.DidNotReceive().Validate(
+        _sequentialValidator.DidNotReceive().FindSequentialPhrase(
             Arg.Any<List<string>>(),
             Arg.Any<HashSet<string>>(),
             Arg.Any<InvertedIndexDto>());
@@ -88,7 +88,7 @@ public class SearchServiceTests
 
         // Assert
         expected.Should().BeEmpty();
-        _sequentialValidator.DidNotReceive().Validate(
+        _sequentialValidator.DidNotReceive().FindSequentialPhrase(
             Arg.Any<List<string>>(),
             Arg.Any<HashSet<string>>(),
             Arg.Any<InvertedIndexDto>());
@@ -111,7 +111,7 @@ public class SearchServiceTests
 
         // Assert
         expected.Should().BeEmpty();
-        _sequentialValidator.DidNotReceive().Validate(
+        _sequentialValidator.DidNotReceive().FindSequentialPhrase(
             Arg.Any<List<string>>(),
             Arg.Any<HashSet<string>>(),
             Arg.Any<InvertedIndexDto>());
@@ -132,7 +132,7 @@ public class SearchServiceTests
         result.Should().NotBeNull();
         result.Should().BeEmpty();
         _tokenizer.DidNotReceive().Tokenize(Arg.Any<string>());
-        _sequentialValidator.DidNotReceive().Validate(
+        _sequentialValidator.DidNotReceive().FindSequentialPhrase(
             Arg.Any<List<string>>(),
             Arg.Any<HashSet<string>>(),
             Arg.Any<InvertedIndexDto>());
@@ -152,7 +152,7 @@ public class SearchServiceTests
         result.Should().NotBeNull();
         result.Should().BeEmpty();
         _tokenizer.DidNotReceive().Tokenize(Arg.Any<string>());
-        _sequentialValidator.DidNotReceive().Validate(
+        _sequentialValidator.DidNotReceive().FindSequentialPhrase(
             Arg.Any<List<string>>(),
             Arg.Any<HashSet<string>>(),
             Arg.Any<InvertedIndexDto>());
@@ -166,7 +166,7 @@ public class SearchServiceTests
         _tokenizer.Tokenize(input).Returns(new[] { "HELLO" });
 
         var dto = CreateTestIndexDto();
-        _sequentialValidator.Validate(
+        _sequentialValidator.FindSequentialPhrase(
             Arg.Is<List<string>>(x => x.SequenceEqual(new[] { "HELLO" })),
             Arg.Is<HashSet<string>>(x => x.SetEquals(new[] { "doc1", "doc2", "doc3" })),
             Arg.Any<InvertedIndexDto>())
@@ -188,7 +188,7 @@ public class SearchServiceTests
         _tokenizer.Tokenize(input).Returns(new[] { "HELLO", "WORLD" });
 
         var dto = CreateTestIndexDto();
-        _sequentialValidator.Validate(
+        _sequentialValidator.FindSequentialPhrase(
             Arg.Is<List<string>>(x => x.SequenceEqual(new[] { "HELLO", "WORLD" })),
             Arg.Any<HashSet<string>>(),
             Arg.Any<InvertedIndexDto>())
