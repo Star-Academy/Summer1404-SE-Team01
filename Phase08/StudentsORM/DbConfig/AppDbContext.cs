@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StudentsORM.Domain;
 using System.Diagnostics.CodeAnalysis;
+using StudentsORM.DbConfig.Abstract;
 
 namespace StudentsORM.DbConfig;
 
 [ExcludeFromCodeCoverage]
-public class AppDbContext : DbContext
+public class AppDbContext : DbContext, ICourseDbContext, IStudentDbContext, IEnrollmentDbContext
 {
 
     public DbSet<Course> Courses { get; set; }

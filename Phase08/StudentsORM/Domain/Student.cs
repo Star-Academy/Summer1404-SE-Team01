@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StudentsORM.Domain;
-
+[ExcludeFromCodeCoverage]
 public class Student
 {   
     [Key]

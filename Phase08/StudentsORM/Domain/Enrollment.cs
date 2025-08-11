@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StudentsORM.Domain;
-
+[ExcludeFromCodeCoverage]
 public class Enrollment
 {
     public int StudentId { get; set; }

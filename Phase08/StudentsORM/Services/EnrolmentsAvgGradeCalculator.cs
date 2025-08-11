@@ -1,4 +1,5 @@
 ﻿using StudentsORM.DbConfig;
+using StudentsORM.DbConfig.Abstract;
 using StudentsORM.DTO;
 using StudentsORM.Services.Abstract;
 
@@ -6,16 +7,17 @@ namespace StudentsORM.Services;
 
 public class EnrolmentsAvgGradeCalculator : IEnrollmentAverageGradeCalculator
 {
-    private readonly AppDbContext _context;
+    private readonly IAppDbContextFactory  _contextFactory;
 
-    public EnrolmentsAvgGradeCalculator(AppDbContext context)
+    public EnrolmentsAvgGradeCalculator(IAppDbContextFactory dbContextFactory)
     {
-        _context = context;
+        _contextFactory = dbContextFactory;
     }
 
-    public IReadOnlyCollection<AveragesDto> calculateAverages(int count = 10)
+    public IReadOnlyCollection<AveragesDto> calculateAverages(int count = 4)
     {
-        var averages = _context.Enrollments
+        var context = _contextFactory.CreateEnrollmentDbContext();
+        var averages = context.Enrollments
             .GroupBy(e => e.StudentId)
             .Select(g => new AveragesDto
             {

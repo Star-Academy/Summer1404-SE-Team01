@@ -4,5 +4,5 @@ namespace StudentsORM.Services.Abstract;
 
 public interface IGetStudentsInfo
 {
-    IReadOnlyCollection<StudentWithAverageDto> GetTopStudents(int count = 10);
+    IReadOnlyCollection<StudentWithAverageDto> GetTopStudents(int count = 3);
 }

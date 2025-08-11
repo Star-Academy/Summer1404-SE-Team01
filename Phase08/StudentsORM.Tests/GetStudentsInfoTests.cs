@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using StudentsORM.DbConfig;
+using StudentsORM.DbConfig.Abstract;
 using StudentsORM.Domain;
 using StudentsORM.DTO;
 using StudentsORM.Services;
@@ -11,6 +12,19 @@ namespace StudentsORM.Tests;
 
 public class GetStudentsInfoTests
 {
+    private readonly IAppDbContextFactory _appDbContextFactory;
+    private readonly IEnrollmentAverageGradeCalculator _avgGradeCalculator;
+    private readonly IGetStudentsInfo _sut; 
+
+    public GetStudentsInfoTests()
+    {
+        
+        _appDbContextFactory = Substitute.For<IAppDbContextFactory>();
+        _avgGradeCalculator = Substitute.For<IEnrollmentAverageGradeCalculator>();
+        _sut = new GetStudentsInfo(_appDbContextFactory,  _avgGradeCalculator);
+    }
+
+
     private AppDbContext CreateInMemoryDbContext()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
@@ -35,25 +49,24 @@ public class GetStudentsInfoTests
     public void GetStudents_ShouldReturnTopStudents_WithHighestAverage()
     {
         // Arrange
-        var mockCalculator = Substitute.For<IEnrollmentAverageGradeCalculator>();
         var averageDtos = new List<AveragesDto>
         {
-            new AveragesDto { StudentId = 1, Average = 20 },
-            new AveragesDto { StudentId = 2, Average = 15 }
+            new () { StudentId = 1, Average = 20 },
+            new () { StudentId = 2, Average = 15 }
         };
 
-        mockCalculator.calculateAverages(3).Returns(averageDtos);
+        _avgGradeCalculator.calculateAverages(3).Returns(averageDtos);
 
-        var dbContext = CreateInMemoryDbContext();
-        var service = new GetStudentsInfo(dbContext, mockCalculator);
+        _appDbContextFactory.CreateStudentDbContext().Returns(CreateInMemoryDbContext());
+        
 
         // Act
-        var result = service.GetTopStudents(3);
+        var expected = _sut.GetTopStudents(3);
 
         // Assert
-        result.Should().HaveCount(2);
+        expected.Should().HaveCount(2);
 
-        result.Should().ContainEquivalentOf(new StudentWithAverageDto
+        expected.Should().ContainEquivalentOf(new StudentWithAverageDto
         {
             Id = 1,
             FirstName = "Ali",
@@ -61,7 +74,7 @@ public class GetStudentsInfoTests
             Average = 20
         });
 
-        result.Should().ContainEquivalentOf(new StudentWithAverageDto
+        expected.Should().ContainEquivalentOf(new StudentWithAverageDto
         {
             Id = 2,
             FirstName = "Sara",
@@ -74,24 +87,24 @@ public class GetStudentsInfoTests
     public void GetStudents_ShouldReturnTopStudents_WithDescendingOrderByAverage()
     {
         // Arrange
-        var mockCalculator = Substitute.For<IEnrollmentAverageGradeCalculator>();
+        
         var averageDtos = new List<AveragesDto>
         {
-            new AveragesDto { StudentId = 1, Average = 20 },
-            new AveragesDto { StudentId = 2, Average = 15 }
+            new () { StudentId = 1, Average = 20 },
+            new () { StudentId = 2, Average = 15 }
         };
 
-        mockCalculator.calculateAverages(3).Returns(averageDtos);
+        _avgGradeCalculator.calculateAverages(3).Returns(averageDtos);
 
-        using var dbContext = CreateInMemoryDbContext();
-        var service = new GetStudentsInfo(dbContext, mockCalculator);
+        _appDbContextFactory.CreateStudentDbContext().Returns(CreateInMemoryDbContext());
+        
 
         // Act
-        var result = service.GetTopStudents(3).ToList();
+        var expected = _sut.GetTopStudents(3).ToList();
 
         // Assert
-        result.Should().HaveCount(2);
+        expected.Should().HaveCount(2);
 
-        result.Should().BeInDescendingOrder(r => r.Average);
+        expected.Should().BeInDescendingOrder(r => r.Average);
     }
 }
