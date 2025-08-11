@@ -71,6 +71,7 @@ namespace FullTextSearch.API.Tests.ControllersTests
 
             // Assert
             var okResult = actionResult.Result as OkObjectResult;
+            _filterStrategyFactory.Received(1).CreateFilterStrategies();
             okResult.Should().NotBeNull();
             okResult!.Value.Should().BeEquivalentTo(expected);
         }

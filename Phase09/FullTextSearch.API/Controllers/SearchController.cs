@@ -12,11 +12,13 @@ namespace FullTextSearch.API.Controllers
         private readonly IInvertedIndexInitiator _initiator;
         private readonly IAdvanceSearch _advancedSearch;
         private readonly ISearch _searchService;
-        public SearchController(IInvertedIndexInitiator initiator, IAdvanceSearch advancedSearch, ISearch searchService)
+        private readonly IFilterStrategiesFactory _filterStrategyFactory;
+        public SearchController(IInvertedIndexInitiator initiator, IAdvanceSearch advancedSearch, ISearch searchService, IFilterStrategiesFactory filterStrategyFactory)
         {
             _initiator = initiator;
             _advancedSearch = advancedSearch;
             _searchService = searchService;
+            _filterStrategyFactory = filterStrategyFactory;
         }
 
 
