@@ -2,8 +2,6 @@
 using FullTextSearch.InvertedIndex.BuilderServices.Abstractions;
 using FullTextSearch.InvertedIndex.Constants;
 using FullTextSearch.InvertedIndex.Dtos;
-using FullTextSearch.InvertedIndex.FilterStrategies;
-using FullTextSearch.InvertedIndex.FilterStrategies.Abstractions;
 using FullTextSearch.InvertedIndex.SearchFeatures.Abstractions;
 using FullTextSearch.Services.FileReaderService;
 using FullTextSearch.Services.LoggerService;
@@ -171,11 +169,10 @@ public class SearchApplication
 
             try
             {
-                var strategies = CreateFilterStrategies();
 
                 var queryDto = CreateQueryDto(input);
 
-                var results = _advancedSearch.Search(queryDto, invIdxDto, strategies);
+                var results = _advancedSearch.Search(queryDto, invIdxDto);
                 DisplayResults(results);
             }
             catch (Exception ex)
@@ -184,16 +181,6 @@ public class SearchApplication
                 Console.WriteLine($"Error: {ex.Message}");
             }
         }
-    }
-
-    private List<IFilterStrategy> CreateFilterStrategies()
-    {
-        return new List<IFilterStrategy>
-        {
-            new RequiredStrategy(_searchService),
-            new OptionalStrategy(_searchService),
-            new ExcludedStrategy(_searchService),
-        };
     }
 
     private QueryDto CreateQueryDto(string input)

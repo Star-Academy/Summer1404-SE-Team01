@@ -6,12 +6,18 @@ namespace FullTextSearch.InvertedIndex.SearchFeatures;
 
 public class AdvancedSearch : IAdvancedSearch
 {
+    private readonly IEnumerable<IFilterStrategy> _filterStrategies;
 
-    public HashSet<string> Search(QueryDto queryDto, InvertedIndexDto invIdxDto, IEnumerable<IFilterStrategy> filterStrategies)
+    public AdvancedSearch(IEnumerable<IFilterStrategy> filterStrategies)
+    {
+        _filterStrategies = filterStrategies;
+    }
+
+    public HashSet<string> Search(QueryDto queryDto, InvertedIndexDto invIdxDto)
     {
         var result = new HashSet<string>(invIdxDto.AllDocuments);
 
-        foreach (var strategy in filterStrategies)
+        foreach (var strategy in _filterStrategies)
         {
             var currDocIds = strategy.FilterDocumentsByQuery(queryDto, invIdxDto);
             result.IntersectWith(currDocIds);
