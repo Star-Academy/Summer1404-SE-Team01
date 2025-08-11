@@ -1,8 +1,5 @@
-using System.Diagnostics.CodeAnalysis;
 using FullTextSearch.API.AppInitiator;
 using FullTextSearch.API.InvertedIndex.Dtos;
-using FullTextSearch.API.InvertedIndex.FilterStrategies;
-using FullTextSearch.API.InvertedIndex.FilterStrategies.Abstractions;
 using FullTextSearch.API.InvertedIndex.SearchFeatures.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,29 +26,17 @@ namespace FullTextSearch.API.Controllers
             var invIdxDto = _initiator.GetData();
             var queryDto = new QueryDto();
             queryDto.Required.Add(term);
-            var requiredStrategy = new RequiredStrategy(_searchService);
-            var result = _advancedSearch.Search(queryDto, invIdxDto, new List<IFilterStrategy> { requiredStrategy });
+            var result = _advancedSearch.Search(queryDto, invIdxDto);
             return Ok(result);
         }
 
 
         [HttpPost]
-        public ActionResult<HashSet<string>> QuerySearch([FromBody] QueryDto query)
+        public ActionResult<HashSet<string>> QuerySearch([FromBody] QueryDto queryDto)
         {
             var invIdxDto = _initiator.GetData();
-            var result = _advancedSearch.Search(query, invIdxDto, CreateFilterStrategies());
+            var result = _advancedSearch.Search(queryDto, invIdxDto);
             return Ok(result);
-        }
-        
-        [ExcludeFromCodeCoverage]
-        private List<IFilterStrategy> CreateFilterStrategies()
-        {
-            return new List<IFilterStrategy>
-            {
-                new RequiredStrategy(_searchService),
-                new OptionalStrategy(_searchService),
-                new ExcludedStrategy(_searchService),
-            };
         }
     }
 }

@@ -2,7 +2,6 @@
 using FullTextSearch.API.AppInitiator;
 using FullTextSearch.API.Controllers;
 using FullTextSearch.API.InvertedIndex.Dtos;
-using FullTextSearch.API.InvertedIndex.FilterStrategies.Abstractions;
 using FullTextSearch.API.InvertedIndex.SearchFeatures.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
@@ -31,14 +30,13 @@ namespace FullTextSearch.API.Tests.ControllersTests
                 InvertedIndexMap = new(),
                 AllDocuments = new()
             };
-            
+
             var expected = new HashSet<string> { "doc1", "doc2" };
 
             _initiator.GetData().Returns(invertedIndexDto);
             _advancedSearch.Search(
                 Arg.Any<QueryDto>(),
-                invertedIndexDto,
-                Arg.Any<List<IFilterStrategy>>()
+                invertedIndexDto
             ).Returns(expected);
 
             // Act
@@ -57,16 +55,15 @@ namespace FullTextSearch.API.Tests.ControllersTests
             var query = new QueryDto { Required = { "term1" } };
             var invertedIndexDto = new InvertedIndexDto
             {
-                InvertedIndexMap = new (),
-                AllDocuments = new ()
+                InvertedIndexMap = new(),
+                AllDocuments = new()
             };
             var expected = new HashSet<string> { "doc3", "doc4" };
 
             _initiator.GetData().Returns(invertedIndexDto);
             _advancedSearch.Search(
                 query,
-                invertedIndexDto,
-                Arg.Any<List<IFilterStrategy>>()
+                invertedIndexDto
             ).Returns(expected);
 
             // Act
