@@ -31,7 +31,9 @@ namespace FullTextSearch.API
             services.AddSingleton<IDocumentAdder, DocumentAdder>();
             services.AddSingleton<ISearch, SearchService>();
             services.AddSingleton<ISequentialPhraseFinder, SequentialPhraseFinder>();
-            services.AddSingleton<IFilterStrategiesFactory, FilterStrategiesFactory>();
+            services.AddSingleton<IFilterStrategy, ExcludedStrategy>();
+            services.AddSingleton<IFilterStrategy, OptionalStrategy>();
+            services.AddSingleton<IFilterStrategy, RequiredStrategy>();
             services.AddSingleton<IAdvanceSearch, AdvancedSearch>();
             services.AddSingleton<IInvertedIndexInitiator, InvertedIndexInitiator>();
 

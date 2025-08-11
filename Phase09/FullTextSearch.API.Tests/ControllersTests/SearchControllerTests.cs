@@ -12,12 +12,11 @@ namespace FullTextSearch.API.Tests.ControllersTests
     {
         private readonly IInvertedIndexInitiator _initiator = Substitute.For<IInvertedIndexInitiator>();
         private readonly IAdvanceSearch _advancedSearch = Substitute.For<IAdvanceSearch>();
-        private readonly ISearch _searchService = Substitute.For<ISearch>();
         private readonly SearchController _sut;
 
         public SearchControllerTests()
         {
-            _sut = new SearchController(_initiator, _advancedSearch, _searchService);
+            _sut = new SearchController(_initiator, _advancedSearch);
         }
 
         [Fact]
@@ -71,7 +70,6 @@ namespace FullTextSearch.API.Tests.ControllersTests
 
             // Assert
             var okResult = actionResult.Result as OkObjectResult;
-            _filterStrategyFactory.Received(1).CreateFilterStrategies();
             okResult.Should().NotBeNull();
             okResult!.Value.Should().BeEquivalentTo(expected);
         }
