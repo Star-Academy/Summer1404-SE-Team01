@@ -58,10 +58,10 @@ public class RequiredStrategyTests
         var queryDto = CreateSampleQueryDto();
 
         // Act
-        var result = _sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
-        result.Should().BeEquivalentTo(["doc2"]);
+        expected.Should().BeEquivalentTo(["doc2"]);
     }
 
     [Fact]
@@ -82,10 +82,10 @@ public class RequiredStrategyTests
         };
 
         // Act
-        var result = _sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
-        result.Should().BeEquivalentTo(dto.AllDocuments);
+        expected.Should().BeEquivalentTo(dto.AllDocuments);
         _search.DidNotReceive().Search(Arg.Any<string>(), Arg.Any<InvertedIndexDto>());
     }
 
@@ -106,10 +106,10 @@ public class RequiredStrategyTests
         var queryDto = CreateSampleQueryDto();
 
         // Act
-        var result = _sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
-        result.Should().BeEmpty();
+        expected.Should().BeEmpty();
     }
 
     [Fact]
@@ -130,9 +130,9 @@ public class RequiredStrategyTests
         var queryDto = CreateSampleQueryDto();
 
         // Act
-        var result = _sut.FilterDocumentsByQuery(queryDto, dto);
+        var expected = _sut.FilterDocumentsByQuery(queryDto, dto);
 
         // Assert
-        result.Should().BeEmpty();
+        expected.Should().BeEmpty();
     }
 }

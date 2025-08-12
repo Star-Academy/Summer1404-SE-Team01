@@ -4,7 +4,7 @@ using FullTextSearch.InvertedIndex.FilterStrategies.Abstractions;
 using FullTextSearch.InvertedIndex.SearchFeatures;
 using NSubstitute;
 
-namespace FullTextSearch.Tests.SearchFeaturesTests;
+namespace FullTextSearch.API.Tests.SearchFeaturesTests;
 
 public class AdvancedSearchTests
 {
@@ -26,7 +26,17 @@ public class AdvancedSearchTests
     {
         _filter1 = Substitute.For<IFilterStrategy>();
         _filter2 = Substitute.For<IFilterStrategy>();
-        _sut = new AdvancedSearch();
+        _sut = new AdvancedSearch([_filter1, _filter2]);
+    }
+
+    [Fact]
+    public void Constructor_ShouldThrowArgumentNullException_WhenFilterStrategiesIsNull()
+    {
+        // Arrange, Act
+        Action act = () => new AdvancedSearch(null);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'filterStrategies')");
     }
 
     [Fact]
@@ -44,7 +54,7 @@ public class AdvancedSearchTests
         _filter2.FilterDocumentsByQuery(querDto, dto).Returns(["doc2", "doc3", "doc4"]);
 
         // Act
-        var expected = _sut.Search(querDto, dto, new List<IFilterStrategy> { _filter1, _filter2 });
+        var expected = _sut.Search(querDto, dto);
 
         // Assert
         expected.Should().BeEquivalentTo(["doc2", "doc3"]);
@@ -67,30 +77,10 @@ public class AdvancedSearchTests
         _filter2.FilterDocumentsByQuery(queryDto, dto).Returns(["doc3"]);
 
         // Act
-        var expected = _sut.Search(queryDto, dto, new List<IFilterStrategy> { _filter1, _filter2 });
+        var expected = _sut.Search(queryDto, dto);
 
         // Assert
         expected.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Search_ShouldReturnAllDocuments_WhenNoFiltersProvided()
-    {
-        // Arrange
-        var dto = new InvertedIndexDto
-        {
-            AllDocuments = ["doc1", "doc2"],
-            InvertedIndexMap = []
-        };
-
-        var sut = new AdvancedSearch();
-        var queryDto = CreateSampleQueryDto();
-
-        // Act
-        var expected = sut.Search(queryDto, dto, new List<IFilterStrategy>());
-
-        // Assert
-        expected.Should().BeEquivalentTo(dto.AllDocuments);
     }
 
     [Fact]
@@ -102,12 +92,13 @@ public class AdvancedSearchTests
             AllDocuments = [],
             InvertedIndexMap = []
         };
+
         _filter1.FilterDocumentsByQuery(Arg.Any<QueryDto>(), Arg.Any<InvertedIndexDto>()).Returns([]);
         _filter2.FilterDocumentsByQuery(Arg.Any<QueryDto>(), Arg.Any<InvertedIndexDto>()).Returns([]);
         var queryDto = CreateSampleQueryDto();
 
         // Act
-        var expected = _sut.Search(queryDto, dto, new List<IFilterStrategy> { _filter1, _filter2 });
+        var expected = _sut.Search(queryDto, dto);
 
         // Assert
         expected.Should().BeEmpty();

@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using FullTextSearch.InvertedIndex.BuilderServices;
+using FullTextSearch.InvertedIndex.FilterStrategies;
+using FullTextSearch.InvertedIndex.FilterStrategies.Abstractions;
 using FullTextSearch.InvertedIndex.SearchFeatures;
 using FullTextSearch.Services.FileReaderService;
 using FullTextSearch.Services.LoggerService;
@@ -21,7 +23,13 @@ namespace FullTextSearch
 
             var sequentialPhraseFinder = new SequentialPhraseFinder();
             var searchService = new SearchService(tokenizer, sequentialPhraseFinder);
-            var advanceSearch = new AdvancedSearch();
+            var filterList = new List<IFilterStrategy>
+            {
+                new RequiredStrategy(searchService),
+                new OptionalStrategy(searchService),
+                new ExcludedStrategy(searchService)
+            };
+            var advanceSearch = new AdvancedSearch(filterList);
             var singleWordExtractor = new SingleWordQueryExtractor();
             var phraseExtractor = new PhraseQueryExtractor();
             var app = new SearchApplication(
