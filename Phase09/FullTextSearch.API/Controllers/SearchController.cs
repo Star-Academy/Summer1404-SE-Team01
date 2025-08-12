@@ -21,6 +21,11 @@ namespace FullTextSearch.API.Controllers
         [HttpGet]
         public ActionResult<HashSet<string>> WordSearch(string term)
         {
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                return BadRequest("Search term cannot be empty");
+            }
+
             var invIdxDto = _initiator.GetData();
             var queryDto = new QueryDto();
             queryDto.Required.Add(term);
@@ -32,6 +37,16 @@ namespace FullTextSearch.API.Controllers
         [HttpPost]
         public ActionResult<HashSet<string>> QuerySearch([FromBody] QueryDto queryDto)
         {
+            if (queryDto == null)
+            {
+                return BadRequest("Query cannot be null");
+            }
+
+            if (queryDto.Required.Count == 0 && queryDto.Optional.Count == 0 && queryDto.Excluded.Count == 0)
+            {
+                return BadRequest("At least one search term must be provided");
+            }
+
             var invIdxDto = _initiator.GetData();
             var result = _advancedSearch.Search(queryDto, invIdxDto);
             return Ok(result);

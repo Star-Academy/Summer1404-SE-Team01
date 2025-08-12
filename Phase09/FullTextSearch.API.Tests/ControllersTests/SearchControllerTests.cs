@@ -20,6 +20,49 @@ namespace FullTextSearch.API.Tests.ControllersTests
         }
 
         [Fact]
+        public void WordSearch_ShouldReturnBadRequest_WhenTermIsNullOrEmpty()
+        {
+            // Arrange
+            string term = null;
+
+            // Act
+            var actionResult1 = _sut.WordSearch(null);
+            var actionResult2 = _sut.WordSearch(string.Empty);
+            var actionResult3 = _sut.WordSearch("   ");
+
+            // Assert
+            actionResult1.Result.Should().BeOfType<BadRequestObjectResult>();
+            actionResult2.Result.Should().BeOfType<BadRequestObjectResult>();
+            actionResult3.Result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
+        public void QuerySearch_ShouldReturnBadRequest_WhenQueryDtoIsNull()
+        {
+            // Arrange
+            QueryDto queryDto = null;
+
+            // Act
+            var actionResult = _sut.QuerySearch(queryDto);
+
+            // Assert
+            actionResult.Result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
+        public void QuerySearch_ShouldReturnBadRequest_WhenRequiredTermsAreEmpty()
+        {
+            // Arrange
+            var queryDto = new QueryDto();
+
+            // Act
+            var actionResult = _sut.QuerySearch(queryDto);
+
+            // Assert
+            actionResult.Result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
         public void WordSearch_ShouldReturnOkWithExpected_WithGivenTerm()
         {
             // Arrange
