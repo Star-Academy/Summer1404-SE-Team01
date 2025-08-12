@@ -30,6 +30,16 @@ public class AdvancedSearchTests
     }
 
     [Fact]
+    public void Constructor_ShouldThrowArgumentNullException_WhenFilterStrategiesIsNull()
+    {
+        // Arrange, Act
+        Action act = () => new AdvancedSearch(null);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>().WithMessage("Value cannot be null. (Parameter 'filterStrategies')");
+    }
+
+    [Fact]
     public void Search_ShouldApplyAllFiltersAndReturnIntersection_WhenMultipleFiltersExist()
     {
         // Arrange
