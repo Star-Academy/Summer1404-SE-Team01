@@ -9,7 +9,7 @@ public class AdvancedSearch : IAdvancedSearch
     private IEnumerable<IFilterStrategy> _filterStrategies;
     public AdvancedSearch(IEnumerable<IFilterStrategy> filterStrategies)
     {
-        _filterStrategies = filterStrategies;
+        _filterStrategies = filterStrategies ?? throw new ArgumentNullException(nameof(filterStrategies));
     }
 
     public HashSet<string> Search(QueryDto queryDto, InvertedIndexDto invIdxDto)
