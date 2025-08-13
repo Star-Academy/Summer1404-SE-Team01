@@ -1,6 +1,8 @@
 @FullTextSearch.API_HostAddress = http://localhost:5111
 
-GET {{FullTextSearch.API_HostAddress}}/api/search?term=youth
+GET http://localhost:5111/api/Search?term=youth
 Accept: application/json
 
+
 ###
+POST http://localhost:9090/api/v1/query
