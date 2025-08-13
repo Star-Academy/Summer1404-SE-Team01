@@ -3,7 +3,7 @@ using StudentsORM.Domain;
 
 namespace StudentsORM.DbConfig.Abstract;
 
-public interface IEnrollmentDbContext
+public interface IEnrollmentDbContext: ICommonDbContext
 {
     DbSet<Enrollment> Enrollments { get; set; }
 }
