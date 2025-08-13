@@ -16,7 +16,8 @@ public class EnrolmentsAvgGradeCalculator : IEnrollmentAverageGradeCalculator
 
     public IReadOnlyCollection<AveragesDto> calculateAverages(int count = 4)
     {
-        var context = _contextFactory.CreateEnrollmentDbContext();
+
+        using var context = _contextFactory.CreateEnrollmentDbContext();
         var averages = context.Enrollments
             .GroupBy(e => e.StudentId)
             .Select(g => new AveragesDto

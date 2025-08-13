@@ -20,7 +20,7 @@ public class GetStudentsInfo : IGetStudentsInfo
     {
         var averges = _enrollmentAverageGradeCalculator.calculateAverages(count);
         var topStudentIds = averges.Select(s => s.StudentId).ToList();
-        var studentsContext = _appDbContextFactory.CreateStudentDbContext();
+        using var studentsContext = _appDbContextFactory.CreateStudentDbContext();
         var topStudentInfo = studentsContext.Students.Where(s => topStudentIds.Contains(s.Id)).ToList();
 
         var result = topStudentInfo
