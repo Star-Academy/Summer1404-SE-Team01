@@ -1,0 +1,38 @@
+name: build
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install dependencies
+        run: dotnet restore
+        working-directory: Phase09/
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+        working-directory: Phase09/
+
+      - name: Test
+        run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+        working-directory: Phase09/
+
+      - name: Publish code coverage reports to codecove.io
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./**/coverage.cobertura.xml
+          fail_ci_if_error: true
