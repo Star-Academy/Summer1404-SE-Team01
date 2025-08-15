@@ -11,4 +11,11 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <PropertyGroup>
+      <TargetFramework>net8.0</TargetFramework>
+      <PackageId>StarAcademy.CodeStar1404.Team01.FullTextSearch</PackageId>
+      <Authors>Erfan Rezaei, Pooya Abbasi</Authors>
+      <Company>Star Academy</Company>
+  </PropertyGroup>
+
 </Project>
