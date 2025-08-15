@@ -1,2 +1,2 @@
-[![build](https://github.com/Star-Academy/Summer1404-SE-Team01/actions/workflows/buildPipeline.yml/badge.svg?branch=phase08)](https://github.com/Star-Academy/Summer1404-SE-Team01/actions/workflows/buildPipeline.yml)
-[![codecov](https://codecov.io/gh/Star-Academy/Summer1404-SE-Team01/branch/phase08/graph/badge.svg?token=KDQ5RLWC6M)](https://codecov.io/gh/Star-Academy/Summer1404-SE-Team01)
+[![.github/workflows/buildPipeline.yml](https://github.com/Star-Academy/Summer1404-SE-Team01/actions/workflows/buildPipeline.yml/badge.svg?branch=phase09)](https://github.com/Star-Academy/Summer1404-SE-Team01/actions/workflows/buildPipeline.yml)
+[![codecov](https://codecov.io/gh/Star-Academy/Summer1404-SE-Team01/branch/phase09/graph/badge.svg?token=KDQ5RLWC6M)](https://codecov.io/gh/Star-Academy/Summer1404-SE-Team01)
